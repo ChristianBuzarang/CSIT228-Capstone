@@ -7,5 +7,7 @@ public class Launcher {
         Application.launch(DashboardApplication.class, args);
 //        Application.launch(MemberRegisterApplication.class, args);
 //        Application.launch(ProfileViewApplication.class, args);
+//        Application.launch(WorkoutsViewApplication.class, args);
+//        Application.launch(SessionsViewApplication.class, args);
     }
 }

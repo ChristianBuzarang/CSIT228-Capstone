@@ -31,9 +31,9 @@
                 <!-- Navigation Buttons -->
                 <VBox spacing="5.0">
                     <children>
-                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Home" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Dashboard" />
                         <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Workouts" />
-                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Classes" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Sessions" />
                         <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Nutrition" />
                         <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Community" />
                         <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Progress" />

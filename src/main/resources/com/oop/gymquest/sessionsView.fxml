@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1" fx:controller="com.oop.gymquest.SessionsViewController">
+
+    <!-- SIDEBAR: Identical Structure to Dashboard -->
+    <left>
+        <VBox prefWidth="250.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="logo-container">
+                    <children>
+                        <Label styleClass="logo-text" text="GymQuest" />
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                </HBox>
+                <VBox spacing="5.0">
+                    <children>
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Dashboard" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Workouts" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button, active-nav" text="Sessions" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Nutrition" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Community" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Progress" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Ranks" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Payments" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Profile" />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT AREA -->
+    <center>
+        <VBox spacing="25.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+            <children>
+                <Label styleClass="main-header" text="Explore Programs &amp; Classes" />
+
+                <!-- Category Filter Chips -->
+                <HBox spacing="15.0">
+                    <children>
+                        <Button style="-fx-background-color: #F1C40F; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 15; -fx-padding: 8 20;" text="All Programs" />
+                        <Button styleClass="action-button, details-button" text="Yoga" />
+                        <Button styleClass="action-button, details-button" text="Bodybuilding" />
+                        <Button styleClass="action-button, details-button" text="Calisthenics" />
+                        <Button styleClass="action-button, details-button" text="HIIT" />
+                    </children>
+                </HBox>
+
+                <!-- Scrollable Catalog -->
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                    <content>
+                        <FlowPane hgap="25.0" vgap="25.0">
+                            <children>
+                                <!-- Program Card 1: Yoga -->
+                                <VBox prefWidth="380.0" spacing="15.0" styleClass="dashboard-card">
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                    <children>
+                                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="Power Yoga Flow" textFill="#F1C40F" />
+                                        <Label styleClass="stat-label" text="Instructor: Sarah Jenkins" />
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label style="-fx-text-fill: white;" text="Schedule: Mon, Wed, Fri | 09:00 AM" />
+                                                <Label style="-fx-text-fill: #AAAAAA;" text="Level: Beginner to Intermediate" />
+                                            </children>
+                                        </VBox>
+                                        <Label style="-fx-text-fill: #CCCCCC;" text="A dynamic class focusing on breath and movement to improve flexibility." wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="action-button, continue-button" text="Enroll Now" HBox.hgrow="ALWAYS" />
+                                                <Button mnemonicParsing="false" styleClass="action-button, details-button" text="Details" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Program Card 2: Bodybuilding -->
+                                <VBox prefWidth="380.0" spacing="15.0" styleClass="dashboard-card">
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                    <children>
+                                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="Hypertrophy Max" textFill="#F1C40F" />
+                                        <Label styleClass="stat-label" text="Instructor: Coach Mike" />
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label style="-fx-text-fill: white;" text="Schedule: Tue, Thu, Sat | 05:00 PM" />
+                                                <Label style="-fx-text-fill: #AAAAAA;" text="Level: Advanced" />
+                                            </children>
+                                        </VBox>
+                                        <Label style="-fx-text-fill: #CCCCCC;" text="High-volume strength training designed to maximize muscle growth and density." wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="action-button, continue-button" text="Enroll Now" HBox.hgrow="ALWAYS" />
+                                                <Button mnemonicParsing="false" styleClass="action-button, details-button" text="Details" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Program Card 3: Calisthenics -->
+                                <VBox prefWidth="380.0" spacing="15.0" styleClass="dashboard-card">
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                    <children>
+                                        <Label style="-fx-font-size: 22px; -fx-font-weight: bold;" text="Bodyweight Mastery" textFill="#F1C40F" />
+                                        <Label styleClass="stat-label" text="Instructor: Coach Alex" />
+                                        <VBox spacing="5.0">
+                                            <children>
+                                                <Label style="-fx-text-fill: white;" text="Schedule: Mon, Thu | 07:00 AM" />
+                                                <Label style="-fx-text-fill: #AAAAAA;" text="Level: Intermediate" />
+                                            </children>
+                                        </VBox>
+                                        <Label style="-fx-text-fill: #CCCCCC;" text="Learn to control your body with pull-up, muscle-up, and handstand progressions." wrapText="true" />
+                                        <HBox spacing="10.0">
+                                            <children>
+                                                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="action-button, continue-button" text="Enroll Now" HBox.hgrow="ALWAYS" />
+                                                <Button mnemonicParsing="false" styleClass="action-button, details-button" text="Details" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </FlowPane>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM FOOTER -->
+    <bottom>
+        <HBox spacing="30.0" styleClass="status-footer" BorderPane.alignment="CENTER">
+            <children>
+                <Label styleClass="footer-label" text="Your Schedule" />
+                <Label styleClass="footer-info" text="Next Class: Power Yoga @ 09:00 AM" />
+                <Label styleClass="footer-stat" text="Enrolled Programs: 2" />
+                <Label styleClass="footer-stat" text="Credits Remaining: 15" />
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="30.0" right="30.0" top="15.0" />
+            </padding>
+        </HBox>
+    </bottom>
+</BorderPane>

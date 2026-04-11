@@ -38,46 +38,15 @@
                 </HBox>
                 <VBox spacing="5.0">
                     <children>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button, active-nav" text="Home">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@square.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Workouts">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Classes">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Nutrition">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Community">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Progress">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Ranks">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Payments">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Profile">
-                            <graphic>
-                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" />
-                            </graphic></Button>
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button, active-nav" text="Dashboard" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Workouts" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Sessions" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Nutrition" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Community" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Progress" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Ranks" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Payments" />
+                        <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Profile" />
                     </children>
                     <VBox.margin>
                         <Insets top="10.0" />
