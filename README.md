@@ -19,7 +19,6 @@ The system provides a centralized platform for trainers and admins to manage ope
 - **Member Directory:** Full CRUD (Create, Read, Update, Delete) functionality with advanced filtering for Active, Expired, and Pending memberships.
 - **Session Booking:** An interactive scheduling system for members to book and manage personal training sessions.
 - **Financial Tracking:** Secure recording of member payments and the generation of basic revenue and financial reports.
-- **XP & Leaderboard:** A gamified progress engine that tracks member consistency and visualizes rankings to boost engagement.
 - **Dashboard Analytics:** A visual summary panel providing real-time data on gym health, including total members, daily attendance, and revenue trends.
 
 # Planned Technologies
@@ -35,5 +34,4 @@ The system provides a centralized platform for trainers and admins to manage ope
 - **UML:** Use Case and Class Diagrams are included to map the relationships between Members, Membership Plans, Trainers, and Transactions.
 - **Design Pattern:**
   - **Singleton:** Ensuring a centralized, thread-safe Database Connection.
-  - **Factory:** Utilized for the dynamic generation of various Membership Plan objects.
 - **Multithreading:** Implementation of background tasks for loading large datasets and generating reports to ensure a smooth, non-blocking UI experience.
