@@ -9,13 +9,13 @@ import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
 import java.io.IOException;
 
-public class GymQuestApplication extends Application {
+public class DashboardApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                GymQuestApplication.class.getResource("gymQuestDashboard.fxml"));
+                DashboardApplication.class.getResource("gymQuestDashboard.fxml"));
 
         // ── Load root ────────────────────────────────────────────────────────
         BorderPane root = fxmlLoader.load();

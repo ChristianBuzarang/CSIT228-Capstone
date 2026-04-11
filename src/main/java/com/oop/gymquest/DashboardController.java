@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class GymQuestDashboardController implements Initializable {
+public class DashboardController implements Initializable {
 
     // ── FXML injections ────────────────────────────────────────────────────
     @FXML private AreaChart<String, Number> activityChart;
