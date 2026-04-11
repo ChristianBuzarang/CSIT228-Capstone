@@ -12,7 +12,7 @@
 # Project Description
 GymQuest is a Java-based desktop application designed to solve the problem of low member engagement and manual administrative overhead in traditional fitness centers. While most systems focus solely on record-keeping, GymQuest bridges the gap between management and motivation.
 
-The system provides a centralized platform for trainers and admins to manage operations, but its primary goal is to enhance the member experience through a Gamification Engine. By tracking attendance and workout consistency, members earn Experience Points (XP) and reach new fitness levels, transforming a standard gym membership into an interactive fitness journey.
+The system provides a centralized platform for trainers and admins to manage operations, but its primary goal is to enhance the member experience through a Gamification Engine. By tracking attendance and workout consistency, it is transforming a standard gym membership into an interactive fitness journey.
 
 # Proposed Features
 - **Secure Authentication:** Role-based access control for Admins, Trainers, and Members to ensure data security and personalized views.
