@@ -18,7 +18,7 @@ public class MemberRegisterController {
 
     @FXML
     public void initialize() {
-       comboPlan.getItems().addAll("Basic", "Gold", "VIP");
+        comboPlan.getItems().addAll("Basic", "Gold", "VIP");
     }
 
     @FXML

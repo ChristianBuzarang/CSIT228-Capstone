@@ -15,7 +15,7 @@ public class DashboardApplication extends Application {
     public void start(Stage stage) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                DashboardApplication.class.getResource("gymQuestDashboard.fxml"));
+                DashboardApplication.class.getResource("Dashboard.fxml"));
 
         // ── Load root ────────────────────────────────────────────────────────
         BorderPane root = fxmlLoader.load();

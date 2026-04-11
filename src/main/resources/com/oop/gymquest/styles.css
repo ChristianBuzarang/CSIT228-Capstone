@@ -253,42 +253,37 @@
 /* ── Attendance Table ────────────────────────────────────────────────────── */
 .log-table {
     -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-.log-table .column-header-background {
-    -fx-background-color: #1e2431;
-    -fx-background-radius: 6 6 0 0;
-}
-
-.log-table .column-header {
-    -fx-background-color: transparent;
+.log-table .column-header, .log-table .column-header-background {
+    -fx-background-color: #2D2D2D; /* Match card background */
+    -fx-border-color: transparent transparent #3D3D3D transparent;
 }
 
 .log-table .column-header .label {
-    -fx-text-fill: #8a94a6;
+    -fx-text-fill: #AAAAAA;
     -fx-font-weight: bold;
-    -fx-font-size: 12px;
-}
-
-.log-table .table-row-cell {
-    -fx-background-color: #181d27;
-    -fx-text-fill: #d0d5df;
-    -fx-font-size: 12px;
-    -fx-border-color: transparent transparent #1e2431 transparent;
-    -fx-border-width: 0 0 1 0;
-}
-
-.log-table .table-row-cell:odd {
-    -fx-background-color: #1a2030;
-}
-
-.log-table .table-row-cell:selected {
-    -fx-background-color: #1e3a5f;
 }
 
 .log-table .table-cell {
-    -fx-text-fill: #d0d5df;
-    -fx-padding: 6 10;
+    -fx-border-color: transparent; /* Removes the white vertical lines */
+    -fx-text-fill: white;
+    -fx-padding: 10;
+}
+
+.log-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #252525 transparent;
+}
+
+.log-table .table-row-cell:odd {
+    -fx-background-color: #222222;
+}
+
+/* Remove the empty table vertical lines */
+.log-table .placeholder .label {
+    -fx-text-fill: #555555;
 }
 
 /* ── Progress &amp; Statistics ──────────────────────────────────────────── */

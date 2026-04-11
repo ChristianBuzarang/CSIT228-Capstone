@@ -9,7 +9,7 @@ public class MemberRegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("member-register-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("memberRegisterView.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 750, 500);
 
         stage.setTitle("Member Registration");
