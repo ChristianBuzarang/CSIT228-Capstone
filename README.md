@@ -1,6 +1,6 @@
 # GymQuest: Level Up Your Fitness Journey
 **Course:** CSIT228 - CAPSTONE PROJECT 2026  
-**Group Name:** N
+**Group Name:** MYLABS
 
 # Group Members
 - Abaincia, Joel Constantine
