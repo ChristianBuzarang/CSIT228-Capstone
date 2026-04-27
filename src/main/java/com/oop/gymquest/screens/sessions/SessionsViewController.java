@@ -1,5 +1,6 @@
-package com.oop.gymquest;
+package com.oop.gymquest.screens.sessions;
 
+import com.oop.gymquest.app.MainApp;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -23,5 +24,10 @@ public class SessionsViewController {
                 System.out.println("Member enrolled successfully!");
             }
         });
+    }
+
+    @FXML
+    public static void handleAction() {
+        MainApp.instance.changeScene("/com/oop/gymquest/sessionsView.fxml", "GymQuest - Fitness Programs");
     }
 }

@@ -1,5 +1,6 @@
-package com.oop.gymquest;
+package com.oop.gymquest.screens.dashboard;
 
+import com.oop.gymquest.app.MainApp;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -61,5 +62,10 @@ public class DashboardController implements Initializable {
 
         ObservableList<String[]> rows = FXCollections.observableArrayList(ATTENDANCE_ROWS);
         attendanceTable.setItems(rows);
+    }
+
+    @FXML
+    public static void handleAction() {
+        MainApp.instance.changeScene("/com/oop/gymquest/dashboardView.fxml", "GymQuest");
     }
 }

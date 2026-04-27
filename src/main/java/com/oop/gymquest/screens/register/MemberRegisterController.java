@@ -1,5 +1,6 @@
-package com.oop.gymquest;
+package com.oop.gymquest.screens.register;
 
+import com.oop.gymquest.app.MainApp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -118,4 +119,8 @@ public class MemberRegisterController {
         alert.showAndWait();
     }
 
+    @FXML
+    public static void handleAction() {
+        MainApp.instance.changeScene("/com/oop/gymquest/memberRegisterView.fxml", "Member Registration");
+    }
 }

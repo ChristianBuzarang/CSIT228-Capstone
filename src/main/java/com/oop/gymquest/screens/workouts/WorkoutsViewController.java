@@ -1,5 +1,6 @@
-package com.oop.gymquest;
+package com.oop.gymquest.screens.workouts;
 
+import com.oop.gymquest.app.MainApp;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 
@@ -18,5 +19,10 @@ public class WorkoutsViewController {
         alert.setHeaderText("Barbell Squat Instructions");
         alert.setContentText("1. Stand with feet shoulder-width apart.\n2. Lower hips back.\n3. Keep chest up.\n4. Return to starting position.");
         alert.showAndWait();
+    }
+
+    @FXML
+    public static void handleAction() {
+        MainApp.instance.changeScene("/com/oop/gymquest/workoutsView.fxml", "GymQuest - Workout Library");
     }
 }

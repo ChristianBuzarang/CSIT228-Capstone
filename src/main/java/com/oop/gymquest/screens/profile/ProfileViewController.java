@@ -1,5 +1,6 @@
-package com.oop.gymquest;
+package com.oop.gymquest.screens.profile;
 
+import com.oop.gymquest.app.MainApp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -58,5 +59,10 @@ public class ProfileViewController {
         public String getTrainer() {
             return trainer;
         }
+    }
+
+    @FXML
+    public static void handleAction() {
+        MainApp.instance.changeScene("/com/oop/gymquest/profileView.fxml", "GymQuest - Member Profile");
     }
 }

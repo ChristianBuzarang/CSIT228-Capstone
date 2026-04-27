@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="20.0" styleClass="root-pane" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1" fx:controller="com.oop.gymquest.MemberRegisterController">
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="20.0" styleClass="root-pane" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1" fx:controller="com.oop.gymquest.screens.register.MemberRegisterController">
     <children>
         <VBox maxWidth="500.0" spacing="20.0" styleClass="dashboard-card">
             <children>
