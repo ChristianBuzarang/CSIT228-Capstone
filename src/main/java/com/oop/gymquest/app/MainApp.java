@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import com.oop.gymquest.data.DatabaseInit;
 
 import java.io.IOException;
 
@@ -18,7 +19,7 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         instance = this;
         this.stage = stage;
-        // Load the initial screen
+        DatabaseInit.initDatabase();
         changeScene("/com/oop/gymquest/dashboardView.fxml", "GymQuest - Dashboard");
     }
 
