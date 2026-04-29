@@ -1,0 +1,83 @@
+/* GymQuest JavaFX Stylesheet */
+
+.root {
+    -fx-font-family: "System";
+    -fx-background-color: #f0f8ff;
+}
+
+.main-root {
+    -fx-background-color: #f0f8ff;
+}
+
+.scroll-pane {
+    -fx-background-color: #f0f8ff;
+    -fx-background: #f0f8ff;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #f0f8ff;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #bae6fd;
+    -fx-background-radius: 3;
+}
+
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}
+
+.text-field, .password-field {
+    -fx-focus-color: #3b82f6;
+    -fx-faint-focus-color: rgba(59,130,246,0.1);
+}
+
+.combo-box {
+    -fx-background-color: white;
+}
+
+.dialog-pane {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+}
+
+.toggle-button {
+    -fx-cursor: hand;
+}
+
+.hyperlink {
+    -fx-border-color: transparent;
+    -fx-text-fill: #3b82f6;
+}
+
+.hyperlink:visited {
+    -fx-text-fill: #3b82f6;
+}
+
+.button {
+    -fx-cursor: hand;
+}
+
+.separator {
+    -fx-background-color: #bae6fd;
+}
