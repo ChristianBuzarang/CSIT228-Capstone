@@ -1,9 +1,7 @@
 package com.oop.gymquest.view;
 
 import com.oop.gymquest.controller.MainController;
-import com.oop.gymquest.model.AppState;
-import com.oop.gymquest.model.DataStore;
-import com.oop.gymquest.model.Exercise;
+import com.oop.gymquest.model.*;
 import com.oop.gymquest.util.UIHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,12 +32,22 @@ public class CustomWorkoutCreatorView {
         VBox card = UIHelper.card();
         card.getChildren().add(UIHelper.title("Create Custom Workout"));
 
-        // Workout name
+        // --- Workout Name ---
         Label nameLabel = UIHelper.label("Workout Name");
         TextField nameField = new TextField();
         nameField.setPromptText("My Awesome Workout");
         nameField.setStyle("-fx-padding: 10 14; -fx-border-color: #bae6fd; -fx-border-width: 2; -fx-background-radius: 10; -fx-border-radius: 10;");
-        card.getChildren().addAll(nameLabel, nameField);
+
+        // --- Workout Category (Tag) ---
+        Label catLabel = UIHelper.label("Workout Category (Tag)");
+        ComboBox<WorkoutCategory> categoryPicker = new ComboBox<>();
+        categoryPicker.getItems().addAll(WorkoutCategory.values()); // Populates from enum
+        categoryPicker.setValue(WorkoutCategory.STRENGTH); // Default tag
+        categoryPicker.setMaxWidth(Double.MAX_VALUE);
+        categoryPicker.setStyle("-fx-padding: 8 12; -fx-border-color: #bae6fd; -fx-border-width: 2; -fx-background-radius: 10; -fx-border-radius: 10;");
+
+        // Add ALL of them to the card
+        card.getChildren().addAll(nameLabel, nameField, catLabel, categoryPicker);
 
         // Exercises header
         HBox exHeader = new HBox(12);
@@ -70,6 +78,8 @@ public class CustomWorkoutCreatorView {
         saveBtn.setStyle(saveBtn.getStyle() + " -fx-padding: 14 20; -fx-font-size: 15px;");
         saveBtn.setOnAction(e -> {
             String title = nameField.getText().trim();
+            WorkoutCategory selectedTag = categoryPicker.getValue(); // Get the "Tag"[cite: 3]
+
             if (title.isEmpty()) {
                 new Alert(Alert.AlertType.WARNING, "Please enter a workout name.", ButtonType.OK).showAndWait();
                 return;
@@ -78,11 +88,32 @@ public class CustomWorkoutCreatorView {
                 new Alert(Alert.AlertType.WARNING, "Please add at least one exercise.", ButtonType.OK).showAndWait();
                 return;
             }
+
+            // 1. Generate a new ID[cite: 4]
+            int newId = DataStore.getInstance().getWorkouts().size() + 100;
+
+            // 2. Create the Workout object using the FULL constructor[cite: 2]
+            Workout newWorkout = new Workout(
+                    newId,
+                    title,
+                    Workout.Difficulty.BEGINNER, // Default for custom
+                    "30 min",                    // Estimated duration
+                    false,                       // Not locked
+                    new ArrayList<>(selectedExercises),
+                    selectedTag,                 // THE TAG[cite: 2, 3]
+                    "Custom routine created by user.",
+                    null                         // No image path for custom
+            );
+
+            // 3. PERSIST THE DATA
+            DataStore.getInstance().addWorkout(newWorkout);
+
             Alert info = new Alert(Alert.AlertType.INFORMATION,
                     "Custom workout \"" + title + "\" saved! 🎉", ButtonType.OK);
             info.setHeaderText(null);
             info.showAndWait();
-            controller.navigateTo("workouts");
+
+            controller.navigateTo("workouts"); // WorkoutsView will now refresh with the new list[cite: 7]
         });
 
         card.getChildren().add(saveBtn);
