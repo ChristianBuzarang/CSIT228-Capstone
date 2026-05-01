@@ -9,7 +9,7 @@ public class MySQLConnection {
     // --- CHANGE THESE TO MATCH YOUR XAMPP SETUP ---
     public static final String URL      = "jdbc:mysql://localhost:3306/dbgymquest";
     public static final String USERNAME = "root";
-    public static final String PASSWORD = "jc@020814";          // leave blank if no password
+    public static final String PASSWORD = "";          // leave blank if no password -- jc@020814
     // -----------------------------------------------
 
     public static Connection getConnection() {
