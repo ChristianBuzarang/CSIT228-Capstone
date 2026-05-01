@@ -8,9 +8,10 @@ module com.oop.gymquest {
     opens com.oop.gymquest.app to javafx.fxml;
 
     // New
-    opens com.oop.gymquest.controller to javafx.fxml;
-    opens com.oop.gymquest.view to javafx.fxml;
-    opens com.oop.gymquest.model to javafx.base;
+//    opens com.oop.gymquest.controller to javafx.fxml;
+//    opens com.oop.gymquest.view to javafx.fxml;
+//    opens com.oop.gymquest.model to javafx.base;
+    opens com.oop.gymquest.screens.login to javafx.fxml;
 
     // Previous
     opens com.oop.gymquest.screens.dashboard to javafx.fxml;
@@ -28,8 +29,8 @@ module com.oop.gymquest {
     exports com.oop.gymquest.screens.workouts;
 
     // New
-    exports com.oop.gymquest.controller;
-    exports com.oop.gymquest.model;
-    exports com.oop.gymquest.view;
-    exports com.oop.gymquest.util;
+//    exports com.oop.gymquest.controller;
+//    exports com.oop.gymquest.model;
+//    exports com.oop.gymquest.view;
+//    exports com.oop.gymquest.util;
 }
