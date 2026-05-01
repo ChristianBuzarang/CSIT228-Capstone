@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa);"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.login.LoginController">
+
+    <VBox spacing="20" alignment="CENTER" maxWidth="400" maxHeight="450"
+          style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 10);">
+
+        <Label text="🏋️" style="-fx-font-size: 50;"/>
+        <Label text="GymQuest" style="-fx-font-size: 32; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Username" style="-fx-text-fill: #64748b;"/>
+            <TextField fx:id="uField" promptText="Enter username" style="-fx-padding: 10; -fx-background-radius: 10;"/>
+        </VBox>
+
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <Label text="Password" style="-fx-text-fill: #64748b;"/>
+            <PasswordField fx:id="pField" promptText="Enter password" style="-fx-padding: 10; -fx-background-radius: 10;"/>
+        </VBox>
+
+        <Button text="Sign In" onAction="#handleLogin" maxWidth="Infinity"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;"/>
+
+        <Label fx:id="statusLabel" textFill="red"/>
+    </VBox>
+</StackPane>
