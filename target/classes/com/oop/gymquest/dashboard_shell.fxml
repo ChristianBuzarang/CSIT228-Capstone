@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.DashboardController" style="-fx-background-color: #f8fafc;">
+
+    <!-- TOP HEADER -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2); -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+            <Label text="🏋️ GymQuest" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #3b82f6;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="15" alignment="CENTER">
+                <VBox alignment="CENTER_RIGHT">
+                    <Label fx:id="headerNameLabel" style="-fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                    <Label fx:id="headerTypeLabel" style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-text-transform: uppercase;"/>
+                </VBox>
+                <StackPane style="-fx-background-color: #3b82f6; -fx-background-radius: 25; -fx-min-width: 40; -fx-min-height: 40;">
+                    <Label fx:id="avatarLabel" text="👤" textFill="white" style="-fx-font-size: 18;"/>
+                </StackPane>
+                <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: #f1f5f9; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand;"/>
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="10" prefWidth="240" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;">
+            <Button text="🏠 Dashboard" maxWidth="Infinity" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-alignment: CENTER_LEFT; -fx-padding: 12; -fx-background-radius: 10; -fx-font-weight: bold;"/>
+            <Button text="💪 Workouts" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12; -fx-cursor: hand;"/>
+            <Button text="📅 Schedule" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12; -fx-cursor: hand;"/>
+            <Button text="👥 Community" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12; -fx-cursor: hand;"/>
+        </VBox>
+    </left>
+
+    <!-- DYNAMIC CONTENT AREA -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
+        </ScrollPane>
+    </center>
+</BorderPane>

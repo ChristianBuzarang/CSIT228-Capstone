@@ -27,8 +27,16 @@ public class UserDAO {
     public static List<User> getAll() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users";
-        try (Connection c = MySQLConnection.getConnection();
-             Statement stmt = c.createStatement();
+
+        Connection c = MySQLConnection.getConnection();
+
+        // ADD THIS CHECK to prevent the NullPointerException
+        if (c == null) {
+            System.err.println("❌ Could not connect to database. Returning empty list.");
+            return list;
+        }
+
+        try (Statement stmt = c.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 list.add(new User(
@@ -40,7 +48,11 @@ public class UserDAO {
                         rs.getString("type")
                 ));
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try { c.close(); } catch (SQLException e) { e.printStackTrace(); }
+        }
         return list;
     }
 

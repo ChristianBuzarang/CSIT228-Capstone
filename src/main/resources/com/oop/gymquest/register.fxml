@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa);"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.oop.gymquest.screens.register.RegisterController">
+
+    <VBox spacing="15" alignment="CENTER" maxWidth="450" maxHeight="650"
+          style="-fx-background-color: white; -fx-background-radius: 24; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 24, 0, 0, 8);">
+
+        <Label text="Create Account" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+        <Label text="Join the GymQuest community today" style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
+
+        <!-- Input Fields -->
+        <VBox spacing="12" alignment="CENTER_LEFT" maxWidth="340">
+            <Label text="First Name" style="-fx-text-fill: #1e3a5f; -fx-font-weight: bold;"/>
+            <TextField fx:id="firstnameField" promptText="Enter first name"
+                       style="-fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #bae6fd; -fx-border-radius: 12; -fx-border-width: 2;"/>
+
+            <Label text="Last Name" style="-fx-text-fill: #1e3a5f; -fx-font-weight: bold;"/>
+            <TextField fx:id="lastnameField" promptText="Enter last name"
+                       style="-fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #bae6fd; -fx-border-radius: 12; -fx-border-width: 2;"/>
+
+            <Label text="Email / Username" style="-fx-text-fill: #1e3a5f; -fx-font-weight: bold;"/>
+            <TextField fx:id="emailField" promptText="Enter email"
+                       style="-fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #bae6fd; -fx-border-radius: 12; -fx-border-width: 2;"/>
+
+            <Label text="Password" style="-fx-text-fill: #1e3a5f; -fx-font-weight: bold;"/>
+            <PasswordField fx:id="passField" promptText="Create password"
+                           style="-fx-padding: 12; -fx-background-radius: 12; -fx-border-color: #bae6fd; -fx-border-radius: 12; -fx-border-width: 2;"/>
+
+            <Label text="Account Type" style="-fx-text-fill: #1e3a5f; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="typeBox" maxWidth="Infinity"
+                      style="-fx-padding: 8; -fx-background-radius: 12; -fx-border-color: #bae6fd; -fx-border-radius: 12; -fx-border-width: 2; -fx-background-color: white;"/>
+        </VBox>
+
+        <Button text="Register Now" onAction="#handleRegister" maxWidth="340"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 14; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-size: 15;"/>
+
+        <Hyperlink text="Back to Login" onAction="#goToLogin" style="-fx-text-fill: #3b82f6;"/>
+
+        <Label fx:id="statusLabel" wrapText="true" textAlignment="CENTER"/>
+    </VBox>
+</StackPane>

@@ -8,7 +8,7 @@ public class DashboardApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        DashboardController.handleAction();
+        DashboardController.instance.initialize();
     }
 
     public static void main(String[] args) {

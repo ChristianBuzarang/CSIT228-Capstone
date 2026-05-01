@@ -36,7 +36,7 @@ public class MainApp extends Application {
 //        changeScene("custom-workout-creator-view.fxml", "GymQuest - Create Custom Workout");
 //        changeScene("exercise-picker-dialog-view.fxml", "GymQuest - Exercise Picker Dialog");
 //        DatabaseInit.initDatabase();
-//        changeScene("/com/oop/gymquest/dashboardView.fxml", "GymQuest - Dashboard");
+//        changeScene("/com/oop/gymquest/dashboard.fxml", "GymQuest - Dashboard");
     }
 
     public void changeScene(String fxmlFile, String title) {

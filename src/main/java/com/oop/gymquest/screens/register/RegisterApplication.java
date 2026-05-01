@@ -5,11 +5,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class MemberRegisterApplication extends Application {
+public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception{
-        MemberRegisterController.handleAction();
+        RegisterController.instance.handleRegister();
     }
 
 }

@@ -36,4 +36,26 @@ public class DatabaseHandler {
         } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
+
+    public static boolean registerUser(String email, String password, String firstName, String lastName, String type) {
+        String sql = "INSERT INTO users (email, password, firstname, lastname, type) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+            pstmt.setString(3, firstName);
+            pstmt.setString(4, lastName);
+            pstmt.setString(5, type);
+
+            int rowsInserted = pstmt.executeUpdate();
+            return rowsInserted > 0;
+
+        } catch (SQLException e) {
+            // This will fail if the email is already in the database due to the UNIQUE constraint
+            System.err.println("Registration Error: " + e.getMessage());
+            return false;
+        }
+    }
 }

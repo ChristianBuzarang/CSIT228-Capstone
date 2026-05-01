@@ -23,6 +23,6 @@ public class WorkoutsViewController {
 
     @FXML
     public static void handleAction() {
-        MainApp.instance.changeScene("/com/oop/gymquest/workoutsView.fxml", "GymQuest - Workout Library");
+        MainApp.instance.changeScene("/com/oop/gymquest/workouts.fxml", "GymQuest - Workout Library");
     }
 }

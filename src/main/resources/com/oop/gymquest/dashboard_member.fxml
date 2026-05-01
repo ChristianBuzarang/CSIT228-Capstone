@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- Notice: We use VBox as the root so it fits perfectly into the Shell's StackPane -->
+<VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.dashboard.DashboardController">
+    <HBox spacing="20">
+        <VBox HBox.hgrow="ALWAYS" spacing="15" style="-fx-background-color: linear-gradient(to right, #3b82f6, #60a5fa); -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 15, 0, 0, 8);">
+            <Label text="Welcome back, Champion! 🎯" textFill="white" style="-fx-font-size: 26; -fx-font-weight: bold;"/>
+            <Label fx:id="goalLabel" text="You have 3 workouts remaining for your weekly goal." textFill="#e0f2fe" style="-fx-font-size: 14;"/>
+            <Button text="Start Workout" style="-fx-background-color: white; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;"/>
+        </VBox>
+
+        <VBox prefWidth="250" alignment="CENTER" spacing="10" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+            <Label text="🔥" style="-fx-font-size: 40;"/>
+            <Label text="Current Streak" style="-fx-text-fill: #64748b;"/>
+            <Label fx:id="streakLabel" text="12 Days" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #f59e0b;"/>
+        </VBox>
+    </HBox>
+    <Label text="Recommended for You" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+</VBox>

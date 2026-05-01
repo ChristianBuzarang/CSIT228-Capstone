@@ -18,9 +18,14 @@ public class LoginController {
         if (user != null) {
             MainApp.instance.currentUser = user;
             MainApp.instance.saveSession(user); // Serialize
-            MainApp.instance.changeScene("dashboard.fxml", "GymQuest - Dashboard");
+            MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
         } else {
             statusLabel.setText("Invalid Username or Password");
         }
+    }
+
+    @FXML
+    private void handleGoToRegister() {
+        MainApp.instance.changeScene("register.fxml", "GymQuest - Create Account");
     }
 }
