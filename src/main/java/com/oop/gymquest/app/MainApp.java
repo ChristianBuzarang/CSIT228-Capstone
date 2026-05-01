@@ -30,6 +30,11 @@ public class MainApp extends Application {
         File session = new File("session.ser");
         if(session.exists()) session.delete();
         changeScene("login.fxml", "GymQuest - Login");
+
+        // edited - Ericka Fatima
+//        changeScene("booking-view.fxml", "GymQuest - Booking Test");
+//        changeScene("custom-workout-creator-view.fxml", "GymQuest - Create Custom Workout");
+//        changeScene("exercise-picker-dialog-view.fxml", "GymQuest - Exercise Picker Dialog");
 //        DatabaseInit.initDatabase();
 //        changeScene("/com/oop/gymquest/dashboardView.fxml", "GymQuest - Dashboard");
     }

@@ -14,7 +14,7 @@ public class DatabaseInit {
 
     public static void initDatabase() {
         try (Connection c = MySQLConnection.getConnection();
-             Statement stmt = c.createStatement()) {
+             Statement statement = c.createStatement()) {
 
             // 1. Create table if it doesn't already exist
             String createTable =
@@ -25,7 +25,7 @@ public class DatabaseInit {
                             "  firstname VARCHAR(255) NOT NULL," +
                             "  lastname VARCHAR(255) NOT NULL" +
                             ")";
-            stmt.execute(createTable);
+            statement.execute(createTable);
             System.out.println("Table 'users' ready.");
 
             // 2. Insert sample users (only if they don't exist yet)
