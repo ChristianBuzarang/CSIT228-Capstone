@@ -22,7 +22,7 @@ public class DatabaseHandler {
     }
 
     public static com.oop.gymquest.data.User authenticate(String user, String pass) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
             preparedStatement.setString(1, user);
