@@ -3,6 +3,7 @@ package com.oop.gymquest.view;
 import com.oop.gymquest.model.AppState;
 import com.oop.gymquest.model.DataStore;
 import com.oop.gymquest.model.Post;
+import com.oop.gymquest.screens.community.CommunityController;
 import com.oop.gymquest.util.UIHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,8 +19,12 @@ import javafx.scene.layout.VBox;
 public class CommunityView {
 
     private final ScrollPane root;
+    private final CommunityController controller;
+    private final VBox postContainer; // Added this to allow refreshing posts
 
-    public CommunityView(AppState state) {
+    public CommunityView(AppState state, CommunityController controller) {
+        this.controller = controller; // Fixed: Now correctly assigned
+
         VBox content = new VBox(16);
         content.setPadding(new Insets(24));
         content.setMaxWidth(720);
@@ -42,10 +47,12 @@ public class CommunityView {
         header.getChildren().add(hrow);
         content.getChildren().add(header);
 
-        // Posts
-        for (Post post : DataStore.getInstance().getPosts()) {
-            content.getChildren().add(buildPostCard(post));
-        }
+        // Posts Container
+        this.postContainer = new VBox(16);
+        content.getChildren().add(postContainer);
+
+        // Initial load of posts
+        refreshPosts();
 
         HBox centered = new HBox(content);
         centered.setPadding(new Insets(0, 40, 0, 40));
@@ -54,6 +61,14 @@ public class CommunityView {
         root = new ScrollPane(centered);
         root.setFitToWidth(true);
         root.setStyle("-fx-background-color: #f0f8ff; -fx-background: #f0f8ff;");
+    }
+
+    // New method: Clears and redraws the posts
+    public void refreshPosts() {
+        postContainer.getChildren().clear();
+        for (Post post : DataStore.getInstance().getPosts()) {
+            postContainer.getChildren().add(buildPostCard(post));
+        }
     }
 
     private VBox buildPostCard(Post post) {
@@ -78,7 +93,6 @@ public class CommunityView {
         contentLabel.setStyle(contentLabel.getStyle() + " -fx-font-size: 13px;");
         nameRow.getChildren().addAll(name, contentLabel);
 
-        // Milestone badge
         if (post.getMilestone() != null) {
             HBox milestone = new HBox(8);
             milestone.setPadding(new Insets(8, 14, 8, 14));
@@ -101,7 +115,6 @@ public class CommunityView {
             postContent.getChildren().add(nameRow);
         }
 
-        // Reaction row
         HBox actionRow = new HBox(16);
         actionRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -118,10 +131,6 @@ public class CommunityView {
     private Button buildReactButton(Post post) {
         Button btn = new Button();
         updateReactBtn(btn, post);
-        btn.setOnAction(e -> {
-            post.toggleReaction();
-            updateReactBtn(btn, post);
-        });
         return btn;
     }
 
@@ -133,6 +142,11 @@ public class CommunityView {
                         "-fx-background-radius: 20; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 6 14;" +
                         (post.isHasReacted() ? "-fx-font-weight: bold;" : "")
         );
+        // Fixed: Call the controller and refresh the UI
+        btn.setOnAction(e -> {
+            controller.handleToggleReaction(post);
+            updateReactBtn(btn, post);
+        });
     }
 
     private void showShareDialog() {
@@ -140,32 +154,40 @@ public class CommunityView {
         dialog.setTitle("Share Milestone");
         dialog.setHeaderText("What would you like to share?");
 
-        VBox content = new VBox(10);
-        String[][] options = {
-                {"🔥", "Streak Milestone", "Share your current streak"},
-                {"🎯", "Workout Achievement", "Share completed workouts"},
-                {"🏆", "Badge Earned", "Share your latest badge"},
-                {"✅", "Goal Achieved", "Share your weekly goals"}
+        VBox dialogContent = new VBox(10);
+        Object[][] options = {
+                {"🔥", "Streak Milestone", Post.PostType.STREAK},
+                {"🎯", "Workout Achievement", Post.PostType.WORKOUT},
+                {"🏆", "Badge Earned", Post.PostType.BADGE},
+                {"✅", "Goal Achieved", Post.PostType.GOAL}
         };
 
-        for (String[] opt : options) {
+        for (Object[] opt : options) {
             HBox row = new HBox(12);
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(10));
             row.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 10; -fx-cursor: hand;");
 
-            Label icon = new Label(opt[0]);
+            Label icon = new Label((String) opt[0]);
             icon.setStyle("-fx-font-size: 24px;");
             VBox info = new VBox(2);
-            Label title = UIHelper.label(opt[1]);
+            Label title = UIHelper.label((String) opt[1]);
             title.setStyle(title.getStyle() + " -fx-font-weight: bold;");
-            Label sub = UIHelper.muted(opt[2]);
-            info.getChildren().addAll(title, sub);
+            info.getChildren().addAll(title, UIHelper.muted("Share your achievement"));
+
             row.getChildren().addAll(icon, info);
-            content.getChildren().add(row);
+
+            // Logic: Click to share
+            row.setOnMouseClicked(e -> {
+                controller.shareMilestone((Post.PostType) opt[2]);
+                dialog.setResult(javafx.scene.control.ButtonType.OK);
+                dialog.close();
+            });
+
+            dialogContent.getChildren().add(row);
         }
 
-        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setContent(dialogContent);
         dialog.showAndWait();
     }
 
