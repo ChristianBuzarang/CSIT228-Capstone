@@ -73,7 +73,7 @@ public class MainController {
         LoginView loginView = new LoginView(state);
         Scene scene = new Scene(loginView.getRoot(), 1280, 800);
         scene.getStylesheets().add(
-                MainController.class.getResource("/com/gymquest/css/styles.css").toExternalForm()
+                MainController.class.getResource("/com/oop/gymquest/styles.css").toExternalForm()
         );
         GymQuestApp.primaryStage.setScene(scene);
     }
@@ -83,7 +83,7 @@ public class MainController {
         MainController controller = new MainController(state);
         Scene scene = new Scene(controller.getRoot(), 1280, 800);
         scene.getStylesheets().add(
-                MainController.class.getResource("/com/gymquest/css/styles.css").toExternalForm()
+                MainController.class.getResource("/com/oop/gymquest/styles.css").toExternalForm()
         );
         GymQuestApp.primaryStage.setScene(scene);
     }

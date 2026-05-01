@@ -65,7 +65,7 @@ public class NotificationsDialog {
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(
-                getClass().getResource("/com/gymquest/css/styles.css").toExternalForm()
+                getClass().getResource("/com/oop/gymquest/styles.css").toExternalForm()
         );
         scene.setFill(null);
         stage.setScene(scene);
