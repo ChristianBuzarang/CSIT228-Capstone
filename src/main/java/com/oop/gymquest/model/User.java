@@ -9,12 +9,12 @@
 //    private String status; // active, inactive
 //    private String joinDate;
 //
-//    public User(int userid, String email, String password, String name, String type) {
-//        this.id = userid;
-//        this.name = email;
-//        this.email = password;
-//        this.type = name;
-//        this.avatar = type;
+//    public User(int id, String name, String email, String type, String avatar, String status, String joinDate) {
+//        this.id = id;
+//        this.name = name;
+//        this.email = email;
+//        this.type = type;
+//        this.avatar = avatar;
 //        this.status = status;
 //        this.joinDate = joinDate;
 //    }

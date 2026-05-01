@@ -3,6 +3,7 @@
 //import com.oop.gymquest.GymQuestApp;
 //import com.oop.gymquest.model.AppState;
 //import com.oop.gymquest.model.Workout;
+//import com.oop.gymquest.screens.community.CommunityController;
 //import com.oop.gymquest.view.*;
 //import javafx.scene.Scene;
 //import javafx.scene.layout.BorderPane;
@@ -46,7 +47,10 @@
 //            case "dashboard" -> root.setCenter(new DashboardView(state, this).getRoot());
 //            case "workouts" -> root.setCenter(new WorkoutsView(state, this).getRoot());
 //            case "booking" -> root.setCenter(new BookingView(state, this).getRoot());
-//            case "community" -> root.setCenter(new CommunityView(state).getRoot());
+//            case "community" -> {
+//                CommunityController communityCtrl = new CommunityController(state);
+//                root.setCenter(communityCtrl.getView());
+//            }
 //            case "profile" -> root.setCenter(new ProfileView(state).getRoot());
 //            case "admin" -> root.setCenter(new AdminView(state).getRoot());
 //            case "trainer" -> root.setCenter(new TrainerView(state).getRoot());

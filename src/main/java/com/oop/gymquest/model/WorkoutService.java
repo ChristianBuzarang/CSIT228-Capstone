@@ -10,8 +10,6 @@
 //    // ── Singleton ──────────────────────────────────────────────────────────
 //    private static WorkoutService instance;
 //
-//
-//
 //    public static synchronized WorkoutService getInstance() {
 //        if (instance == null) instance = new WorkoutService();
 //        return instance;
@@ -37,7 +35,6 @@
 //    }
 //
 //    // ── Query methods ──────────────────────────────────────────────────────
-//
 //
 //    public List<Workout> searchWorkouts(String keyword) {
 //        if (keyword == null || keyword.isBlank()) return getAllWorkouts();

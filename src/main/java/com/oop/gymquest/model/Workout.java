@@ -5,35 +5,34 @@
 //public class Workout {
 //
 //    // ── Core fields (unchanged) ────────────────────────────────────────────
-//    private int         id;
-//    private final String      title;
+//    private int id;
+//    private final String title;
 //    private final Difficulty  difficulty;
-//    private final String      duration;
-//    private final boolean     locked;
+//    private final String  duration;
+//    private final boolean locked;
 //    private final List<Exercise> exercises;
 //
 //    // ── Extended fields (new) ──────────────────────────────────────────────
-//    private WorkoutCategory   category;    // training discipline
-//    private String            description; // shown in WorkoutDetailView
-//    private String            imagePath;   // e.g. "/images/workouts/full-body-blast.png"
+//    private WorkoutCategory category;    // training discipline
+//    private String description; // shown in WorkoutDetailView
+//    private String imagePath;   // e.g. "/images/workouts/full-body-blast.png"
 //
 //    // ── Difficulty enum ───────────────────────────────────────────────────
 //    public enum Difficulty { BEGINNER, INTERMEDIATE, ADVANCED }
 //
 //    // ── Constructors ──────────────────────────────────────────────────────
-//
 //    public Workout(int id, String title, Difficulty difficulty, String duration,
 //                   boolean locked, List<Exercise> exercises,
 //                   WorkoutCategory category, String description, String imagePath) {
-//        this.id          = id;
-//        this.title       = title;
-//        this.difficulty  = difficulty;
-//        this.duration    = duration;
-//        this.locked      = locked;
-//        this.exercises   = exercises;
-//        this.category    = category;
+//        this.id = id;
+//        this.title = title;
+//        this.difficulty = difficulty;
+//        this.duration = duration;
+//        this.locked = locked;
+//        this.exercises = exercises;
+//        this.category = category;
 //        this.description = description;
-//        this.imagePath   = imagePath;
+//        this.imagePath = imagePath;
 //    }
 //
 //
@@ -45,24 +44,17 @@
 //
 //    // ── Getters ────────────────────────────────────────────────────────────
 //
-//    public int    getId()         { return id; }
-//    public String getTitle()      { return title; }
+//    public int getId() { return id; }
+//    public String getTitle() { return title; }
 //    public Difficulty getDifficulty() { return difficulty; }
-//    public String getDuration()   { return duration; }
-//    public boolean isLocked()     { return locked; }
+//    public String getDuration() { return duration; }
+//    public boolean isLocked() { return locked; }
 //    public List<Exercise> getExercises() { return exercises; }
-//
-//
 //    public WorkoutCategory getCategory() { return category; }
-//
-//
 //    public String getDescription() { return description; }
-//
-//
 //    public String getImagePath()  { return imagePath; }
 //
 //    // ── Setters (extended fields only) ────────────────────────────────────
-//
 //    public void setCategory(WorkoutCategory category) {
 //        if (category == null) throw new IllegalArgumentException("Category must not be null.");
 //        this.category = category;
@@ -72,8 +64,6 @@
 //    public void setImagePath(String imagePath)     { this.imagePath   = imagePath;   }
 //
 //    // ── Helpers ────────────────────────────────────────────────────────────
-//
-//
 //    public String getDifficultyLabel() {
 //        return switch (difficulty) {
 //            case BEGINNER     -> "Beginner";
