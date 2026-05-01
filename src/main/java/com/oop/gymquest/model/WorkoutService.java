@@ -38,14 +38,7 @@ public class WorkoutService {
 
     // ── Query methods ──────────────────────────────────────────────────────
 
-    /**
-     * Searches the catalog by {@code keyword}, matching against the workout's
-     * title and description (case-insensitive substring match).
-     * Passing {@code null} or a blank string returns the full catalog.
-     *
-     * @param keyword search term
-     * @return new list of matching workouts; never {@code null}
-     */
+
     public List<Workout> searchWorkouts(String keyword) {
         if (keyword == null || keyword.isBlank()) return getAllWorkouts();
         final String lower = keyword.toLowerCase();
@@ -56,13 +49,7 @@ public class WorkoutService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Filters the catalog to workouts belonging to {@code category}.
-     * Passing {@code null} returns the full catalog (treated as "All").
-     *
-     * @param category target {@link WorkoutCategory}, or {@code null} for all
-     * @return new list of matching workouts; never {@code null}
-     */
+
     public List<Workout> filterByCategory(WorkoutCategory category) {
         if (category == null) return getAllWorkouts();
         return getAllWorkouts().stream()
@@ -70,16 +57,7 @@ public class WorkoutService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Combined search + category filter in a single stream pass.
-     * This is the primary method used by {@link com.gymquest.view.WorkoutsView}
-     * so that typing in the search box and clicking a category pill trigger one
-     * efficient operation instead of two sequential filters.
-     *
-     * @param keyword  search term (blank → match all titles/descriptions)
-     * @param category category filter ({@code null} → no category restriction)
-     * @return new filtered list; never {@code null}
-     */
+
     public List<Workout> searchAndFilter(String keyword, WorkoutCategory category) {
         final boolean hasKeyword = keyword != null && !keyword.isBlank();
         final String  lower      = hasKeyword ? keyword.toLowerCase() : "";
@@ -98,23 +76,13 @@ public class WorkoutService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Finds a single workout by its numeric id.
-     *
-     * @param id the integer id from {@link Workout#getId()}
-     * @return {@link Optional} containing the match, or empty if not found
-     */
+
     public Optional<Workout> findById(int id) {
         return getAllWorkouts().stream()
                 .filter(w -> w.getId() == id)
                 .findFirst();
     }
 
-    /**
-     * Total number of workouts in the catalog.
-     *
-     * @return catalog size
-     */
     public int getTotalCount() {
         return getAllWorkouts().size();
     }

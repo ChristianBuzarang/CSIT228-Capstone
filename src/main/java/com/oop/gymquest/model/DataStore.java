@@ -46,17 +46,8 @@ public class DataStore {
 
     // ── Builders ───────────────────────────────────────────────────────────
 
-    /**
-     * Builds the full workout catalog.
-     *
-     * Each entry now includes:
-     *  • {@link WorkoutCategory}  – used by WorkoutService.filterByCategory()
-     *  • description              – displayed in WorkoutDetailView
-     *  • imagePath                – classpath-relative illustration asset
-     *
-     * Image paths match the SVG files generated for this project.
-     * Rename from .svg → .png if you convert assets to raster format.
-     */
+
+
     private List<Workout> buildWorkouts() {
         return List.of(
 
