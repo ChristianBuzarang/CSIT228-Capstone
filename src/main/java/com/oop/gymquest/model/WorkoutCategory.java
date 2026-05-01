@@ -20,12 +20,8 @@ public enum WorkoutCategory {
     }
 
     // ── Getters ───────────────────────────────────────────────────────────
-
     public String getLabel() { return label; }
-
-
     public String getColor() { return color; }
-
     @Override
     public String toString() { return label; }
 }
