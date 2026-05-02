@@ -19,13 +19,16 @@ import java.io.IOException;
 
 public class DashboardController {
 
-    @FXML private Label headerNameLabel;
-    @FXML private Label headerTypeLabel;
+    @FXML private Label headerNameLabel, headerTypeLabel;
     @FXML private StackPane contentArea;
     @FXML private Button notificationBell;
-    private Popup notificationPopup;
+    @FXML private Button btnDashboard, btnWorkouts, btnBooking, btnCommunity;
 
+    private Popup notificationPopup;
     public static DashboardController instance;
+
+    private final String STYLE_ACTIVE = "-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-background-radius: 15; -fx-font-weight: bold; -fx-cursor: hand;";
+    private final String STYLE_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-font-weight: normal; -fx-cursor: hand;";
 
     public DashboardController() {
         instance = this;
@@ -34,13 +37,20 @@ public class DashboardController {
     @FXML
     public void initialize() {
         User user = MainApp.instance.currentUser;
-
         if (user != null) {
-            // Check if labels were successfully injected from FXML before using them
-            if (headerNameLabel != null) headerNameLabel.setText(user.getFullName());
-            if (headerTypeLabel != null) headerTypeLabel.setText(user.getType().toUpperCase());
-
+            headerNameLabel.setText(user.getFullName());
+            headerTypeLabel.setText(user.getType().toUpperCase());
             loadRoleDashboard(user);
+        }
+    }
+
+    private void setActiveButton(Button activeBtn) {
+        btnDashboard.setStyle(STYLE_INACTIVE);
+        btnWorkouts.setStyle(STYLE_INACTIVE);
+        btnBooking.setStyle(STYLE_INACTIVE);
+        btnCommunity.setStyle(STYLE_INACTIVE);
+        if (activeBtn != null) {
+            activeBtn.setStyle(STYLE_ACTIVE);
         }
     }
 
@@ -48,10 +58,7 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxml));
             Pane newView = loader.load();
-
-            // This clears the current center and puts the new FXML there
             contentArea.getChildren().setAll(newView);
-
         } catch (IOException e) {
             System.err.println("❌ Could not load view: " + fxml);
             e.printStackTrace();
@@ -59,43 +66,41 @@ public class DashboardController {
     }
 
     private void loadRoleDashboard(User user) {
-        String fxmlName = switch (user.getType().toLowerCase()) {
+        String fxml = switch (user.getType().toLowerCase()) {
             case "admin" -> "dashboard_admin.fxml";
             case "trainer" -> "dashboard_trainer.fxml";
             default -> "dashboard_member.fxml";
         };
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxmlName));
-            Pane roleView = loader.load();
-            contentArea.getChildren().setAll(roleView);
-        } catch (IOException e) {
-            System.err.println("Error loading role dashboard: " + e.getMessage());
-        }
+        loadView(fxml);
     }
 
     @FXML
     private void handleNavDashboard() {
+        setActiveButton(btnDashboard);
         loadRoleDashboard(MainApp.instance.currentUser);
     }
 
     @FXML
     private void handleNavWorkouts() {
+        setActiveButton(btnWorkouts);
         loadView("workouts.fxml");
     }
 
     @FXML
     private void handleNavBooking() {
+        setActiveButton(btnBooking);
         loadView("booking.fxml");
     }
 
     @FXML
     private void handleNavCommunity() {
+        setActiveButton(btnCommunity);
         loadView("community.fxml");
     }
 
     @FXML
     private void handleNavProfile() {
+        setActiveButton(null);
         loadView("profile.fxml");
     }
 
@@ -129,6 +134,4 @@ public class DashboardController {
             );
         }
     }
-
-
 }
