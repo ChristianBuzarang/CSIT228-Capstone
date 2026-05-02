@@ -46,10 +46,10 @@
                     <cellValueFactory><PropertyValueFactory property="userId"/></cellValueFactory>
                 </TableColumn>
                 <TableColumn text="Full Name" prefWidth="180">
-                    <cellValueFactory><PropertyValueFactory property="firstName"/></cellValueFactory>
+                    <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
                 </TableColumn>
-                <TableColumn text="Email/Username" prefWidth="200">
-                    <cellValueFactory><PropertyValueFactory property="username"/></cellValueFactory>
+                <TableColumn text="Email" prefWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="email"/></cellValueFactory>
                 </TableColumn>
                 <TableColumn text="Role" prefWidth="120">
                     <cellValueFactory><PropertyValueFactory property="type"/></cellValueFactory>

@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.oop.gymquest.screens.dashboard.DashboardController">
+      fx:controller="com.oop.gymquest.screens.dashboard.TrainerDashboardController">
     <HBox spacing="20">
         <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-border-color: #bae6fd; -fx-border-width: 2;">
             <Label text="Today's Sessions" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>

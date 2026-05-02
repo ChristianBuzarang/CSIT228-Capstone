@@ -23,6 +23,7 @@ public abstract class User implements Serializable {
     public int getUserId() { return userid; }
     public String getEmail() { return email; }
     public String getPassword() { return password; }
-    public String getFirstname() { return firstname; }
-    public String getLastname() { return lastname; }
+    public String getFirstName() { return firstname; }
+    public String getLastName() { return lastname; }
+    public String getFullName() { return firstname + " " + lastname; }
 }

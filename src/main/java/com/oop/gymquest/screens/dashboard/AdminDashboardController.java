@@ -43,8 +43,8 @@ public class AdminDashboardController {
         }
 
         // Confirmation Dialog
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete " + selected.getFirstname()
-                + " " + selected.getLastname() + "?", ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete " + selected.getFirstName()
+                + " " + selected.getLastName() + "?", ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
                 UserDAO.delete(selected.getUserId());

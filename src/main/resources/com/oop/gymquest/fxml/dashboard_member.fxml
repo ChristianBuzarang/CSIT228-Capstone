@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<HBox spacing="30" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.DashboardController">
+<HBox spacing="30" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.MemberDashboardController">
 
     <VBox spacing="25" HBox.hgrow="ALWAYS">
         <!-- Welcome Card -->
@@ -25,7 +25,7 @@
             </VBox>
             <!-- RE-ADDED THE WEIGHTLIFTER LOGO PNG -->
             <ImageView fitHeight="130" preserveRatio="true">
-                <Image url="@/com/oop/gymquest/muscle.png"/>
+                <Image url="@../images/muscle.png"/>
             </ImageView>
         </HBox>
 
@@ -34,11 +34,11 @@
             <Label text="Today's Workouts" style="-fx-font-size: 22; -fx-font-weight: bold;"/>
             <GridPane hgap="20" vgap="20">
                 <HBox spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 20; -fx-background-radius: 20; -fx-border-color: #f1f5f9; -fx-border-width: 1; -fx-border-radius: 20;" GridPane.columnIndex="0">
-                    <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 12;"><ImageView fitHeight="24" fitWidth="24"><Image url="@/com/oop/gymquest/check.png"/></ImageView></StackPane>
+                    <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 12;"><ImageView fitHeight="24" fitWidth="24"><Image url="@../images/check.png"/></ImageView></StackPane>
                     <VBox spacing="5"><Label text="Full Body Blast" style="-fx-font-weight: bold; -fx-font-size: 16;"/><Label text="Beginner • 30 min" style="-fx-text-fill: #64748b;"/></VBox>
                 </HBox>
                 <HBox spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 20; -fx-background-radius: 20; -fx-border-color: #f1f5f9; -fx-border-width: 1; -fx-border-radius: 20;" GridPane.columnIndex="1">
-                    <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 12;"><ImageView fitHeight="24" fitWidth="24"><Image url="@/com/oop/gymquest/check.png"/></ImageView></StackPane>
+                    <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 12;"><ImageView fitHeight="24" fitWidth="24"><Image url="@../images/check.png"/></ImageView></StackPane>
                     <VBox spacing="5"><Label text="Upper Body Power" style="-fx-font-weight: bold; -fx-font-size: 16;"/><Label text="Beginner • 25 min" style="-fx-text-fill: #64748b;"/></VBox>
                 </HBox>
             </GridPane>
@@ -50,7 +50,7 @@
         <!-- Streak Card -->
         <VBox spacing="15" style="-fx-background-color: #f59e0b; -fx-background-radius: 30; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3), 15, 0, 0, 10);">
             <HBox spacing="15" alignment="CENTER_LEFT">
-                <StackPane style="-fx-background-color: rgba(255,255,255,0.2); -fx-padding: 15; -fx-background-radius: 40;"><ImageView fitHeight="30" fitWidth="30"><Image url="@/com/oop/gymquest/muscle.png"/></ImageView></StackPane>
+                <StackPane style="-fx-background-color: rgba(255,255,255,0.2); -fx-padding: 15; -fx-background-radius: 40;"><ImageView fitHeight="30" fitWidth="30"><Image url="@../images/muscle.png"/></ImageView></StackPane>
                 <VBox><Label text="Current Streak" textFill="white" style="-fx-font-size: 14;"/><Label text="12 days" textFill="white" style="-fx-font-size: 42; -fx-font-weight: 900;"/></VBox>
             </HBox>
         </VBox>
@@ -80,7 +80,7 @@
 
         <!-- Motivational Promotion Card -->
         <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #3b82f6; -fx-background-radius: 30; -fx-padding: 40;">
-            <ImageView fitHeight="50" fitWidth="50"><Image url="@/com/oop/gymquest/muscle.png"/></ImageView>
+            <ImageView fitHeight="50" fitWidth="50"><Image url="@../images/muscle.png"/></ImageView>
             <Label text="Keep it up!" textFill="white" style="-fx-font-weight: 800; -fx-font-size: 24;"/>
             <Label text="You're on fire! Complete one more workout to maintain your streak." textFill="white" wrapText="true" textAlignment="CENTER" style="-fx-font-size: 14; -fx-opacity: 0.9;"/>
         </VBox>

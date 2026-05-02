@@ -38,7 +38,7 @@ public class MainApp extends Application {
     public void changeScene(String fxmlFile, String title) {
         try {
             // All FXML files are expected to be in resources/com/oop/gymquest/
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/" + fxmlFile));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxmlFile));
             Scene scene = new Scene(loader.load());
 
             // Responsive Logic: Set window size based on screen bounds

@@ -27,7 +27,7 @@ public class DashboardController {
 
         if (user != null) {
             // Check if labels were successfully injected from FXML before using them
-            if (headerNameLabel != null) headerNameLabel.setText(user.getFirstname().toLowerCase());
+            if (headerNameLabel != null) headerNameLabel.setText(user.getFullName());
             if (headerTypeLabel != null) headerTypeLabel.setText(user.getType().toUpperCase());
 
             loadRoleDashboard(user);
@@ -42,7 +42,7 @@ public class DashboardController {
         };
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/" + fxmlName));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxmlName));
             Pane roleView = loader.load();
             contentArea.getChildren().setAll(roleView);
         } catch (IOException e) {

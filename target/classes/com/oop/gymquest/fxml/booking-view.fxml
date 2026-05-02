@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane fitToWidth="true" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.booking.BookingController">
+<ScrollPane fitToWidth="true" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.booking.BookingController">
     <VBox spacing="20.0" styleClass="main-container">
         <padding>
             <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
