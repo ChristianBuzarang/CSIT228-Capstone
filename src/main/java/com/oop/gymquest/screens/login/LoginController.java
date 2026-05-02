@@ -2,7 +2,7 @@ package com.oop.gymquest.screens.login;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
-import com.oop.gymquest.data.User;
+import com.oop.gymquest.data.userdata.User;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -20,8 +20,8 @@ public class LoginController {
     private boolean isPasswordVisible = false;
 
     // Load icons from resources
-    private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/see-password.png"));
-    private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/not-see-password.png"));
+    private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/see-password.png"));
+    private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/not-see-password.png"));
 
     /**
      * Toggles between hidden PasswordField and visible TextField.

@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1">
     <left>
         <VBox prefHeight="800.0" prefWidth="250.0" styleClass="sidebar" BorderPane.alignment="CENTER">
             <children>
@@ -28,7 +28,7 @@
                     <children>
                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                             <image>
-                                <Image url="@square.png" /> </image>
+                                <Image url="@../images/square.png" /> </image>
                         </ImageView>
                         <Label styleClass="logo-text" text="GymQuest" />
                     </children>
@@ -99,7 +99,7 @@
                                     <children>
                                         <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                                             <image>
-                                                <Image url="@square.png" />
+                                                <Image url="@../images/square.png" />
                                             </image>
                                         </ImageView>
                                         <VBox>

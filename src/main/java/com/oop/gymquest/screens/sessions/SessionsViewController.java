@@ -28,6 +28,6 @@ public class SessionsViewController {
 
     @FXML
     public static void handleAction() {
-        MainApp.instance.changeScene("/com/oop/gymquest/sessions.fxml", "GymQuest - Fitness Programs");
+        MainApp.instance.changeScene("/com/oop/gymquest/fxml/sessions.fxml", "GymQuest - Fitness Programs");
     }
 }

@@ -23,7 +23,7 @@ public class DashboardApplication extends Application {
         MainApp.instance.currentUser = DatabaseHandler.authenticate("admin", "1234");
 
         // 4. Load the actual dashboard UI
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/dashboard_shell.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/dashboard_shell.fxml"));
         Scene scene = new Scene(loader.load(), 1200, 800);
 
         stage.setTitle("GymQuest - Dashboard (Admin View)");

@@ -84,4 +84,8 @@ module com.oop.gymquest {
     exports com.oop.gymquest.screens.booking;
     exports com.oop.gymquest.screens.customWorkoutCreator;
     exports com.oop.gymquest.screens.exercisePicker;
+    exports com.oop.gymquest.data.userdata;
+    opens com.oop.gymquest.data.userdata to javafx.base;
+    exports com.oop.gymquest.data.workoutdata;
+    opens com.oop.gymquest.data.workoutdata to javafx.base;
 }

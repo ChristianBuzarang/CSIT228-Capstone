@@ -1,5 +1,10 @@
 package com.oop.gymquest.data;
 
+import com.oop.gymquest.data.userdata.Admin;
+import com.oop.gymquest.data.userdata.Member;
+import com.oop.gymquest.data.userdata.Trainer;
+import com.oop.gymquest.data.userdata.User;
+
 import java.sql.*;
 
 public class DatabaseHandler {

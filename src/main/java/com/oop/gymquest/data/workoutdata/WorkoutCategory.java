@@ -1,4 +1,4 @@
-package com.oop.gymquest.data;
+package com.oop.gymquest.data.workoutdata;
 
 public enum WorkoutCategory {
 

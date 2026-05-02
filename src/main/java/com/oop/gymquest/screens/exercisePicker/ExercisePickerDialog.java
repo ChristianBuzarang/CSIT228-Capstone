@@ -1,6 +1,6 @@
 package com.oop.gymquest.screens.exercisePicker;
 
-import com.oop.gymquest.data.Exercise;
+import com.oop.gymquest.data.workoutdata.Exercise;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -10,7 +10,7 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     public ExercisePickerDialog(List<Exercise> library) {
         try {
             // MATCHING THE PATH IN MAINAPP: /com/oop/gymquest/
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/exercise-picker-dialog-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/exercise-picker-dialog-view.fxml"));
 
             if (loader.getLocation() == null) {
                 System.err.println("FATAL ERROR: Could not find exercise-picker-dialog-view.fxml at /com/oop/gymquest/");

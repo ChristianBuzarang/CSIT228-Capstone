@@ -1,4 +1,6 @@
 package com.oop.gymquest.data;
+import com.oop.gymquest.data.workoutdata.Workout;
+
 import java.sql.*;
 
 public class WorkoutDAO {

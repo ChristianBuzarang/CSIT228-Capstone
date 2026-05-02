@@ -2,9 +2,11 @@ package com.oop.gymquest.screens.customWorkoutCreator;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.*;
+import com.oop.gymquest.data.workoutdata.Exercise;
+import com.oop.gymquest.data.workoutdata.Workout;
+import com.oop.gymquest.data.workoutdata.WorkoutCategory;
 import com.oop.gymquest.screens.exercisePicker.ExercisePickerDialog;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;

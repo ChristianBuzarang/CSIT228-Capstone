@@ -8,15 +8,15 @@
     <top>
         <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 10 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2); -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
             <ImageView fitHeight="35" preserveRatio="true">
-                <Image url="@gymquest-logo.png"/>
+                <Image url="@../images/gymquest-logo.png"/>
             </ImageView>
             <Region HBox.hgrow="ALWAYS" />
             <HBox spacing="20" alignment="CENTER">
-                <ImageView fitHeight="22" fitWidth="22"><Image url="@calendar.png"/></ImageView>
+                <ImageView fitHeight="22" fitWidth="22"><Image url="@../images/calendar.png"/></ImageView>
                 <HBox spacing="10" alignment="CENTER">
                     <Label fx:id="headerNameLabel" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 14;"/>
                     <StackPane style="-fx-background-color: #3b82f6; -fx-background-radius: 20; -fx-min-width: 38; -fx-min-height: 38;">
-                        <ImageView fitHeight="18" fitWidth="18"><Image url="@user.png"/></ImageView>
+                        <ImageView fitHeight="18" fitWidth="18"><Image url="@../images/user.png"/></ImageView>
                     </StackPane>
                 </HBox>
                 <!-- ADDED MISSING ID HERE -->
@@ -30,23 +30,23 @@
     <left>
         <VBox spacing="10" prefWidth="240" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #e2e8f0; -fx-border-width: 0 1 0 0;">
             <Button maxWidth="Infinity" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-alignment: CENTER_LEFT; -fx-padding: 12; -fx-background-radius: 10; -fx-font-weight: bold;">
-                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@home.png"/></ImageView></graphic>
+                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@../images/home.png"/></ImageView></graphic>
                 <text> Dashboard</text>
             </Button>
             <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12;">
-                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@muscle.png"/></ImageView></graphic>
+                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@../images/muscle.png"/></ImageView></graphic>
                 <text> Workouts</text>
             </Button>
             <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12;">
-                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@book-session.png"/></ImageView></graphic>
+                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@../images/book-session.png"/></ImageView></graphic>
                 <text> Book Trainer</text>
             </Button>
             <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12;">
-                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@group.png"/></ImageView></graphic>
+                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@../images/group.png"/></ImageView></graphic>
                 <text> Community</text>
             </Button>
             <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 12;">
-                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@user.png"/></ImageView></graphic>
+                <graphic><ImageView fitHeight="18" fitWidth="18"><Image url="@../images/user.png"/></ImageView></graphic>
                 <text> Profile</text>
             </Button>
         </VBox>

@@ -9,7 +9,7 @@
     <VBox alignment="TOP_CENTER" maxWidth="500" spacing="10" style="-fx-background-color: white; -fx-background-radius: 40; -fx-padding: 30 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 15);">
 
         <ImageView fitHeight="80.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true">
-            <Image url="@gymquest-logo.png" />
+            <Image url="@../images/gymquest-logo.png" />
         </ImageView>
 
         <VBox alignment="CENTER" spacing="10">
@@ -54,7 +54,7 @@
                         <TextField fx:id="passFieldVisible" style="-fx-padding: 10;" visible="false" />
                     </StackPane>
                     <Button onAction="#togglePassword" style="-fx-background-color: transparent;">
-                        <graphic><ImageView fx:id="passIcon" fitHeight="18" fitWidth="18"><Image url="@see-password.png" /></ImageView></graphic>
+                        <graphic><ImageView fx:id="passIcon" fitHeight="18" fitWidth="18"><Image url="@../images/see-password.png" /></ImageView></graphic>
                     </Button>
                 </HBox>
             </VBox>
@@ -68,7 +68,7 @@
                         <TextField fx:id="confirmPassFieldVisible" style="-fx-padding: 10;" visible="false" />
                     </StackPane>
                     <Button onAction="#toggleConfirmPassword" style="-fx-background-color: transparent;">
-                        <graphic><ImageView fx:id="confirmIcon" fitHeight="18" fitWidth="18"><Image url="@see-password.png" /></ImageView></graphic>
+                        <graphic><ImageView fx:id="confirmIcon" fitHeight="18" fitWidth="18"><Image url="@../images/see-password.png" /></ImageView></graphic>
                     </Button>
                 </HBox>
             </VBox>

@@ -24,7 +24,7 @@
             </VBox>
             <!-- Design requirement: Weightlifter icon -->
             <ImageView fitHeight="100" preserveRatio="true">
-                <Image url="@/com/oop/gymquest/muscle.png"/>
+                <Image url="@/com/oop/gymquest/images/muscle.png"/>
             </ImageView>
         </HBox>
 
@@ -34,7 +34,7 @@
             <GridPane hgap="20" vgap="20">
                 <HBox spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 15;" GridPane.columnIndex="0">
                     <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 10;">
-                        <ImageView fitHeight="22" fitWidth="22"><Image url="@/com/oop/gymquest/check.png"/></ImageView>
+                        <ImageView fitHeight="22" fitWidth="22"><Image url="@/com/oop/gymquest/images/check.png"/></ImageView>
                     </StackPane>
                     <VBox spacing="5">
                         <Label text="Full Body Blast" style="-fx-font-weight: bold;"/>
@@ -43,7 +43,7 @@
                 </HBox>
                 <HBox spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 15;" GridPane.columnIndex="1">
                     <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 10;">
-                        <ImageView fitHeight="22" fitWidth="22"><Image url="@/com/oop/gymquest/check.png"/></ImageView>
+                        <ImageView fitHeight="22" fitWidth="22"><Image url="@/com/oop/gymquest/images/check.png"/></ImageView>
                     </StackPane>
                     <VBox spacing="5">
                         <Label text="Upper Body Power" style="-fx-font-weight: bold;"/>
@@ -59,7 +59,7 @@
         <VBox spacing="15" style="-fx-background-color: #f59e0b; -fx-background-radius: 25; -fx-padding: 30;">
             <HBox spacing="15" alignment="CENTER_LEFT">
                 <StackPane style="-fx-background-color: rgba(255,255,255,0.2); -fx-padding: 15; -fx-background-radius: 40;">
-                    <ImageView fitHeight="25" fitWidth="25"><Image url="@/com/oop/gymquest/muscle.png"/></ImageView>
+                    <ImageView fitHeight="25" fitWidth="25"><Image url="@/com/oop/gymquest/images/muscle.png"/></ImageView>
                 </StackPane>
                 <VBox>
                     <Label text="Current Streak" textFill="white"/><Label text="12 days" textFill="white" style="-fx-font-size: 34; -fx-font-weight: bold;"/>
@@ -76,7 +76,7 @@
         </VBox>
 
         <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #3b82f6; -fx-background-radius: 25; -fx-padding: 35;">
-            <ImageView fitHeight="45" fitWidth="45"><Image url="@/com/oop/gymquest/muscle.png"/></ImageView>
+            <ImageView fitHeight="45" fitWidth="45"><Image url="@/com/oop/gymquest/images/muscle.png"/></ImageView>
             <Label text="Keep it up!" textFill="white" style="-fx-font-weight: bold; -fx-font-size: 20;"/>
         </VBox>
     </VBox>

@@ -1,7 +1,7 @@
 package com.oop.gymquest.app;
 
 import com.oop.gymquest.data.DatabaseHandler;
-import com.oop.gymquest.data.User;
+import com.oop.gymquest.data.userdata.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
