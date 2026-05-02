@@ -68,12 +68,16 @@
             </Button>
 
             <!-- Booking Button -->
+            <!-- Inside the Sidebar VBox -->
             <Button fx:id="btnBooking" onAction="#handleNavBooking" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-cursor: hand;">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/book-session.png"/></ImageView></graphic>
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20">
+                        <Image url="@../images/book-session.png"/> <!-- Ensure path is correct -->
+                    </ImageView>
+                </graphic>
                 <text>  Book Trainer</text>
             </Button>
-
             <!-- Community Button -->
             <Button fx:id="btnCommunity" onAction="#handleNavCommunity" maxWidth="Infinity"
                     style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-cursor: hand;">

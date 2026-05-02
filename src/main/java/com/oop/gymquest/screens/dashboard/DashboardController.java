@@ -34,12 +34,19 @@ public class DashboardController {
         instance = this;
     }
 
+    // Inside DashboardController.java initialize()
     @FXML
     public void initialize() {
         User user = MainApp.instance.currentUser;
         if (user != null) {
             headerNameLabel.setText(user.getFullName());
             headerTypeLabel.setText(user.getType().toUpperCase());
+
+            // CHANGE: If Trainer, rename the booking button to Manage Schedule
+            if (user.getType().equalsIgnoreCase("trainer")) {
+                btnBooking.setText("  Manage Schedule");
+            }
+
             loadRoleDashboard(user);
         }
     }
@@ -60,7 +67,7 @@ public class DashboardController {
             Pane newView = loader.load();
             contentArea.getChildren().setAll(newView);
         } catch (IOException e) {
-            System.err.println("❌ Could not load view: " + fxml);
+            System.err.println("Could not load view: " + fxml);
             e.printStackTrace();
         }
     }
