@@ -3,11 +3,11 @@ package com.oop.gymquest.screens.profile;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class ProfileViewApplication extends Application {
+public class ProfileApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        ProfileViewController.handleAction();
+        ProfileController.instance.initialize();
     }
 
     public static void main(String[] args) {

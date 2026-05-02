@@ -88,4 +88,6 @@ module com.oop.gymquest {
     opens com.oop.gymquest.data.userdata to javafx.base;
     exports com.oop.gymquest.data.workoutdata;
     opens com.oop.gymquest.data.workoutdata to javafx.base;
+    exports com.oop.gymquest.screens.dashboard.userdashboards;
+    opens com.oop.gymquest.screens.dashboard.userdashboards to javafx.fxml;
 }

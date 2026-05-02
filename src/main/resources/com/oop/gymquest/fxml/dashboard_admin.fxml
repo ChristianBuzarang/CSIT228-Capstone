@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.*?>
 
-<VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.AdminDashboardController">
+<VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.AdminDashboardController">
 
     <!-- STATS OVERVIEW ROW -->
     <HBox spacing="20" alignment="CENTER">

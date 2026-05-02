@@ -2,18 +2,28 @@ package com.oop.gymquest.screens.dashboard;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.userdata.User;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Side;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Popup;
+
 import java.io.IOException;
 
 public class DashboardController {
-    // These IDs MUST match the fx:id in dashboard_shell.fxml
+
     @FXML private Label headerNameLabel;
     @FXML private Label headerTypeLabel;
     @FXML private StackPane contentArea;
+    @FXML private Button notificationBell;
+    private Popup notificationPopup;
 
     public static DashboardController instance;
 
@@ -54,5 +64,30 @@ public class DashboardController {
     private void handleLogout() {
         MainApp.instance.currentUser = null;
         MainApp.instance.changeScene("login.fxml", "GymQuest - Login");
+    }
+
+    @FXML
+    private void handleShowNotifications(ActionEvent event) {
+        if (notificationPopup == null) {
+            notificationPopup = new Popup();
+            notificationPopup.setAutoHide(true);
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/notification.fxml"));
+                Parent root = loader.load();
+                notificationPopup.getContent().add(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (notificationPopup.isShowing()) {
+            notificationPopup.hide();
+        } else {
+            notificationPopup.show(notificationBell,
+                    notificationBell.getScene().getWindow().getX() + notificationBell.localToScene(0, 0).getX() - 300,
+                    notificationBell.getScene().getWindow().getY() + notificationBell.localToScene(0, 0).getY() + 50
+            );
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.oop.gymquest.screens.dashboard;
+package com.oop.gymquest.screens.dashboard.userdashboards;
 
 import com.oop.gymquest.data.UserDAO;
 import com.oop.gymquest.data.userdata.User;

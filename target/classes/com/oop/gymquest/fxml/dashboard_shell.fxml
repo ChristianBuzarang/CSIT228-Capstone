@@ -18,7 +18,7 @@
             <HBox spacing="20" alignment="CENTER">
                 <!-- NOTIFICATION WITH BADGE -->
                 <StackPane>
-                    <Button style="-fx-background-color: transparent; -fx-cursor: hand;">
+                    <Button fx:id="notificationBell" onAction="#handleShowNotifications" style="-fx-background-color: transparent; -fx-cursor: hand;">
                         <graphic><ImageView fitHeight="24" fitWidth="24"><Image url="@../images/notification.png"/></ImageView></graphic>
                     </Button>
                     <Label text="2" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold; -fx-padding: 2 6; -fx-background-radius: 10;" StackPane.alignment="TOP_RIGHT">

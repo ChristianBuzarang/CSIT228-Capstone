@@ -1,4 +1,4 @@
-package com.oop.gymquest.screens.dashboard;
+package com.oop.gymquest.screens.dashboard.userdashboards;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

@@ -17,7 +17,7 @@ public class RegisterController {
     @FXML private TextField passFieldVisible, confirmPassFieldVisible;
     @FXML private ImageView passIcon, confirmIcon;
     @FXML private Label statusLabel;
-    @FXML private Button memberBtn, trainerBtn, adminBtn;
+    @FXML private Button memberBtn, trainerBtn;
 
     private String selectedType = "member";
     private boolean isPassVisible = false, isConfirmVisible = false;
@@ -26,9 +26,6 @@ public class RegisterController {
     private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/see-password.png"));
     private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/not-see-password.png"));
 
-    /**
-     * Constructor to initialize the static instance
-     */
     public RegisterController() {
         instance = this;
     }
@@ -38,23 +35,24 @@ public class RegisterController {
         selectMember();
     }
 
-    /**
-     * Account Type Selection (Centered Buttons)
-     */
-    @FXML private void selectMember() { setType("member", memberBtn); }
-    @FXML private void selectTrainer() { setType("trainer", trainerBtn); }
-    @FXML private void selectAdmin() { setType("admin", adminBtn); }
+    @FXML private void selectMember() {
+        setType("member", memberBtn);
+    }
+
+    @FXML private void selectTrainer() {
+        setType("trainer", trainerBtn);
+    }
 
     private void setType(String type, Button b) {
         this.selectedType = type;
-        // Reset styles for centered buttons
-        String inactive = "-fx-background-color: white; -fx-text-fill: #64748b; -fx-border-color: #bae6fd; -fx-border-radius: 10; -fx-cursor: hand;";
+
+        String active = "-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 12 25; -fx-font-weight: bold;";
+        String inactive = "-fx-background-color: white; -fx-text-fill: #64748b; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15; -fx-padding: 12 25;";
+
         memberBtn.setStyle(inactive);
         trainerBtn.setStyle(inactive);
-        adminBtn.setStyle(inactive);
 
-        // Highlight selected
-        b.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 10; -fx-cursor: hand;");
+        b.setStyle(active);
     }
 
     /**

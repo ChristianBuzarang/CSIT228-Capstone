@@ -15,9 +15,12 @@
         <VBox alignment="CENTER" spacing="10">
             <Label style="-fx-text-fill: #64748b; -fx-font-size: 13;" text="Account Type" />
             <HBox alignment="CENTER" spacing="10">
-                <Button fx:id="memberBtn" onAction="#selectMember" prefWidth="90" text="Member" />
-                <Button fx:id="trainerBtn" onAction="#selectTrainer" prefWidth="90" text="Trainer" />
-                <Button fx:id="adminBtn" onAction="#selectAdmin" prefWidth="90" text="Admin" />
+                <Button fx:id="memberBtn" onAction="#selectMember" prefWidth="130" text="Member"
+                        style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 25;
+                         -fx-padding: 12 25; -fx-font-weight: bold; -fx-cursor: hand;" />
+                <Button fx:id="trainerBtn" onAction="#selectTrainer" prefWidth="130" text="Trainer"
+                        style="-fx-background-color: white; -fx-text-fill: #64748b; -fx-background-radius: 25;
+                         -fx-border-color: #e2e8f0; -fx-border-radius: 25; -fx-border-width: 1; -fx-padding: 12 25; -fx-cursor: hand;" />
             </HBox>
 
             <GridPane hgap="10" vgap="10">

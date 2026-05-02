@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<HBox spacing="30" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.MemberDashboardController">
+<HBox spacing="30" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.MemberDashboardController">
 
     <VBox spacing="25" HBox.hgrow="ALWAYS">
         <!-- Welcome Card -->
