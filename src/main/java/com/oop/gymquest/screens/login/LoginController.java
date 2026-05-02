@@ -9,12 +9,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class LoginController {
-    @FXML private TextField uField;
+    @FXML private TextField emailField;
     @FXML private Label statusLabel;
 
     // Password Toggle Fields
-    @FXML private PasswordField pField;
-    @FXML private TextField pFieldVisible;
+    @FXML private PasswordField passwordField;
+    @FXML private TextField eyeFieldVisible;
     @FXML private ImageView toggleIcon;
 
     private boolean isPasswordVisible = false;
@@ -31,15 +31,15 @@ public class LoginController {
     private void togglePassword() {
         if (isPasswordVisible) {
             // Switch back to hidden
-            pField.setText(pFieldVisible.getText());
-            pField.setVisible(true);
-            pFieldVisible.setVisible(false);
+            passwordField.setText(eyeFieldVisible.getText());
+            passwordField.setVisible(true);
+            eyeFieldVisible.setVisible(false);
             toggleIcon.setImage(SEE_IMG);
         } else {
             // Switch to visible
-            pFieldVisible.setText(pField.getText());
-            pFieldVisible.setVisible(true);
-            pField.setVisible(false);
+            eyeFieldVisible.setText(passwordField.getText());
+            eyeFieldVisible.setVisible(true);
+            passwordField.setVisible(false);
             toggleIcon.setImage(NOT_SEE_IMG);
         }
         isPasswordVisible = !isPasswordVisible;
@@ -47,10 +47,10 @@ public class LoginController {
 
     @FXML
     private void handleLogin() {
-        String username = uField.getText();
+        String username = emailField.getText();
 
         // Get the password from whichever field is currently active/visible
-        String password = isPasswordVisible ? pFieldVisible.getText() : pField.getText();
+        String password = isPasswordVisible ? eyeFieldVisible.getText() : passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
             showError("Please enter both username and password");

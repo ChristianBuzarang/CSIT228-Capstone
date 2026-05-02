@@ -12,7 +12,7 @@ public class RegisterController {
     // FIX: Add this line so RegisterApplication can find the symbol
     public static RegisterController instance;
 
-    @FXML private TextField firstnameField, lastnameField, emailField, usernameField;
+    @FXML private TextField firstnameField, lastnameField, emailField;
     @FXML private PasswordField passField, confirmPassField;
     @FXML private TextField passFieldVisible, confirmPassFieldVisible;
     @FXML private ImageView passIcon, confirmIcon;
@@ -94,14 +94,13 @@ public class RegisterController {
         String fname = firstnameField.getText();
         String lname = lastnameField.getText();
         String email = emailField.getText();
-        String username = usernameField.getText();
 
         // Get passwords from whichever field is currently active
         String p1 = isPassVisible ? passFieldVisible.getText() : passField.getText();
         String p2 = isConfirmVisible ? confirmPassFieldVisible.getText() : confirmPassField.getText();
 
         // 1. Check for empty fields
-        if (fname.isEmpty() || lname.isEmpty() || email.isEmpty() || username.isEmpty() || p1.isEmpty()) {
+        if (fname.isEmpty() || lname.isEmpty() || email.isEmpty() || p1.isEmpty()) {
             showError("Please fill all fields");
             return;
         }
@@ -113,7 +112,7 @@ public class RegisterController {
         }
 
         // 3. Database Attempt
-        if (DatabaseHandler.registerUser(username, p1, fname, lname, selectedType)) {
+        if (DatabaseHandler.registerUser(email, p1, fname, lname, selectedType)) {
             statusLabel.setText("Account created successfully!");
             statusLabel.setStyle("-fx-text-fill: #10b981;");
             MainApp.instance.changeScene("login.fxml", "GymQuest - Login");
