@@ -44,6 +44,20 @@ public class DashboardController {
         }
     }
 
+    private void loadView(String fxml) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxml));
+            Pane newView = loader.load();
+
+            // This clears the current center and puts the new FXML there
+            contentArea.getChildren().setAll(newView);
+
+        } catch (IOException e) {
+            System.err.println("❌ Could not load view: " + fxml);
+            e.printStackTrace();
+        }
+    }
+
     private void loadRoleDashboard(User user) {
         String fxmlName = switch (user.getType().toLowerCase()) {
             case "admin" -> "dashboard_admin.fxml";
@@ -58,6 +72,31 @@ public class DashboardController {
         } catch (IOException e) {
             System.err.println("Error loading role dashboard: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleNavDashboard() {
+        loadRoleDashboard(MainApp.instance.currentUser);
+    }
+
+    @FXML
+    private void handleNavWorkouts() {
+        loadView("workouts.fxml");
+    }
+
+    @FXML
+    private void handleNavBooking() {
+        loadView("booking.fxml");
+    }
+
+    @FXML
+    private void handleNavCommunity() {
+        loadView("community.fxml");
+    }
+
+    @FXML
+    private void handleNavProfile() {
+        loadView("profile.fxml");
     }
 
     @FXML
@@ -90,4 +129,6 @@ public class DashboardController {
             );
         }
     }
+
+
 }

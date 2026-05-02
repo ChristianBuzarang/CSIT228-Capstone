@@ -137,6 +137,6 @@ public class BookingController implements Initializable {
     }
 
     public static void handleAction() {
-        MainApp.instance.changeScene("/com/oop/gymquest/fxml/booking-view.fxml", "Book Training");
+        MainApp.instance.changeScene("/com/oop/gymquest/fxml/booking.fxml", "Book Training");
     }
 }

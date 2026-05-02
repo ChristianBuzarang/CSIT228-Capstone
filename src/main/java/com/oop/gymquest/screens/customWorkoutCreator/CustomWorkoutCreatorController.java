@@ -20,7 +20,7 @@ public class CustomWorkoutCreatorController {
 
     @FXML public void initialize() { updateExerciseList(); }
 
-    @FXML private void handleBack() { MainApp.instance.changeScene("booking-view.fxml", "GymQuest"); }
+    @FXML private void handleBack() { MainApp.instance.changeScene("booking.fxml", "GymQuest"); }
 
     @FXML
     private void handleAddExercise() {
