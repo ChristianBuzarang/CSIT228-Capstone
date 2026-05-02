@@ -54,7 +54,7 @@ module com.oop.gymquest {
     requires javafx.fxml;
     requires javafx.graphics;
     requires java.sql; // Add this line
-    requires mysql.connector.j; // Add this line
+//    requires mysql.connector.j; // Add this line
 
     // ALLOW FXML TO ACCESS CONTROLLERS
     opens com.oop.gymquest to javafx.fxml;
