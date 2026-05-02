@@ -1,7 +1,7 @@
 package com.oop.gymquest.screens.dashboard;
 
 import com.oop.gymquest.app.MainApp;
-import com.oop.gymquest.data.*;
+import com.oop.gymquest.data.userdata.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;

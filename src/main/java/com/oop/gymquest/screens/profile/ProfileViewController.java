@@ -63,6 +63,6 @@ public class ProfileViewController {
 
     @FXML
     public static void handleAction() {
-        MainApp.instance.changeScene("/com/oop/gymquest/profile.fxml", "GymQuest - Member Profile");
+        MainApp.instance.changeScene("/com/oop/gymquest/fxml/profile.fxml", "GymQuest - Member Profile");
     }
 }

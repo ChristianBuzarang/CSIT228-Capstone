@@ -1,4 +1,6 @@
 package com.oop.gymquest.data;
+import com.oop.gymquest.data.workoutdata.Exercise;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

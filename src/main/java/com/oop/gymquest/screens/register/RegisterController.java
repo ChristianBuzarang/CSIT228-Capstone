@@ -23,8 +23,8 @@ public class RegisterController {
     private boolean isPassVisible = false, isConfirmVisible = false;
 
     // Load images from resources
-    private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/see-password.png"));
-    private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/not-see-password.png"));
+    private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/see-password.png"));
+    private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/not-see-password.png"));
 
     /**
      * Constructor to initialize the static instance

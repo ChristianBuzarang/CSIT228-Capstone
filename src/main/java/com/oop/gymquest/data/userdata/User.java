@@ -1,4 +1,4 @@
-package com.oop.gymquest.data;
+package com.oop.gymquest.data.userdata;
 import java.io.Serializable;
 
 public abstract class User implements Serializable {

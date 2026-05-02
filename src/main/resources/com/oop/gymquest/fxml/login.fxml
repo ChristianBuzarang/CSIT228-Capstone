@@ -9,7 +9,7 @@
     <VBox alignment="TOP_CENTER" maxHeight="700" maxWidth="450" spacing="20" style="-fx-background-color: white; -fx-background-radius: 40; -fx-padding: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 30, 0, 0, 15);">
 
         <ImageView fitHeight="100.0" fitWidth="220.0" pickOnBounds="true" preserveRatio="true">
-            <Image url="@gymquest-logo.png" />
+            <Image url="@../images/gymquest-logo.png" />
         </ImageView>
 
         <Label style="-fx-text-fill: #64748b; -fx-font-size: 16;" text="Welcome back!" />
@@ -30,7 +30,7 @@
                     <Button onAction="#togglePassword" style="-fx-background-color: transparent; -fx-cursor: hand;">
                         <graphic>
                             <ImageView fx:id="toggleIcon" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                <Image url="@see-password.png" />
+                                <Image url="@../images/see-password.png" />
                             </ImageView>
                         </graphic>
                     </Button>

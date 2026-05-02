@@ -1,6 +1,6 @@
 package com.oop.gymquest.screens.exercisePicker;
 
-import com.oop.gymquest.data.Exercise;
+import com.oop.gymquest.data.workoutdata.Exercise;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
