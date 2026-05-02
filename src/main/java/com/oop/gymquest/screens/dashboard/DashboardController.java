@@ -10,8 +10,9 @@ import javafx.scene.layout.StackPane;
 import java.io.IOException;
 
 public class DashboardController {
-    // Shell Elements
+    // These IDs MUST match the fx:id in dashboard_shell.fxml
     @FXML private Label headerNameLabel;
+    @FXML private Label headerTypeLabel;
     @FXML private StackPane contentArea;
 
     public static DashboardController instance;
@@ -23,16 +24,13 @@ public class DashboardController {
     @FXML
     public void initialize() {
         User user = MainApp.instance.currentUser;
-        if (user != null) {
-            // FIX: Only set text if the label exists in the current FXML
-            if (headerNameLabel != null) {
-                headerNameLabel.setText(user.getFirstname().toLowerCase());
-            }
 
-            // Only load the role dashboard if we are currently in the SHELL
-            if (contentArea != null) {
-                loadRoleDashboard(user);
-            }
+        if (user != null) {
+            // Check if labels were successfully injected from FXML before using them
+            if (headerNameLabel != null) headerNameLabel.setText(user.getFirstname().toLowerCase());
+            if (headerTypeLabel != null) headerTypeLabel.setText(user.getType().toUpperCase());
+
+            loadRoleDashboard(user);
         }
     }
 
@@ -48,9 +46,7 @@ public class DashboardController {
             Pane roleView = loader.load();
             contentArea.getChildren().setAll(roleView);
         } catch (IOException e) {
-            // This prints if there's a typo in FXML or an error in the sub-FXML's controller logic
-            System.err.println("Fatal: Could not load " + fxmlName);
-            e.printStackTrace();
+            System.err.println("Error loading role dashboard: " + e.getMessage());
         }
     }
 
