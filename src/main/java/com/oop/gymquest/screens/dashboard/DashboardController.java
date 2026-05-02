@@ -10,36 +10,33 @@ import javafx.scene.layout.StackPane;
 import java.io.IOException;
 
 public class DashboardController {
-    @FXML private Label headerNameLabel, headerTypeLabel, avatarLabel;
+    // Shell Elements
+    @FXML private Label headerNameLabel;
     @FXML private StackPane contentArea;
 
-    // FIX: Re-add the static instance variable
     public static DashboardController instance;
 
     public DashboardController() {
-        instance = this; // Sets the instance when FXML is loaded
+        instance = this;
     }
 
     @FXML
     public void initialize() {
-        // Use the user from MainApp (populated via SQL login)
         User user = MainApp.instance.currentUser;
-
         if (user != null) {
-            headerNameLabel.setText(user.getFirstname() + " " + user.getLastname());
-            headerTypeLabel.setText(user.getType().toUpperCase());
+            // FIX: Only set text if the label exists in the current FXML
+            if (headerNameLabel != null) {
+                headerNameLabel.setText(user.getFirstname().toLowerCase());
+            }
 
-            // Check subclass type for icon
-            if (user instanceof Admin) avatarLabel.setText("👨‍💼");
-            else if (user instanceof Trainer) avatarLabel.setText("🏋️");
-            else avatarLabel.setText("🎯");
-
-            loadRoleDashboard(user);
+            // Only load the role dashboard if we are currently in the SHELL
+            if (contentArea != null) {
+                loadRoleDashboard(user);
+            }
         }
     }
 
     private void loadRoleDashboard(User user) {
-        // Choose FXML based on the Subclass
         String fxmlName = switch (user.getType().toLowerCase()) {
             case "admin" -> "dashboard_admin.fxml";
             case "trainer" -> "dashboard_trainer.fxml";
@@ -51,7 +48,9 @@ public class DashboardController {
             Pane roleView = loader.load();
             contentArea.getChildren().setAll(roleView);
         } catch (IOException e) {
-            System.err.println("Error loading role dashboard: " + e.getMessage());
+            // This prints if there's a typo in FXML or an error in the sub-FXML's controller logic
+            System.err.println("Fatal: Could not load " + fxmlName);
+            e.printStackTrace();
         }
     }
 
