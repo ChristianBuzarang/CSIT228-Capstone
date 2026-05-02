@@ -1,10 +1,19 @@
 package com.oop.gymquest.screens.dashboard.userdashboards;
 
+import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.UserDAO;
 import com.oop.gymquest.data.userdata.User;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.io.IOException;
 import java.util.List;
 
 public class AdminDashboardController {
@@ -20,7 +29,6 @@ public class AdminDashboardController {
 
     @FXML
     private void refreshUserTable() {
-        // Use the CRUD method from UserDAO
         List<User> users = UserDAO.getAll();
         userTable.setItems(FXCollections.observableArrayList(users));
     }
@@ -37,21 +45,43 @@ public class AdminDashboardController {
     @FXML
     private void handleDeleteUser() {
         User selected = userTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showAlert("No Selection", "Please select a user to delete.");
+        User currentUser = MainApp.instance.currentUser;
+        if (selected == null) return;
+        // Guard - Can't delete self
+        if (selected.getUserId() == currentUser.getUserId()) {
+            showAlert("Access Denied", "For security reasons, you cannot archive your own admin account.");
             return;
         }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Move " + selected.getFullName() + " to cold storage archive?",
+                ButtonType.YES, ButtonType.NO);
 
-        // Confirmation Dialog
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete " + selected.getFirstName()
-                + " " + selected.getLastName() + "?", ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.YES) {
-                UserDAO.delete(selected.getUserId());
-                refreshUserTable();
-                updateStats();
+                boolean success = UserDAO.archiveUser(selected.getUserId());
+                if (success) {
+                    refreshUserTable();
+                }
             }
         });
+    }
+
+    @FXML
+    private void handleCreateAdmin() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/register_admin.fxml"));
+            Parent root = loader.load();
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root);
+            scene.setFill(null);
+            modalStage.setScene(scene);
+            modalStage.showAndWait();
+            refreshUserTable();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String content) {

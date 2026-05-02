@@ -10,6 +10,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
+    // Refactor Delete to Archive (Cold Storage)
+    public static boolean archiveUser(int userId) {
+        String insertSql = "INSERT INTO users_archive (userid, email, password, firstname, lastname, type) " +
+                "SELECT userid, email, password, firstname, lastname, type FROM users WHERE userid = ?";
+        String deleteSql = "DELETE FROM users WHERE userid = ?";
+
+        try (Connection c = MySQLConnection.getConnection()) {
+            c.setAutoCommit(false); // Start Transaction
+            try (PreparedStatement psInsert = c.prepareStatement(insertSql);
+                 PreparedStatement psDelete = c.prepareStatement(deleteSql)) {
+
+                // Copy to Archive
+                psInsert.setInt(1, userId);
+                psInsert.executeUpdate();
+
+                // Delete from Active
+                psDelete.setInt(1, userId);
+                psDelete.executeUpdate();
+
+                c.commit();
+                return true;
+            } catch (SQLException e) {
+                c.rollback(); // Undo if something fails
+                return false;
+            }
+        } catch (SQLException e) { return false; }
+    }
 
     private static User mapUser(ResultSet rs) throws SQLException {
         String type = rs.getString("type").toLowerCase();

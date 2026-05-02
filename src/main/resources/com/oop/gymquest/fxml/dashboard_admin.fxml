@@ -34,10 +34,16 @@
         <HBox alignment="CENTER_LEFT">
             <VBox spacing="5">
                 <Label text="User Management" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-                <Label text="Manage, edit, or remove users from the GymQuest system." style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
+                <Label text="Manage active accounts or archive them to cold storage." style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="Refresh List" onAction="#refreshUserTable" style="-fx-background-color: #f1f5f9; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15;"/>
+            <HBox spacing="10">
+                <!-- New Admin Button -->
+                <Button text="+ Create Admin" onAction="#handleCreateAdmin"
+                        style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15; -fx-cursor: hand;"/>
+                <Button text="Refresh List" onAction="#refreshUserTable"
+                        style="-fx-background-color: #f1f5f9; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15;"/>
+            </HBox>
         </HBox>
 
         <TableView fx:id="userTable" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #f1f5f9; -fx-border-radius: 10;">

@@ -18,13 +18,19 @@ public class DatabaseHandler {
             try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
                  Statement stmt = conn.createStatement()) {
 
-                // 1. Base Users Table
+                // Active Users Table
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
                         "email VARCHAR(255) UNIQUE, password VARCHAR(255), " +
                         "firstname VARCHAR(255), lastname VARCHAR(255), type VARCHAR(50))");
 
-                // 2. Separate Role Tables (Linked via Foreign Key)
+                // COLD STORAGE (Archive) Table
+                stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (" +
+                        "userid INT, email VARCHAR(255), password VARCHAR(255), " +
+                        "firstname VARCHAR(255), lastname VARCHAR(255), type VARCHAR(50), " +
+                        "archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
+                // Separate Role Tables (Linked via Foreign Key)
                 stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, " +
                         "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 

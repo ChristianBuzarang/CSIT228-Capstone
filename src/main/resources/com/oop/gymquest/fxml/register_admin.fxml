@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" maxWidth="500" spacing="15"
+      style="-fx-background-color: white; -fx-background-radius: 40; -fx-border-color: #3b82f6; -fx-border-radius: 40;
+       -fx-border-width: 10; -fx-padding: 40 50;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.register.RegisterAdminController">
+
+    <ImageView fitHeight="60.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+        <Image url="@../images/gymquest-logo.png" />
+    </ImageView>
+
+    <VBox alignment="CENTER" spacing="5">
+        <Label text="New Admin Account" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+        <Label text="Setup credentials for a new system administrator" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
+    </VBox>
+
+    <VBox spacing="12">
+        <GridPane hgap="10" VBox.vgrow="SOMETIMES">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <children>
+                <VBox spacing="5" GridPane.columnIndex="0">
+                    <Label style="-fx-text-fill: #64748b; -fx-font-weight: bold;" text="First Name" />
+                    <TextField fx:id="firstnameField" style="-fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;" />
+                </VBox>
+                <VBox spacing="5" GridPane.columnIndex="1">
+                    <Label style="-fx-text-fill: #64748b; -fx-font-weight: bold;" text="Last Name" />
+                    <TextField fx:id="lastnameField" style="-fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;" />
+                </VBox>
+            </children>
+        </GridPane>
+
+        <VBox spacing="5">
+            <Label style="-fx-text-fill: #64748b; -fx-font-weight: bold;" text="Email" />
+            <TextField fx:id="emailField" style="-fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;" />
+        </VBox>
+
+        <VBox spacing="5">
+            <Label style="-fx-text-fill: #64748b; -fx-font-weight: bold;" text="Admin Password" />
+            <PasswordField fx:id="passField" style="-fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;" />
+        </VBox>
+    </VBox>
+
+    <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+        <Button maxWidth="Infinity" onAction="#handleCreateAdmin" text="Create Admin Account"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 15; -fx-cursor: hand; -fx-font-size: 15;" />
+
+        <Button maxWidth="Infinity" onAction="#handleCancel" text="Cancel"
+                style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-cursor: hand;" />
+    </VBox>
+
+    <Label fx:id="statusLabel" textAlignment="CENTER" wrapText="true" />
+</VBox>
