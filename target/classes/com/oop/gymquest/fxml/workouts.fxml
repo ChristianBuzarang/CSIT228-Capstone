@@ -2,83 +2,63 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1">
-    <!-- SIDEBAR (Identical to Dashboard) -->
-    <left>
-        <VBox prefWidth="250.0" styleClass="sidebar">
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="logo-container">
-                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                    <Label styleClass="logo-text" text="GymQuest" />
+
+<ScrollPane fitToWidth="true"
+            style="-fx-background-color: #f0f8ff; -fx-background: #f0f8ff;"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.oop.gymquest.screens.workouts.WorkoutsViewController">
+
+    <content>
+        <VBox spacing="24.0">
+            <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+
+            <!-- ══ HEADER CARD ══════════════════════════════════════════════ -->
+            <VBox spacing="16.0"
+                  style="-fx-background-color: white; -fx-background-radius: 24;
+                         -fx-padding: 28; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 16, 0, 0, 4);">
+
+                <!-- Title row + Create Custom button -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0">
+                    <VBox spacing="4.0">
+                        <Label text="All Workouts"
+                               style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #1e3a5f;"/>
+                        <Label text="Choose your challenge and level up!"
+                               style="-fx-text-fill: #64748b; -fx-font-size: 14px;"/>
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- "+ Create Custom" button - calls handleCreateCustom() -->
+                    <Button text="+ Create Custom"
+                            onAction="#handleCreateCustom"
+                            style="-fx-background-color: linear-gradient(to right, #d97706, #f59e0b);
+                                   -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;
+                                   -fx-padding: 10 22; -fx-background-radius: 14; -fx-cursor: hand;"/>
+
+                    <Label text="🏋️" style="-fx-font-size: 46px;"/>
                 </HBox>
-                <VBox spacing="5.0">
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Dashboard" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button, active-nav" text="Workouts" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Sessions" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Nutrition" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Community" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Progress" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Ranks" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Payments" />
-                    <Button alignment="BASELINE_LEFT" prefHeight="50.0" prefWidth="250.0" styleClass="nav-button" text="Profile" />
-                </VBox>
-            </children>
-        </VBox>
-    </left>
 
-    <center>
-        <VBox spacing="20.0">
-            <padding><Insets bottom="30.0" left="30.0" right="30.0" top="30.0" /></padding>
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="20.0">
-                    <children>
-                        <Label styleClass="main-header" text="Exercise Library" />
-                        <TextField promptText="Search exercises..." style="-fx-pref-width: 300; -fx-background-radius: 20;" />
-                    </children>
+                <!-- ── Search bar ──────────────────────────────────────── -->
+                <TextField fx:id="searchField"
+                           promptText="🔍  Search workouts by name or keyword…"
+                           style="-fx-padding: 12 16; -fx-border-color: #bae6fd; -fx-border-width: 2;
+                                  -fx-background-radius: 14; -fx-border-radius: 14; -fx-font-size: 13px;
+                                  -fx-background-color: white;"/>
+
+
+                <HBox fx:id="filterContainer" spacing="8.0" alignment="CENTER_LEFT">
+                    <padding><Insets top="2"/></padding>
                 </HBox>
+            </VBox>
 
-                <!-- Scrollable Content -->
-                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
-                    <content>
-                        <FlowPane hgap="25.0" vgap="25.0">
-                            <children>
-                                <!-- Sample Workout Card -->
-                                <VBox prefWidth="280.0" spacing="10.0" styleClass="dashboard-card">
-                                    <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
-                                    <children>
-                                        <StackPane prefHeight="160.0" style="-fx-background-color: #3D3D3D; -fx-background-radius: 10;">
-                                            <children>
-                                                <Label text="Visual Guide Placeholder" textFill="#666666" />
-                                            </children>
-                                        </StackPane>
-                                        <HBox alignment="CENTER_LEFT">
-                                            <Label style="-fx-font-weight: bold; -fx-font-size: 18px;" text="Barbell Squats" textFill="WHITE" />
-                                            <Region HBox.hgrow="ALWAYS" />
-                                            <Label style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 2 8; -fx-background-radius: 5;" text="Legs" />
-                                        </HBox>
-                                        <Label style="-fx-text-fill: #AAAAAA;" text="Primary muscle: Quads. Equipment: Barbell. 3-4 Sets, 8-12 Reps." wrapText="true" />
-                                        <Button maxWidth="1.7976931348623157E308" styleClass="action-button, details-button" text="View Guide" />
-                                    </children>
-                                </VBox>
 
-                                <!-- Add more cards like above for Deadlifts, Pushups, etc. -->
-                            </children>
-                        </FlowPane>
-                    </content>
-                </ScrollPane>
-            </children>
+            <FlowPane fx:id="cardContainer"
+                      hgap="18.0"
+                      vgap="18.0"
+                      style="-fx-background-color: transparent;"/>
+
         </VBox>
-    </center>
-
-    <!-- FOOTER (Identical to Dashboard) -->
-    <bottom>
-        <HBox spacing="30.0" styleClass="status-footer">
-            <padding><Insets bottom="15.0" left="30.0" right="30.0" top="15.0" /></padding>
-            <Label styleClass="footer-label" text="Personal Bests" />
-            <Label styleClass="footer-stat" text="Total Exercises Mastered: 12" />
-        </HBox>
-    </bottom>
-</BorderPane>
+    </content>
+</ScrollPane>

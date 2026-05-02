@@ -1,67 +1,283 @@
 package com.oop.gymquest.screens.customWorkoutCreator;
 
 import com.oop.gymquest.app.MainApp;
-import com.oop.gymquest.data.*;
+import com.oop.gymquest.data.ExerciseDAO;
+import com.oop.gymquest.data.WorkoutDAO;
 import com.oop.gymquest.data.workoutdata.Exercise;
 import com.oop.gymquest.data.workoutdata.Workout;
 import com.oop.gymquest.data.workoutdata.WorkoutCategory;
 import com.oop.gymquest.screens.exercisePicker.ExercisePickerDialog;
+import com.oop.gymquest.screens.workouts.WorkoutsViewController;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.util.StringConverter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class CustomWorkoutCreatorController {
-    @FXML private TextField nameField;
-    @FXML private VBox exerciseListBox;
+
+    // ── FXML injections ────────────────────────────────────────────────────
+    @FXML private TextField               nameField;
+    @FXML private ComboBox<WorkoutCategory> categoryPicker;   // NEW
+    @FXML private VBox                    exerciseListBox;
+
+    // ── Runtime state ──────────────────────────────────────────────────────
     private final List<Exercise> selectedExercises = new ArrayList<>();
 
-    @FXML public void initialize() { updateExerciseList(); }
+    // ── Lifecycle ──────────────────────────────────────────────────────────
 
-    @FXML private void handleBack() { MainApp.instance.changeScene("booking.fxml", "GymQuest"); }
+    @FXML
+    public void initialize() {
+        // ── Populate the category ComboBox from the enum ──────────────────
+        categoryPicker.getItems().addAll(WorkoutCategory.values());
+        categoryPicker.setValue(WorkoutCategory.STRENGTH);  // sensible default
+
+        // Use human-readable labels instead of raw enum names (e.g. "Strength" vs "STRENGTH")
+        categoryPicker.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(WorkoutCategory cat) {
+                return cat == null ? "" : WorkoutsViewController.getCategoryLabel(cat);
+            }
+            @Override
+            public WorkoutCategory fromString(String s) {
+                return null; // not needed for a non-editable ComboBox
+            }
+        });
+
+        // Style the ComboBox row cells to show the category color dot
+        categoryPicker.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(WorkoutCategory cat, boolean empty) {
+                super.updateItem(cat, empty);
+                if (empty || cat == null) {
+                    setText(null);
+                } else {
+                    String color = WorkoutsViewController.getCategoryColor(cat);
+                    String label = WorkoutsViewController.getCategoryLabel(cat);
+                    setText("  ● " + label);
+                    setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        updateExerciseList();
+    }
+
+    // ── Navigation ─────────────────────────────────────────────────────────
+
+
+    @FXML
+    private void handleBack() {
+        MainApp.instance.changeScene(
+            "/com/oop/gymquest/fxml/workouts.fxml",
+            "GymQuest - Workouts"
+        );
+    }
+
+    // ── Exercise picker ────────────────────────────────────────────────────
 
     @FXML
     private void handleAddExercise() {
-        System.out.println("Add Exercise button clicked!"); // Debug line
-
         List<Exercise> library = ExerciseDAO.getAll();
+
+        // Fallback: if DB isn't connected, build a basic exercise list from
+        // the default workouts so the feature works during development.
         if (library.isEmpty()) {
-            System.out.println("Warning: Database returned 0 exercises.");
+            System.out.println("[CustomWorkoutCreator] ExerciseDAO returned empty — using fallback library.");
+            library = buildFallbackLibrary();
         }
 
-        ExercisePickerDialog dialog = new ExercisePickerDialog(library);
-        dialog.showAndWait().ifPresent(ex -> {
-            System.out.println("Exercise selected: " + ex.getName());
+        ExercisePickerDialog picker = new ExercisePickerDialog(library);
+        picker.showAndWait().ifPresent(ex -> {
             selectedExercises.add(ex);
             updateExerciseList();
         });
     }
 
-    @FXML private void handleSave() {
-        if (nameField.getText().isEmpty() || selectedExercises.isEmpty()) return;
-        Workout w = new Workout(0, nameField.getText(), Workout.Difficulty.BEGINNER, "30 min", false,
-                new ArrayList<>(selectedExercises), WorkoutCategory.STRENGTH, "Custom", null);
-        if (WorkoutDAO.createCustomWorkout(w)) handleBack();
+    // ── Save ───────────────────────────────────────────────────────────────
+
+    /**
+     * Validates inputs, creates the Workout, persists it, and navigates back.
+     *
+     * FIX: category is now read from the ComboBox, not hardcoded to STRENGTH.
+     * FIX: WorkoutDAO.createCustomWorkout() also adds to the runtime cache so
+     *      the workouts list shows the new workout immediately.
+     */
+    @FXML
+    private void handleSave() {
+        String title = nameField.getText().trim();
+        WorkoutCategory selectedCategory = categoryPicker.getValue();
+
+        // ── Validation ─────────────────────────────────────────────────────
+        if (title.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Please enter a workout name.");
+            return;
+        }
+        if (selectedCategory == null) {
+            showAlert(Alert.AlertType.WARNING, "Please select a category for this workout.");
+            return;
+        }
+        if (selectedExercises.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Please add at least one exercise.");
+            return;
+        }
+
+        // ── Build Workout object ────────────────────────────────────────────
+        // ID uses list size + offset so it doesn't collide with the 0-5 defaults.
+        int newId = WorkoutDAO.getAllWorkouts().size() + 100;
+
+        Workout newWorkout = new Workout(
+            newId,
+            title,
+            Workout.Difficulty.BEGINNER,            // default for custom workouts
+            estimateDuration(selectedExercises),    // smart duration estimate
+            false,                                  // never locked
+            new ArrayList<>(selectedExercises),
+            selectedCategory,                       // FIX: from ComboBox
+            "Custom routine: " + title + ".",
+            null                                    // no image for custom workouts
+        );
+
+        // ── Persist (DB + in-memory cache) ─────────────────────────────────
+        // createCustomWorkout() always adds to the runtime cache regardless of
+        // whether the DB write succeeds, so the workouts page always shows it.
+        WorkoutDAO.createCustomWorkout(newWorkout);
+
+        // ── Confirm and navigate ───────────────────────────────────────────
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("Workout Saved!");
+        info.setHeaderText(null);
+        info.setContentText("\"" + title + "\" has been added to your " +
+            WorkoutsViewController.getCategoryLabel(selectedCategory) + " workouts! 🎉");
+        info.showAndWait();
+
+        handleBack();   // navigate to workouts — new card will appear immediately
     }
+
+    // ── Exercise list rendering ────────────────────────────────────────────
 
     private void updateExerciseList() {
         exerciseListBox.getChildren().clear();
+
         if (selectedExercises.isEmpty()) {
-            VBox empty = new VBox(new Label("Click \"Add Exercise\" to build your custom routine"));
-            empty.setAlignment(Pos.CENTER); empty.setMinHeight(120);
-            empty.setStyle("-fx-border-color: #bae6fd; -fx-border-width: 2; -fx-border-style: dashed; -fx-border-radius: 15;");
-            exerciseListBox.getChildren().add(empty);
-        } else {
-            for (int i = 0; i < selectedExercises.size(); i++) {
-                final int idx = i; Exercise ex = selectedExercises.get(i);
-                HBox row = new HBox(15, new Label(ex.getEmoji()), new VBox(new Label(ex.getName()), new Label(ex.getSets() + "x" + ex.getReps())));
-                row.setStyle("-fx-background-color: #f0f8ff; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #bae6fd;");
-                Button del = new Button("🗑"); del.setOnAction(e -> { selectedExercises.remove(idx); updateExerciseList(); });
-                Region s = new Region(); HBox.setHgrow(s, Priority.ALWAYS); row.getChildren().addAll(s, del);
-                exerciseListBox.getChildren().add(row);
-            }
+            VBox placeholder = new VBox();
+            placeholder.setAlignment(Pos.CENTER);
+            placeholder.setMinHeight(100);
+            placeholder.setPadding(new Insets(20));
+            placeholder.setStyle(
+                "-fx-border-color: #bae6fd; -fx-border-width: 2;" +
+                "-fx-border-style: dashed; -fx-border-radius: 14;" +
+                "-fx-background-radius: 14;"
+            );
+            Label hint = new Label("Click \"+ Add Exercise\" to build your custom routine");
+            hint.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
+            placeholder.getChildren().add(hint);
+            exerciseListBox.getChildren().add(placeholder);
+            return;
         }
+
+        for (int i = 0; i < selectedExercises.size(); i++) {
+            final int idx = i;
+            Exercise ex = selectedExercises.get(i);
+
+            HBox row = new HBox(12);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setPadding(new Insets(12));
+            row.setStyle(
+                "-fx-background-color: #f0f8ff; -fx-background-radius: 12;" +
+                "-fx-border-color: #bae6fd; -fx-border-width: 2; -fx-border-radius: 12;"
+            );
+
+            // Step number circle
+            Label numLbl = new Label(String.valueOf(i + 1));
+            numLbl.setStyle("-fx-text-fill: #3b82f6; -fx-font-weight: bold;");
+            StackPane numCircle = new StackPane(numLbl);
+            numCircle.setPrefSize(30, 30);
+            numCircle.setMinSize(30, 30);
+            numCircle.setStyle(
+                "-fx-background-color: white; -fx-background-radius: 15;" +
+                "-fx-border-color: #bae6fd; -fx-border-width: 2;"
+            );
+
+            // Emoji
+            Label emojiLbl = new Label(ex.getEmoji());
+            emojiLbl.setStyle("-fx-font-size: 20px;");
+
+            // Name + sets/reps
+            VBox info = new VBox(2);
+            Label nameLbl = new Label(ex.getName());
+            nameLbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e3a5f; -fx-font-size: 13px;");
+            Label detailLbl = new Label(ex.getSets() + " sets × " + ex.getReps() + " reps");
+            detailLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
+            info.getChildren().addAll(nameLbl, detailLbl);
+
+            // Spacer + remove button
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            Button removeBtn = new Button("🗑");
+            removeBtn.setStyle(
+                "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;"
+            );
+            removeBtn.setOnAction(e -> {
+                selectedExercises.remove(idx);
+                updateExerciseList();
+            });
+
+            row.getChildren().addAll(numCircle, emojiLbl, info, spacer, removeBtn);
+            exerciseListBox.getChildren().add(row);
+        }
+    }
+
+    // ── Utilities ──────────────────────────────────────────────────────────
+
+    /**
+     * Estimates a workout duration from the exercise count.
+     * Assumes roughly 3–4 minutes per exercise (sets × rest).
+     */
+    private static String estimateDuration(List<Exercise> exercises) {
+        int totalSets = exercises.stream().mapToInt(Exercise::getSets).sum();
+        int minutes = Math.max(10, totalSets * 3);  // ≈3 min per set incl. rest
+        return minutes + " min";
+    }
+
+    /**
+     * Built-in exercise list used when the DB is not yet connected.
+     * Covers all major muscle groups so users can still build meaningful routines.
+     */
+    private static List<Exercise> buildFallbackLibrary() {
+        return List.of(
+            new Exercise(1,  "Push-ups",           3, "10-12",   "💪", "strength"),
+            new Exercise(2,  "Squats",             3, "15",      "🦵", "strength"),
+            new Exercise(3,  "Plank",              3, "30 sec",  "🧘", "core"),
+            new Exercise(4,  "Lunges",             3, "10 each", "🏃", "strength"),
+            new Exercise(5,  "Burpees",            4, "10",      "💥", "cardio"),
+            new Exercise(6,  "Mountain Climbers",  3, "20",      "⛰️", "cardio"),
+            new Exercise(7,  "Dumbbell Press",     4, "8-10",    "🏋️", "strength"),
+            new Exercise(8,  "Pull-ups",           3, "6-8",     "💪", "strength"),
+            new Exercise(9,  "Bicep Curls",        3, "12",      "💪", "strength"),
+            new Exercise(10, "Tricep Dips",        3, "10",      "🔥", "strength"),
+            new Exercise(11, "Crunches",           4, "20",      "🔥", "core"),
+            new Exercise(12, "Russian Twists",     3, "15 each", "🌀", "core"),
+            new Exercise(13, "Leg Raises",         3, "12",      "🦵", "core"),
+            new Exercise(14, "Jumping Jacks",      3, "30",      "⚡", "cardio"),
+            new Exercise(15, "Jump Rope",          3, "1 min",   "🪢", "cardio"),
+            new Exercise(16, "Yoga Stretches",     1, "10 min",  "🧘", "flexibility"),
+            new Exercise(17, "Hamstring Stretch",  2, "30 sec",  "🦵", "flexibility"),
+            new Exercise(18, "Deadlifts",          4, "6-8",     "🏋️", "strength"),
+            new Exercise(19, "Kettlebell Swings",  4, "15",      "⚡", "cardio"),
+            new Exercise(20, "Box Jumps",          3, "10",      "📦", "cardio")
+        );
+    }
+
+    private static void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type, message, ButtonType.OK);
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 }
