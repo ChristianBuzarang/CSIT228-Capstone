@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20"
+      styleClass="custom-dialog-card"
+      stylesheets="@../styles.css"
+      prefWidth="450"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.manageSchedule.AddScheduleDialogController">
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Add Schedule"
+               style="-fx-font-size: 22; -fx-font-weight: 800; -fx-text-fill: #1e3a5f;"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="✕"
+                onAction="#handleCancel"
+                style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 18; -fx-cursor: hand;"/>
+    </HBox>
+
+    <VBox spacing="15">
+        <VBox spacing="8">
+            <Label text="Session Type" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="typeField" promptText="e.g., Strength Training" styleClass="modern-text-field"/>
+        </VBox>
+
+        <VBox spacing="8">
+            <Label text="Date" style="-fx-font-weight: bold;"/>
+            <DatePicker fx:id="datePicker" maxWidth="Infinity" styleClass="modern-text-field"/>
+        </VBox>
+
+        <HBox spacing="15">
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="Time" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="timeField" promptText="HH:mm AM/PM" styleClass="modern-text-field"/>
+            </VBox>
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label text="Duration" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="durationBox" maxWidth="Infinity" styleClass="modern-text-field"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="Cancel"
+                onAction="#handleCancel"
+                prefWidth="180"
+                styleClass="btn-secondary"/>
+        <Button text="Add Schedule"
+                onAction="#handleSave"
+                prefWidth="180"
+                styleClass="btn-primary"/>
+    </HBox>
+</VBox>
