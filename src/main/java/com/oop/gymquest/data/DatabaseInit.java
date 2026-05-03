@@ -27,6 +27,21 @@ public class DatabaseInit {
                             ")";
             statement.execute(createTable);
             System.out.println("Table 'users' ready.");
+            // Added Table Posts
+            String createPostsTable =
+                    "CREATE TABLE IF NOT EXISTS posts (" +
+                            "  postid    INT PRIMARY KEY AUTO_INCREMENT, " +
+                            "  username  VARCHAR(255), " +
+                            "  post_type VARCHAR(50), " +
+                            "  content   TEXT, " +
+                            "  milestone VARCHAR(255), " +
+                            "  reactions INT DEFAULT 0" +
+                            ")";
+            statement.execute(createPostsTable); // Use 'statement', not 'stmt'
+            System.out.println("Table 'posts' ready.");
+
+
+
 
             // 2. Insert sample users (only if they don't exist yet)
             insertIfAbsent(c, "jdela_cruz", "password123", "Juan", "Dela Cruz");
@@ -37,6 +52,9 @@ public class DatabaseInit {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+
+
     }
 
     private static void insertIfAbsent(Connection c, String username,
