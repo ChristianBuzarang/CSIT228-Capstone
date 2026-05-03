@@ -66,8 +66,12 @@ module com.oop.gymquest {
     opens com.oop.gymquest.screens.sessions to javafx.fxml;
     opens com.oop.gymquest.screens.workouts to javafx.fxml;
     opens com.oop.gymquest.screens.booking to javafx.fxml;
+    opens com.oop.gymquest.screens.community to javafx.fxml;
     opens com.oop.gymquest.screens.customWorkoutCreator to javafx.fxml;
     opens com.oop.gymquest.screens.exercisePicker to javafx.fxml;
+    opens com.oop.gymquest.screens.dashboard.userdashboards to javafx.fxml;
+    opens com.oop.gymquest.screens.manageSchedule to javafx.fxml;
+    opens com.oop.gymquest.screens.notifications to javafx.fxml;
 
     // ALLOW JAVAFX TO READ DATA PROPERTIES
     opens com.oop.gymquest.data to javafx.base;
@@ -89,5 +93,5 @@ module com.oop.gymquest {
     exports com.oop.gymquest.data.workoutdata;
     opens com.oop.gymquest.data.workoutdata to javafx.base;
     exports com.oop.gymquest.screens.dashboard.userdashboards;
-    opens com.oop.gymquest.screens.dashboard.userdashboards to javafx.fxml;
+
 }

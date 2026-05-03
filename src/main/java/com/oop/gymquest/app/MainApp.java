@@ -8,7 +8,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,31 +16,29 @@ import java.io.ObjectOutputStream;
 public class MainApp extends Application {
     public static MainApp instance;
     private Stage stage;
-    public User currentUser; // This will hold an Admin, Trainer, or Member object
+    public User currentUser;
 
     @Override
     public void start(Stage stage) {
         instance = this;
         this.stage = stage;
 
-        // 1. Initialize Database (Creates tables and seeds default admin)
         DatabaseHandler.init();
 
-        // 2. Clear old session files for a fresh start
         File session = new File("session.ser");
-        if(session.exists()) session.delete();
+        if (session.exists()) {
+            session.delete();
+        }
 
-        // 3. Start at Login
         changeScene("login.fxml", "GymQuest - Login");
     }
 
     public void changeScene(String fxmlFile, String title) {
         try {
-            // All FXML files are expected to be in resources/com/oop/gymquest/
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxmlFile));
+            String path = "/com/oop/gymquest/fxml/" + fxmlFile;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Scene scene = new Scene(loader.load());
 
-            // Responsive Logic: Set window size based on screen bounds
             Rectangle2D screen = Screen.getPrimary().getVisualBounds();
             stage.setWidth(Math.max(1024, Math.min(screen.getWidth() * 0.92, 1920)));
             stage.setHeight(Math.max(640, Math.min(screen.getHeight() * 0.92, 1080)));

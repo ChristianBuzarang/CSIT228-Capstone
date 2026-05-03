@@ -1,110 +1,280 @@
-.main-container { -fx-background-color: #f8fbff; }
-.card { -fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 10, 0, 0, 4); }
-.title { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; }
-.subtitle-gray { -fx-text-fill: #808080; -fx-font-size: 13px; }
-.heading-text { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; }
-.month-label { -fx-text-fill: #1e3a5f; -fx-font-weight: bold; -fx-font-size: 18px; }
+/* --- GLOBAL THEME --- */
+.root {
+    -fx-font-family: "System";
+    -fx-text-fill: black;
+}
 
-/* FIX: Clear Selection Design */
+.main-container {
+    -fx-background-color: #f8fafc;
+}
+
+.label {
+    -fx-text-fill: black;
+}
+
+/* --- SIDEBAR DESIGN --- */
+.sidebar-container .button {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1e293b;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 15;
+    -fx-background-radius: 15;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #3b82f6;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 15;
+    -fx-background-radius: 15;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 0 0 0 5;
+}
+
+/* --- TOP BAR DESIGN --- */
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: #f1f5f9;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0 30;
+}
+
+/* Perfect Circular Profile */
+.profile-image-container {
+    -fx-background-color: #3b82f6;
+    -fx-background-radius: 100;
+    -fx-min-width: 45;
+    -fx-min-height: 45;
+    -fx-max-width: 45;
+    -fx-max-height: 45;
+    -fx-alignment: CENTER;
+}
+
+/* Standout Logout with Red Text */
+.btn-logout {
+    -fx-background-color: white;
+    -fx-text-fill: #ef4444;
+    -fx-border-color: #fee2e2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 8 20;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-logout:hover {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+}
+
+/* --- CARDS & PANELS --- */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 25;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 15, 0, 0, 5);
+}
+
+.title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e3a5f;
+}
+
+.subtitle-gray {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+.heading-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e3a5f;
+}
+
+/* --- BOOKING & CALENDAR --- */
+.coach-circle {
+    -fx-background-color: #3b82f6;
+    -fx-background-radius: 100;
+    -fx-min-width: 50;
+    -fx-min-height: 50;
+    -fx-alignment: CENTER;
+}
+
+.time-slot-btn {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+
+.time-slot-btn:hover {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+}
+
+.calendar-day {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1e293b;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
 .calendar-day.selected {
     -fx-background-color: #3b82f6;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.3), 8, 0, 0, 2);
 }
 
-/* FIX: Modern Scrollbar */
-.modern-scroll { -fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; }
-.modern-scroll .scroll-bar:vertical { -fx-background-color: transparent; -fx-pref-width: 7; }
-.modern-scroll .scroll-bar:vertical .thumb { -fx-background-color: #bae6fd; -fx-background-radius: 10; }
-.modern-scroll .scroll-bar:vertical .track { -fx-background-color: transparent; }
+.nav-btn-round {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #3b82f6;
+    -fx-background-radius: 50;
+    -fx-min-width: 35;
+    -fx-min-height: 35;
+    -fx-cursor: hand;
+}
 
-/* Modal Dialog Styles */
+/* --- DIALOGS & BUTTONS --- */
 .custom-dialog-card {
     -fx-background-color: white;
     -fx-background-radius: 25;
-    -fx-padding: 30;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 20, 0, 0, 10);
+    -fx-padding: 35;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 30, 0, 0, 10);
+    -fx-min-width: 450;
 }
+
 .btn-primary {
     -fx-background-color: #3b82f6;
     -fx-text-fill: white;
     -fx-background-radius: 12;
     -fx-padding: 10 25;
+    -fx-font-weight: bold;
     -fx-cursor: hand;
+}
+
+.btn-secondary {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+    -fx-background-radius: 12;
+    -fx-padding: 10 25;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* --- NOTIFICATION POPUP --- */
+.notification-popup-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 15;
+    -fx-border-width: 1;
+}
+
+.notification-header {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 15;
+    -fx-text-fill: #1e293b;
+}
+
+.notification-item:hover {
+    -fx-background-color: #f8fafc;
+}
+
+.notification-mark-read {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3b82f6;
+    -fx-padding: 12;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+
+/* --- MODERN INPUTS --- */
+.modern-text-field {
+    -fx-background-color: white;
+    -fx-border-color: #bae6fd;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 12;
+    -fx-text-fill: black;
+}
+
+.modern-text-field:focused {
+    -fx-border-color: #3b82f6;
+}
+
+/* --- BADGES --- */
+.badge-available {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #16a34a;
+    -fx-font-weight: bold;
+    -fx-font-size: 11;
+    -fx-padding: 4 12;
+    -fx-background-radius: 10;
+}
+
+.badge-booked {
+    -fx-background-color: #dcf0ff;
+    -fx-text-fill: #3b82f6;
+    -fx-font-weight: bold;
+    -fx-font-size: 11;
+    -fx-padding: 4 12;
+    -fx-background-radius: 10;
+}
+
+/* --- COMMUNITY FEED --- */
+.post-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.02), 10, 0, 0, 4);
+}
+
+.milestone-badge {
+    -fx-background-color: #fef3c7;
+    -fx-background-radius: 12;
+    -fx-padding: 8 15;
+}
+
+.reaction-text {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
-.btn-secondary { -fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-background-radius: 12; -fx-padding: 10 25; -fx-cursor: hand; }
 
-/* Controls */
-.nav-btn-round { -fx-background-color: #e0f2fe; -fx-text-fill: #3b82f6; -fx-background-radius: 25; -fx-min-width: 34; -fx-min-height: 34; -fx-cursor: hand; }
-.day-header { -fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: bold; -fx-pref-width: 48; -fx-alignment: center; }
-.calendar-day { -fx-background-color: transparent; -fx-text-fill: #1e3a5f; -fx-background-radius: 10; -fx-cursor: hand; }
-.time-slot { -fx-background-color: #eff6ff; -fx-text-fill: #1e3a5f; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px; -fx-cursor: hand; }
-.time-slot:hover { -fx-background-color: #3b82f6; -fx-text-fill: white; }
-/* Scrollbar Fix */
-.scroll-pane {
+/* --- SCROLLBAR --- */
+.modern-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
     -fx-border-color: transparent;
 }
-.scroll-pane .scroll-bar:vertical {
+
+.modern-scroll .scroll-bar:vertical {
     -fx-background-color: transparent;
-    -fx-pref-width: 8;
+    -fx-pref-width: 6;
 }
-.scroll-pane .scroll-bar:vertical .thumb {
+
+.modern-scroll .scroll-bar:vertical .thumb {
     -fx-background-color: #bae6fd;
     -fx-background-radius: 10;
 }
-.scroll-pane .scroll-bar:vertical .track {
-    -fx-background-color: transparent;
-}
-
-/* Clearer Selection (Removes the blurry halo) */
-.calendar-day.selected {
-    -fx-background-color: #3b82f6;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.4), 8, 0, 0, 2);
-    -fx-border-color: transparent; /* Removes orange halo */
-}
-
-/* Dialogue/Modal Styling */
-.custom-dialog-card {
-    -fx-background-color: white;
-    -fx-background-radius: 25;
-    -fx-padding: 30;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 20, 0, 0, 10);
-}
-
-.btn-primary {
-    -fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 12;
-    -fx-padding: 12 25; -fx-cursor: hand; -fx-font-weight: bold;
-}
-
-.btn-secondary {
-    -fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-background-radius: 12;
-    -fx-padding: 12 25; -fx-cursor: hand;
-}
-
-/* Day/Header styles */
-.subtitle-gray { -fx-text-fill: #808080; -fx-font-size: 13px; }
-.heading-text { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; }
-.calendar-day { -fx-background-color: transparent; -fx-text-fill: #1e3a5f; -fx-background-radius: 10; -fx-cursor: hand; }
-.time-slot { -fx-background-color: #eff6ff; -fx-text-fill: #1e3a5f; -fx-background-radius: 8; -fx-padding: 8 14; -fx-font-size: 12px; -fx-cursor: hand; }
-.time-slot:hover { -fx-background-color: #3b82f6; -fx-text-fill: white; }
-
-/* Trainer Dashboard */
-.card {
-    -fx-background-color: white;
-    -fx-background-radius: 20;
-    -fx-padding: 25;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
-}
-.title { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; }
-.subtitle-gray { -fx-text-fill: #808080; -fx-font-size: 13px; }
-.heading-text { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; }
-.btn-primary { -fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12 20; -fx-font-weight: bold; -fx-cursor: hand; }
-.modern-scroll { -fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; }
