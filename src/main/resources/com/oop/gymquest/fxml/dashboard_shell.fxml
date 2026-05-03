@@ -2,92 +2,52 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.DashboardController" style="-fx-background-color: #f8fafc;">
-
-    <!-- TOP HEADER -->
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.DashboardController" styleClass="main-container" stylesheets="@../styles.css">
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 10 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2); -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
-            <ImageView fitHeight="35" preserveRatio="true">
-                <Image url="@../images/gymquest-logo.png"/>
-            </ImageView>
-
+        <HBox alignment="CENTER_LEFT" prefHeight="80" styleClass="top-bar">
+            <ImageView fitHeight="35" preserveRatio="true"><Image url="@../images/gymquest-logo.png"/></ImageView>
             <Region HBox.hgrow="ALWAYS" />
-
-            <HBox spacing="20" alignment="CENTER">
-                <!-- NOTIFICATION WITH BADGE -->
-                <StackPane>
-                    <Button fx:id="notificationBell" onAction="#handleShowNotifications" style="-fx-background-color: transparent; -fx-cursor: hand;">
-                        <graphic><ImageView fitHeight="24" fitWidth="24"><Image url="@../images/notification.png"/></ImageView></graphic>
-                    </Button>
-                    <Label text="2" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold; -fx-padding: 2 6; -fx-background-radius: 10;" StackPane.alignment="TOP_RIGHT">
-                        <StackPane.margin><Insets right="5" top="5"/></StackPane.margin>
-                    </Label>
+            <HBox spacing="25" alignment="CENTER">
+                <StackPane fx:id="notificationContainer" onMouseClicked="#handleToggleNotifications" style="-fx-cursor: hand;">
+                    <ImageView fitHeight="24" fitWidth="24"><Image url="@../images/notification.png"/></ImageView>
+                    <Label fx:id="notificationBadge" text="2" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 9; -fx-padding: 1 5; -fx-background-radius: 10; -fx-translate-x: 10; -fx-translate-y: -10;"/>
                 </StackPane>
-
-                <Label fx:id="headerNameLabel" text="User Name" style="-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 15;"/>
-
-                <Button onAction="#handleNavProfile"
-                        style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10; -fx-background-radius: 15;">
-
-                    <HBox.margin><Insets right="5"/></HBox.margin>
-                    <graphic>
-                        <HBox spacing="10" alignment="CENTER">
-                            <StackPane style="-fx-background-color: #3b82f6; -fx-background-radius: 25; -fx-min-width: 42; -fx-min-height: 42;">
-                                <ImageView fitHeight="20" fitWidth="20">
-                                    <Image url="@../images/user.png"/>
-                                </ImageView>
-                            </StackPane>
-                        </HBox>
-                    </graphic>
-                </Button>
-
-                <Label fx:id="headerTypeLabel" visible="false" managed="false"/>
-                <Button text="Logout" onAction="#handleLogout" style="-fx-background-color: white; -fx-text-fill: #3b82f6; -fx-border-color: #bae6fd; -fx-border-radius: 10; -fx-padding: 8 18; -fx-cursor: hand;"/>
+                <HBox spacing="15" alignment="CENTER" onMouseClicked="#handleNavProfile" style="-fx-cursor: hand;">
+                    <VBox alignment="CENTER_RIGHT">
+                        <Label fx:id="headerNameLabel" style="-fx-font-weight: bold; -fx-text-fill: black;"/>
+                        <Label fx:id="roleLabel" style="-fx-text-fill: #94a3b8; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                    </VBox>
+                    <StackPane styleClass="profile-image-container">
+                        <ImageView fitHeight="28" fitWidth="28" preserveRatio="true"><Image url="@../images/user.png"/></ImageView>
+                    </StackPane>
+                </HBox>
+                <Button text="Logout" onAction="#handleLogout" styleClass="btn-logout"/>
             </HBox>
         </HBox>
     </top>
-
-    <!-- SIDEBAR WITH ICON BUTTONS -->
     <left>
-        <VBox spacing="10" prefWidth="260" style="-fx-background-color: white; -fx-padding: 30 20; -fx-border-color: #f1f5f9; -fx-border-width: 0 1 0 0;">
-
-            <!-- Dashboard Button (Active by default) -->
-            <Button fx:id="btnDashboard" onAction="#handleNavDashboard" maxWidth="Infinity"
-                    style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-background-radius: 15; -fx-font-weight: bold; -fx-cursor: hand;">
+        <VBox spacing="10" prefWidth="260" styleClass="sidebar-container">
+            <Button fx:id="btnDashboard" onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="sidebar-btn-active" text="  Dashboard">
                 <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/home.png"/></ImageView></graphic>
-                <text>  Dashboard</text>
             </Button>
-
-            <!-- Workouts Button -->
-            <Button fx:id="btnWorkouts" onAction="#handleNavWorkouts" maxWidth="Infinity"
-                    style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-cursor: hand;">
+            <Button fx:id="btnWorkouts" onAction="#handleNavWorkouts" maxWidth="Infinity" styleClass="sidebar-btn" text="  Workouts">
                 <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/muscle.png"/></ImageView></graphic>
-                <text>  Workouts</text>
             </Button>
-
-            <!-- Booking Button -->
-            <!-- Inside the Sidebar VBox -->
-            <Button fx:id="btnBooking" onAction="#handleNavBooking" maxWidth="Infinity"
-                    style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-cursor: hand;">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20">
-                        <Image url="@../images/book-session.png"/> <!-- Ensure path is correct -->
-                    </ImageView>
-                </graphic>
-                <text>  Book Trainer</text>
+            <Button fx:id="btnManageSchedule" onAction="#handleNavManageSchedule" maxWidth="Infinity" styleClass="sidebar-btn" text="  Manage Schedule">
+                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView></graphic>
             </Button>
-            <!-- Community Button -->
-            <Button fx:id="btnCommunity" onAction="#handleNavCommunity" maxWidth="Infinity"
-                    style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-alignment: CENTER_LEFT; -fx-padding: 15; -fx-cursor: hand;">
+            <Button fx:id="btnBooking" onAction="#handleNavBooking" maxWidth="Infinity" styleClass="sidebar-btn" text="  Book Trainer">
+                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/book-session.png"/></ImageView></graphic>
+            </Button>
+            <Button fx:id="btnCommunity" onAction="#handleNavCommunity" maxWidth="Infinity" styleClass="sidebar-btn" text="  Community">
                 <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/group.png"/></ImageView></graphic>
-                <text>  Community</text>
             </Button>
         </VBox>
     </left>
-
     <center>
-        <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
+        <ScrollPane fitToWidth="true" styleClass="modern-scroll">
+            <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
+        </ScrollPane>
     </center>
 </BorderPane>

@@ -2,112 +2,99 @@ package com.oop.gymquest.screens.dashboard.userdashboards;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.screens.dashboard.DashboardController;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TrainerDashboardController {
-    @FXML private Label totalSlotsLabel, bookedSlotsLabel, availableSlotsLabel, clientCountLabel;
-    @FXML private VBox scheduleContainer;
+    @FXML private Label totalSlotsLabel, bookedSlotsLabel, clientCountLabel;
+    @FXML private VBox scheduleContainer, clientContainer;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         loadDashboardData();
     }
 
     private void loadDashboardData() {
         scheduleContainer.getChildren().clear();
-
-        // FIX: Changed getUserid() to getUserId()
+        clientContainer.getChildren().clear();
         int tid = MainApp.instance.currentUser.getUserId();
+        int total = 0;
+        int booked = 0;
+        Set<String> clients = new HashSet<>();
 
-        int total = 0, booked = 0, available = 0;
-        Set<String> uniqueClients = new HashSet<>();
-
-        try (ResultSet rs = DatabaseHandler.getTrainerSchedule(tid)) {
+        try (ResultSet rs = DatabaseHandler.getTodaySessions(tid)) {
             while (rs != null && rs.next()) {
                 total++;
                 String status = rs.getString("status");
                 String client = rs.getString("booked_by_name");
-
-                if (status.equalsIgnoreCase("Booked")) {
+                if ("Booked".equalsIgnoreCase(status)) {
                     booked++;
-                    if (client != null) uniqueClients.add(client);
-                } else {
-                    available++;
+                    if (client != null) clients.add(client);
                 }
-
-                addScheduleCard(
-                        rs.getString("activity"),
-                        rs.getString("slot_date"),
-                        rs.getString("slot_time"),
-                        rs.getString("duration"),
-                        status,
-                        client
-                );
+                addScheduleItem(rs.getString("activity"), rs.getString("slot_time"), client);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        for (String c : clients) addClientCard(c);
         totalSlotsLabel.setText(String.valueOf(total));
         bookedSlotsLabel.setText(String.valueOf(booked));
-        availableSlotsLabel.setText(String.valueOf(available));
-        clientCountLabel.setText(String.valueOf(uniqueClients.size()));
+        clientCountLabel.setText(String.valueOf(DatabaseHandler.getUniqueClientCount(tid)));
     }
 
-    private void addScheduleCard(String activity, String date, String time, String duration, String status, String client) {
-        HBox card = new HBox(20);
-        card.setAlignment(Pos.CENTER_LEFT);
+    private void addScheduleItem(String activity, String time, String client) {
+        VBox box = new VBox(10);
+        box.getStyleClass().add("card");
+        box.setStyle("-fx-border-color: #bae6fd; -fx-border-width: 1.5;");
+
+        HBox row = new HBox(15);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+        icon.setFitHeight(20);
+        icon.setFitWidth(20);
+
+        VBox texts = new VBox(2);
+        Label actLabel = new Label(activity);
+        actLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: black;");
+        texts.getChildren().addAll(actLabel, new Label(time));
+
+        Region s = new Region();
+        HBox.setHgrow(s, Priority.ALWAYS);
+
+        Label badge = new Label(client != null ? "BOOKED" : "AVAILABLE");
+        badge.setStyle("-fx-background-color: " + (client != null ? "#3b82f6" : "#94a3b8") + "; -fx-text-fill: white; -fx-padding: 5 12; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;");
+
+        row.getChildren().addAll(icon, texts, s, badge);
+        box.getChildren().add(row);
+        if (client != null) box.getChildren().add(new Label("by " + client));
+        scheduleContainer.getChildren().add(box);
+    }
+
+    private void addClientCard(String name) {
+        VBox card = new VBox(10);
         card.getStyleClass().add("card");
+        Label l = new Label(name);
+        l.setStyle("-fx-font-weight: bold; -fx-text-fill: black;");
 
-        boolean isBooked = status.equalsIgnoreCase("Booked");
-        card.setStyle("-fx-border-color: " + (isBooked ? "#f59e0b" : "#3b82f6") + "; -fx-border-width: 1.5; -fx-background-color: " + (isBooked ? "#fffbeb" : "white") + ";");
+        HBox profile = new HBox(10);
+        profile.setAlignment(Pos.CENTER_LEFT);
+        ImageView clientIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/user.png")));
+        clientIcon.setFitHeight(24);
+        clientIcon.setFitWidth(24);
+        profile.getChildren().addAll(clientIcon, l);
 
-        StackPane iconBox = new StackPane();
-        iconBox.setStyle("-fx-background-color: " + (isBooked ? "#f59e0b" : "#3b82f6") + "; -fx-padding: 10; -fx-background-radius: 12;");
-
-        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
-        iv.setFitHeight(20); iv.setFitWidth(20);
-        iconBox.getChildren().add(iv);
-
-        VBox info = new VBox(4);
-        Label title = new Label(activity);
-        title.setStyle("-fx-font-weight: bold; -fx-font-size: 15; -fx-text-fill: #1e3a5f;");
-        Label sub = new Label(date + " • " + time + " • " + duration);
-        sub.getStyleClass().add("subtitle-gray");
-        info.getChildren().addAll(title, sub);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        VBox statusBox = new VBox(5);
-        statusBox.setAlignment(Pos.CENTER_RIGHT);
-        Label badge = new Label(status.toUpperCase());
-        badge.setStyle("-fx-background-color: " + (isBooked ? "#f59e0b" : "#10b981") + "; -fx-text-fill: white; -fx-padding: 4 12; -fx-background-radius: 10; -fx-font-size: 10; -fx-font-weight: bold;");
-        Label clientLbl = new Label(isBooked ? "by " + client : "");
-        clientLbl.getStyleClass().add("subtitle-gray");
-        statusBox.getChildren().addAll(badge, clientLbl);
-
-        card.getChildren().addAll(iconBox, info, spacer, statusBox);
-        scheduleContainer.getChildren().add(card);
-    }
-
-    @FXML
-    private void handleAddSlot() {
-        // FIX: Changed getUserid() to getUserId()
-        int tid = MainApp.instance.currentUser.getUserId();
-
-        DatabaseHandler.addTrainerSlot(tid, "Strength Training", LocalDate.now().toString(), "10:00 AM", "60 min");
-        loadDashboardData();
+        ProgressBar p = new ProgressBar(0.75);
+        p.setMaxWidth(Double.MAX_VALUE);
+        card.getChildren().addAll(profile, p);
+        clientContainer.getChildren().add(card);
     }
 }

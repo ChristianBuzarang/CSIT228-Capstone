@@ -4,37 +4,75 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<VBox spacing="20" styleClass="main-container" stylesheets="@../styles.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.booking.BookingController">
-    <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+<VBox spacing="25"
+      styleClass="main-container"
+      stylesheets="@../styles.css"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.booking.BookingController">
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
 
-    <HBox styleClass="card" alignment="CENTER_LEFT" prefHeight="100">
-        <VBox spacing="5" HBox.hgrow="ALWAYS">
-            <Label text="Book a Training Session" styleClass="title"/>
-            <Label text="Select a date to see available trainers and time slots" styleClass="subtitle-gray"/>
+    <!-- Top Header Card -->
+    <HBox styleClass="card"
+          alignment="CENTER_LEFT"
+          prefHeight="120">
+        <VBox spacing="8" HBox.hgrow="ALWAYS">
+            <Label text="Book a Training Session"
+                   styleClass="title"
+                   style="-fx-text-fill: #1e3a5f;"/>
+            <Label text="Select a date to see available trainers and time slots"
+                   styleClass="subtitle-gray"/>
         </VBox>
-        <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="60"
+                   fitWidth="60"
+                   preserveRatio="true">
             <Image url="@../images/calendar.png"/>
         </ImageView>
     </HBox>
 
     <HBox spacing="25" VBox.vgrow="ALWAYS">
-        <VBox spacing="20" prefWidth="400" styleClass="card" alignment="TOP_CENTER">
+        <!-- Left: Calendar Section -->
+        <VBox spacing="20"
+              prefWidth="450"
+              styleClass="card"
+              alignment="TOP_CENTER">
             <HBox alignment="CENTER_LEFT">
-                <Label fx:id="monthLabel" styleClass="month-label"/>
+                <Label fx:id="monthLabel"
+                       text="May 2026"
+                       style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <HBox spacing="10">
-                    <Button text="‹" onAction="#onPrevMonth" styleClass="nav-btn-round"/>
-                    <Button text="›" onAction="#onNextMonth" styleClass="nav-btn-round"/>
+                    <Button text="‹"
+                            onAction="#onPrevMonth"
+                            styleClass="nav-btn-round"
+                            style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 50; -fx-min-width: 35; -fx-min-height: 35; -fx-cursor: hand;"/>
+                    <Button text="›"
+                            onAction="#onNextMonth"
+                            styleClass="nav-btn-round"
+                            style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 50; -fx-min-width: 35; -fx-min-height: 35; -fx-cursor: hand;"/>
                 </HBox>
             </HBox>
+
+            <!-- Day Headers -->
             <HBox spacing="5" alignment="CENTER">
-                <Label text="Sun" styleClass="day-header"/><Label text="Mon" styleClass="day-header"/><Label text="Tue" styleClass="day-header"/><Label text="Wed" styleClass="day-header"/><Label text="Thu" styleClass="day-header"/><Label text="Fri" styleClass="day-header"/><Label text="Sat" styleClass="day-header"/>
+                <Label text="Sun" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Mon" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Tue" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Wed" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Thu" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Fri" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label text="Sat" prefWidth="55" alignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
             </HBox>
+
             <GridPane fx:id="calendarGrid" hgap="5" vgap="5" alignment="CENTER" />
         </VBox>
 
+        <!-- Right: Trainer List -->
         <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS" styleClass="modern-scroll">
-            <VBox fx:id="trainerPanel" spacing="15"/>
+            <VBox fx:id="trainerPanel" spacing="20">
+                <!-- Content injected via Controller -->
+            </VBox>
         </ScrollPane>
     </HBox>
 </VBox>
