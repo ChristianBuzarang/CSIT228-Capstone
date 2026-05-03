@@ -317,18 +317,12 @@ public class WorkoutsViewController {
 
     @FXML
     private void handleCreateCustom() {
-        MainApp.instance.changeScene(
-            "/com/oop/gymquest/fxml/custom-workout-creator-view.fxml",
-            "GymQuest - Create Custom Workout"
-        );
+        MainApp.instance.changeScene("create_custom_workout.fxml", "GymQuest - Create Custom Workout");
     }
 
     @FXML
     public static void handleAction() {
-        MainApp.instance.changeScene(
-            "/com/oop/gymquest/fxml/workouts.fxml",
-            "GymQuest - Workout Library"
-        );
+        MainApp.instance.changeScene("workouts.fxml", "GymQuest - Workout Library");
     }
 
     // ── Style / label helpers ──────────────────────────────────────────────

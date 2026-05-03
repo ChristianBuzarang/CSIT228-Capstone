@@ -22,11 +22,9 @@ public class RegisterAdminController {
             return;
         }
 
-        // Call UserDAO with "admin" type explicitly
         boolean success = UserDAO.create(email, pass, fname, lname, "admin");
 
         if (success) {
-            // Close the modal on success
             Stage stage = (Stage) statusLabel.getScene().getWindow();
             stage.close();
         } else {

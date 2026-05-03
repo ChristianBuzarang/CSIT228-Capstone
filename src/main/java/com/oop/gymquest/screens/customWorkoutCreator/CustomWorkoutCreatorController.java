@@ -6,6 +6,7 @@ import com.oop.gymquest.data.WorkoutDAO;
 import com.oop.gymquest.data.workoutdata.Exercise;
 import com.oop.gymquest.data.workoutdata.Workout;
 import com.oop.gymquest.data.workoutdata.WorkoutCategory;
+import com.oop.gymquest.screens.dashboard.DashboardController;
 import com.oop.gymquest.screens.exercisePicker.ExercisePickerDialog;
 import com.oop.gymquest.screens.workouts.WorkoutsViewController;
 import javafx.fxml.FXML;
@@ -73,10 +74,8 @@ public class CustomWorkoutCreatorController {
 
     @FXML
     private void handleBack() {
-        MainApp.instance.changeScene(
-            "/com/oop/gymquest/fxml/workouts.fxml",
-            "GymQuest - Workouts"
-        );
+        MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
+        DashboardController.instance.handleNavWorkouts();
     }
 
     // ── Exercise picker ────────────────────────────────────────────────────

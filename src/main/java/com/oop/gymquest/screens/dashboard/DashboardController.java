@@ -14,22 +14,12 @@ import javafx.stage.Popup;
 import java.io.IOException;
 
 public class DashboardController {
-    @FXML
-    private Label headerNameLabel;
-    @FXML
-    private Label roleLabel;
-    @FXML
-    private Label notificationBadge;
-    @FXML
-    private StackPane contentArea;
-    @FXML
-    private StackPane notificationContainer;
-    @FXML
-    private Button btnDashboard, btnWorkouts, btnBooking, btnManageSchedule, btnCommunity;
+    @FXML private Label headerNameLabel, roleLabel, notificationBadge;
+    @FXML private StackPane contentArea, notificationContainer;
+    @FXML private Button btnDashboard, btnWorkouts, btnBooking, btnManageSchedule, btnCommunity;
 
     private Popup notificationPopup;
     public static DashboardController instance;
-
     public DashboardController() {
         instance = this;
     }
@@ -98,12 +88,12 @@ public class DashboardController {
         }
     }
 
-    @FXML private void handleNavDashboard() { setActiveButton(btnDashboard); loadRoleDashboard(MainApp.instance.currentUser); }
-    @FXML private void handleNavWorkouts() { setActiveButton(btnWorkouts); loadView("workouts.fxml"); }
-    @FXML private void handleNavBooking() { setActiveButton(btnBooking); loadView("booking.fxml"); }
+    @FXML public void handleNavDashboard() { setActiveButton(btnDashboard); loadRoleDashboard(MainApp.instance.currentUser); }
+    @FXML public void handleNavWorkouts() { setActiveButton(btnWorkouts); loadView("workouts.fxml"); }
+    @FXML public void handleNavBooking() { setActiveButton(btnBooking); loadView("booking.fxml"); }
     @FXML public void handleNavManageSchedule() { setActiveButton(btnManageSchedule); loadView("manage_schedule.fxml"); }
-    @FXML private void handleNavCommunity() { setActiveButton(btnCommunity); loadView("community.fxml"); }
-    @FXML private void handleNavProfile() { setActiveButton(null); loadView("profile.fxml"); }
+    @FXML public void handleNavCommunity() { setActiveButton(btnCommunity); loadView("community.fxml"); }
+    @FXML public void handleNavProfile() { setActiveButton(null); loadView("profile.fxml"); }
 
     private void loadRoleDashboard(User user) {
         String fxml = user.getType().equalsIgnoreCase("trainer") ? "dashboard_trainer.fxml" : "dashboard_member.fxml";

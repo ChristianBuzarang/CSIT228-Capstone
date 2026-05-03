@@ -32,8 +32,8 @@ public class WorkoutDAO {
         if (!cacheInitialized) initializeCache();
 
         boolean dbSuccess = false;
-        String sql = "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom)"
-                   + " VALUES (?, ?, ?, ?, ?, 1)";
+        String sql = "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom, locked)"
+                   + " VALUES (?, ?, ?, ?, ?, 1, 0)";
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, workout.getTitle());
@@ -43,7 +43,6 @@ public class WorkoutDAO {
             ps.setString(5, workout.getDescription());
             dbSuccess = ps.executeUpdate() > 0;
         } catch (Exception e) {
-            // DB not available — still continue so the session works
             System.err.println("[WorkoutDAO] DB write failed (continuing in-memory): " + e.getMessage());
         }
 
@@ -177,8 +176,6 @@ public class WorkoutDAO {
             null
         ));
     }
-
-    // ── Parse helpers ──────────────────────────────────────────────────────
 
     private static WorkoutCategory parseCategory(String raw) {
         if (raw == null) return WorkoutCategory.STRENGTH;

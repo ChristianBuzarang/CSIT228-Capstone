@@ -18,10 +18,14 @@ public class DatabaseHandler {
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (userid INT PRIMARY KEY AUTO_INCREMENT, email VARCHAR(255) UNIQUE, password VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), type VARCHAR(50))");
+                stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS members (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainers (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainer_slots (slot_id INT PRIMARY KEY AUTO_INCREMENT, trainer_id INT, member_id INT DEFAULT NULL, activity VARCHAR(255), slot_date DATE, slot_time VARCHAR(50), duration VARCHAR(50), status VARCHAR(50) DEFAULT 'Available', FOREIGN KEY (trainer_id) REFERENCES users(userid) ON DELETE CASCADE, FOREIGN KEY (member_id) REFERENCES users(userid) ON DELETE SET NULL)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS posts (postid INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255), post_type VARCHAR(50), content TEXT, milestone VARCHAR(255), reactions INT DEFAULT 0)");
+                stmt.execute("CREATE TABLE IF NOT EXISTS workouts (id INT PRIMARY KEY AUTO_INCREMENT, title VARCHAR(255), difficulty VARCHAR(50), duration VARCHAR(50), category VARCHAR(50), description VARCHAR(255), is_custom TINYINT(1), locked TINYINT(1))");
+                stmt.execute("CREATE TABLE IF NOT EXISTS exercises (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), sets INTEGER, reps VARCHAR(255), emoji VARCHAR(255), category VARCHAR(50))");
+                stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (userid INT, email VARCHAR(255) UNIQUE, password VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), type VARCHAR(50), archive_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
                 registerUser("admin", "1234", "System", "Admin", "admin");
                 System.out.println("Database Ready.");
             }
