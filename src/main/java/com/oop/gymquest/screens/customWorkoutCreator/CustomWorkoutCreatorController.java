@@ -74,8 +74,13 @@ public class CustomWorkoutCreatorController {
 
     @FXML
     private void handleBack() {
+        // Return to the shell
         MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
-        DashboardController.instance.handleNavWorkouts();
+
+        // Refresh the content area to the workouts view
+        if (DashboardController.instance != null) {
+            DashboardController.instance.handleNavWorkouts(); // Works now because it's public
+        }
     }
 
     // ── Exercise picker ────────────────────────────────────────────────────

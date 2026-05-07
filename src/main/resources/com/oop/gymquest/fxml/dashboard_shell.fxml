@@ -1,53 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.DashboardController" styleClass="main-container" stylesheets="@../styles.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.oop.gymquest.screens.dashboard.DashboardController"
+            styleClass="main-container"
+            stylesheets="@../styles.css">
+
+    <!-- TOP NAVIGATION BAR -->
     <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="80" styleClass="top-bar">
-            <ImageView fitHeight="35" preserveRatio="true"><Image url="@../images/gymquest-logo.png"/></ImageView>
+        <HBox alignment="CENTER_LEFT"
+              prefHeight="80"
+              styleClass="top-bar">
+
+            <ImageView fitHeight="35" preserveRatio="true">
+                <Image url="@../images/gymquest-logo.png"/>
+            </ImageView>
+
             <Region HBox.hgrow="ALWAYS" />
+
             <HBox spacing="25" alignment="CENTER">
-                <StackPane fx:id="notificationContainer" onMouseClicked="#handleToggleNotifications" style="-fx-cursor: hand;">
-                    <ImageView fitHeight="24" fitWidth="24"><Image url="@../images/notification.png"/></ImageView>
-                    <Label fx:id="notificationBadge" text="2" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 9; -fx-padding: 1 5; -fx-background-radius: 10; -fx-translate-x: 10; -fx-translate-y: -10;"/>
+                <!-- Notifications -->
+                <StackPane onMouseClicked="#handleShowNotifications" style="-fx-cursor: hand;">
+                    <ImageView fitHeight="24" fitWidth="24">
+                        <Image url="@../images/notification.png"/>
+                    </ImageView>
+                    <Label fx:id="notifBadge" text="2" styleClass="notification-badge"/>
                 </StackPane>
-                <HBox spacing="15" alignment="CENTER" onMouseClicked="#handleNavProfile" style="-fx-cursor: hand;">
+
+                <!-- User Profile Info -->
+                <HBox spacing="15" alignment="CENTER">
                     <VBox alignment="CENTER_RIGHT">
-                        <Label fx:id="headerNameLabel" style="-fx-font-weight: bold; -fx-text-fill: black;"/>
-                        <Label fx:id="roleLabel" style="-fx-text-fill: #94a3b8; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                        <Label fx:id="headerNameLabel" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="roleLabel" styleClass="subtitle-gray" style="-fx-font-size: 10; -fx-font-weight: bold;"/>
                     </VBox>
                     <StackPane styleClass="profile-image-container">
-                        <ImageView fitHeight="28" fitWidth="28" preserveRatio="true"><Image url="@../images/user.png"/></ImageView>
+                        <ImageView fitHeight="28" fitWidth="28">
+                            <Image url="@../images/user.png"/>
+                        </ImageView>
                     </StackPane>
                 </HBox>
-                <Button text="Logout" onAction="#handleLogout" styleClass="btn-logout"/>
+
+                <Button text="Logout"
+                        onAction="#handleLogout"
+                        styleClass="btn-logout"/>
             </HBox>
         </HBox>
     </top>
+
+    <!-- SIDEBAR NAVIGATION -->
     <left>
-        <VBox spacing="10" prefWidth="260" styleClass="sidebar-container">
-            <Button fx:id="btnDashboard" onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="sidebar-btn-active" text="  Dashboard">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/home.png"/></ImageView></graphic>
+        <VBox spacing="10"
+              prefWidth="260"
+              styleClass="sidebar-container">
+
+            <!-- Global Dashboard -->
+            <Button fx:id="btnDashboard"
+                    onAction="#handleNavDashboard"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  Dashboard">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/home.png"/></ImageView>
+                </graphic>
             </Button>
-            <Button fx:id="btnWorkouts" onAction="#handleNavWorkouts" maxWidth="Infinity" styleClass="sidebar-btn" text="  Workouts">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/muscle.png"/></ImageView></graphic>
+
+            <!-- Admin: View All Schedules -->
+            <Button fx:id="btnSchedules"
+                    onAction="#handleNavAdminSchedules"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  View Schedules">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView>
+                </graphic>
             </Button>
-            <Button fx:id="btnManageSchedule" onAction="#handleNavManageSchedule" maxWidth="Infinity" styleClass="sidebar-btn" text="  Manage Schedule">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView></graphic>
+
+            <!-- Trainer: Manage Own Slots -->
+            <Button fx:id="btnManageSchedule"
+                    onAction="#handleNavManageSchedule"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  Manage Schedule">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView>
+                </graphic>
             </Button>
-            <Button fx:id="btnBooking" onAction="#handleNavBooking" maxWidth="Infinity" styleClass="sidebar-btn" text="  Book Trainer">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/book-session.png"/></ImageView></graphic>
+
+            <!-- Member: Book a Trainer -->
+            <Button fx:id="btnBooking"
+                    onAction="#handleNavBooking"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  Book Session">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/book-session.png"/></ImageView>
+                </graphic>
             </Button>
-            <Button fx:id="btnCommunity" onAction="#handleNavCommunity" maxWidth="Infinity" styleClass="sidebar-btn" text="  Community">
-                <graphic><ImageView fitHeight="20" fitWidth="20"><Image url="@../images/group.png"/></ImageView></graphic>
+
+            <!-- Shared: Workouts (Member and Trainer only) -->
+            <Button fx:id="btnWorkouts"
+                    onAction="#handleNavWorkouts"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  Workouts">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/muscle.png"/></ImageView>
+                </graphic>
             </Button>
+
+            <!-- Community (Trainer only) -->
+            <Button fx:id="btnCommunity"
+                    onAction="#handleNavCommunity"
+                    maxWidth="Infinity"
+                    styleClass="sidebar-btn"
+                    text="  Community">
+                <graphic>
+                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/group.png"/></ImageView>
+                </graphic>
+            </Button>
+
         </VBox>
     </left>
+
+    <!-- MAIN CONTENT AREA -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="modern-scroll">
-            <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
-        </ScrollPane>
+        <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
     </center>
 </BorderPane>

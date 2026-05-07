@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.AdminSchedulesController"
+      stylesheets="@../styles.css">
+
+    <!-- Header -->
+    <HBox styleClass="card" alignment="CENTER_LEFT" prefHeight="120">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Trainer Schedules" styleClass="title"/>
+            <Label text="View all trainer schedules and bookings" styleClass="subtitle-gray"/>
+        </VBox>
+        <Label text="😊" style="-fx-font-size: 60;"/>
+    </HBox>
+
+    <!-- Stats Cards -->
+    <HBox spacing="15">
+        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-blue">
+            <Label text="📅 Total Sessions" styleClass="stat-label-blue"/><Label fx:id="totalSessionsLbl" text="0" styleClass="stat-value-blue"/>
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-yellow">
+            <Label text="👥 Bookings" styleClass="stat-label-yellow"/><Label fx:id="bookingsLbl" text="0" styleClass="stat-value-yellow"/>
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-blue-light">
+            <Label text="👥 Capacity" styleClass="stat-label-blue-light"/><Label fx:id="capacityLbl" text="0" styleClass="stat-value-blue-light"/>
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-green">
+            <Label text="🌱 Utilization" styleClass="stat-label-green"/><Label fx:id="utilLbl" text="0%" styleClass="stat-value-green"/>
+        </VBox>
+    </HBox>
+
+    <!-- List -->
+    <VBox spacing="20" VBox.vgrow="ALWAYS" styleClass="card">
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <Button text="‹" onAction="#prevDay" styleClass="nav-btn-round"/>
+            <Label fx:id="dateLabel" styleClass="heading-text"/>
+            <Button text="›" onAction="#nextDay" styleClass="nav-btn-round"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <!-- fx:id MUST match Java controller -->
+            <ComboBox fx:id="trainerFilter" prefWidth="200" promptText="All Trainers"/>
+        </HBox>
+
+        <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
+            <StackPane>
+                <VBox fx:id="placeholder" alignment="CENTER" spacing="10">
+                    <Label text="📅" style="-fx-font-size: 50;"/>
+                    <Label text="No sessions scheduled for this day" styleClass="subtitle-gray"/>
+                </VBox>
+                <VBox fx:id="scheduleContainer" spacing="10"/>
+            </StackPane>
+        </ScrollPane>
+    </VBox>
+</VBox>

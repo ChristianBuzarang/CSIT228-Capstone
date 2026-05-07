@@ -48,9 +48,8 @@
 /* --- TOP BAR DESIGN --- */
 .top-bar {
     -fx-background-color: white;
-    -fx-border-color: #f1f5f9;
-    -fx-border-width: 0 0 1 0;
     -fx-padding: 0 30;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);
 }
 
 /* Perfect Circular Profile */
@@ -141,6 +140,7 @@
     -fx-background-color: #3b82f6;
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    -fx-background-radius: 10;
 }
 
 .nav-btn-round {
@@ -278,3 +278,15 @@
     -fx-background-color: #bae6fd;
     -fx-background-radius: 10;
 }
+
+/* ADDED */
+.stat-card-blue { -fx-background-color: #dcf0ff; -fx-padding: 20; -fx-background-radius: 15; }
+.stat-label-blue { -fx-text-fill: #3b82f6; -fx-font-weight: bold; }
+.stat-value-blue { -fx-font-size: 32; -fx-font-weight: 900; -fx-text-fill: #3b82f6; }
+
+.stat-card-yellow { -fx-background-color: #fef9c3; -fx-padding: 20; -fx-background-radius: 15; }
+.stat-label-yellow { -fx-text-fill: #ca8a04; -fx-font-weight: bold; }
+.stat-value-yellow { -fx-font-size: 32; -fx-font-weight: 900; -fx-text-fill: #ca8a04; }
+
+.toggle-container { -fx-background-color: #f1f5f9; -fx-background-radius: 12; -fx-padding: 5; }
+.search-field { -fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 25; -fx-background-radius: 25; -fx-padding: 10 20; }
