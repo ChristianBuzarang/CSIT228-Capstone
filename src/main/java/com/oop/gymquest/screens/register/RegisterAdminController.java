@@ -1,6 +1,6 @@
 package com.oop.gymquest.screens.register;
 
-import com.oop.gymquest.data.UserDAO;
+import com.oop.gymquest.data.DatabaseHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -22,7 +22,7 @@ public class RegisterAdminController {
             return;
         }
 
-        boolean success = UserDAO.create(email, pass, fname, lname, "admin");
+        boolean success = DatabaseHandler.registerUser(email, pass, fname, lname, "admin");
 
         if (success) {
             Stage stage = (Stage) statusLabel.getScene().getWindow();

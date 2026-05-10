@@ -29,6 +29,16 @@ public class DatabaseHandler {
                         "lastname VARCHAR(255), " +
                         "type VARCHAR(50))");
 
+                // --- MERGED: COLD STORAGE (Archive) Table ---
+                stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (" +
+                        "userid INT, " +
+                        "email VARCHAR(255), " +
+                        "password VARCHAR(255), " +
+                        "firstname VARCHAR(255), " +
+                        "lastname VARCHAR(255), " +
+                        "type VARCHAR(50), " +
+                        "archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
                 stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, " +
                         "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
@@ -129,6 +139,47 @@ public class DatabaseHandler {
                 conn.commit();
                 return true;
             } catch (SQLException e) { conn.rollback(); return false; }
+        } catch (SQLException e) { return false; }
+    }
+
+    public static boolean updateUser(int userId, String email, String fname, String lname, String type) {
+        String sql = "UPDATE users SET email = ?, firstname = ?, lastname = ?, type = ? WHERE userid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, fname);
+            ps.setString(3, lname);
+            ps.setString(4, type);
+            ps.setInt(5, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean archiveUser(int userId) {
+        String insertArchive = "INSERT INTO users_archive (userid, email, password, firstname, lastname, type) " +
+                "SELECT userid, email, password, firstname, lastname, type FROM users WHERE userid = ?";
+        String deleteActive = "DELETE FROM users WHERE userid = ?";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(insertArchive);
+                 PreparedStatement ps2 = conn.prepareStatement(deleteActive)) {
+
+                ps1.setInt(1, userId);
+                ps1.executeUpdate();
+
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
+
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                return false;
+            }
         } catch (SQLException e) { return false; }
     }
 
@@ -258,8 +309,10 @@ public class DatabaseHandler {
                 String fn = rs.getString("firstname");
                 String ln = rs.getString("lastname");
                 String em = rs.getString("email");
-                if (type.equals("trainer")) list.add(new Trainer(id, em, "", fn, ln));
-                else list.add(new Member(id, em, "", fn, ln));
+                String pw = rs.getString("password"); // New code needs password for Switch mapping
+                if (type.equalsIgnoreCase("admin")) list.add(new Admin(id, em, pw, fn, ln));
+                else if (type.equalsIgnoreCase("trainer")) list.add(new Trainer(id, em, pw, fn, ln));
+                else list.add(new Member(id, em, pw, fn, ln));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
