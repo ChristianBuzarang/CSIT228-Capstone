@@ -7,14 +7,12 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.oop.gymquest.screens.dashboard.DashboardController"
-            styleClass="main-container"
-            stylesheets="@../styles.css">
+            styleClass="main-container" stylesheets="@../styles.css">
 
     <!-- TOP NAVIGATION BAR -->
     <top>
-        <HBox alignment="CENTER_LEFT"
-              prefHeight="80"
-              styleClass="top-bar">
+        <HBox alignment="CENTER_LEFT" prefHeight="80" styleClass="top-bar" spacing="20">
+            <padding><Insets left="30" right="30"/></padding>
 
             <ImageView fitHeight="35" preserveRatio="true">
                 <Image url="@../images/gymquest-logo.png"/>
@@ -22,112 +20,77 @@
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <HBox spacing="25" alignment="CENTER">
-                <!-- Notifications -->
-                <StackPane onMouseClicked="#handleShowNotifications" style="-fx-cursor: hand;">
-                    <ImageView fitHeight="24" fitWidth="24">
-                        <Image url="@../images/notification.png"/>
-                    </ImageView>
-                    <Label fx:id="notifBadge" text="2" styleClass="notification-badge"/>
-                </StackPane>
+            <HBox spacing="20" alignment="CENTER">
+                <!-- Notifications Button -->
+                <Button fx:id="notificationBell" onAction="#handleShowNotifications"
+                        style="-fx-background-color: transparent; -fx-cursor: hand;">
+                    <graphic>
+                        <StackPane>
+                            <ImageView fitHeight="24" fitWidth="24" mouseTransparent="true">
+                                <Image url="@../images/notification.png"/>
+                            </ImageView>
+                            <Label fx:id="notifBadge" text="2" styleClass="notification-badge" StackPane.alignment="TOP_RIGHT">
+                                <StackPane.margin><Insets right="-5" top="-5"/></StackPane.margin>
+                            </Label>
+                        </StackPane>
+                    </graphic>
+                </Button>
 
-                <!-- User Profile Info -->
-                <HBox spacing="15" alignment="CENTER">
-                    <VBox alignment="CENTER_RIGHT">
-                        <Label fx:id="headerNameLabel" style="-fx-font-weight: bold;"/>
-                        <Label fx:id="roleLabel" styleClass="subtitle-gray" style="-fx-font-size: 10; -fx-font-weight: bold;"/>
-                    </VBox>
-                    <StackPane styleClass="profile-image-container">
-                        <ImageView fitHeight="28" fitWidth="28">
-                            <Image url="@../images/user.png"/>
-                        </ImageView>
-                    </StackPane>
-                </HBox>
+                <!-- FIXED: Clickable User Profile Button -->
+                <Button onAction="#handleNavProfile"
+                        style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10; -fx-background-radius: 15;">
+                    <graphic>
+                        <HBox spacing="15" alignment="CENTER" mouseTransparent="true">
+                            <VBox alignment="CENTER_RIGHT">
+                                <Label fx:id="headerNameLabel" text="User Name" style="-fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                <Label fx:id="roleLabel" text="MEMBER" style="-fx-text-fill: #64748b; -fx-font-size: 10; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <StackPane styleClass="profile-image-container" style="-fx-background-color: #3b82f6; -fx-background-radius: 20; -fx-min-width: 40; -fx-min-height: 40;">
+                                <ImageView fitHeight="22" fitWidth="22">
+                                    <Image url="@../images/user.png"/>
+                                </ImageView>
+                            </StackPane>
+                        </HBox>
+                    </graphic>
+                </Button>
 
-                <Button text="Logout"
-                        onAction="#handleLogout"
-                        styleClass="btn-logout"/>
+                <Button text="Logout" onAction="#handleLogout" styleClass="btn-logout"/>
             </HBox>
         </HBox>
     </top>
 
     <!-- SIDEBAR NAVIGATION -->
     <left>
-        <VBox spacing="10"
-              prefWidth="260"
-              styleClass="sidebar-container">
+        <VBox fx:id="sidebar" spacing="10" prefWidth="260" styleClass="sidebar-container">
+            <padding><Insets top="30" left="20" right="20"/></padding>
 
-            <!-- Global Dashboard -->
-            <Button fx:id="btnDashboard"
-                    onAction="#handleNavDashboard"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  Dashboard">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/home.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnDashboard" onAction="#handleNavDashboard" maxWidth="Infinity" styleClass="sidebar-btn" text="  Dashboard">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/home.png"/></ImageView></graphic>
             </Button>
 
-            <!-- Admin: View All Schedules -->
-            <Button fx:id="btnSchedules"
-                    onAction="#handleNavAdminSchedules"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  View Schedules">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnSchedules" onAction="#handleNavAdminSchedules" maxWidth="Infinity" styleClass="sidebar-btn" text="  View Schedules">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/calendar.png"/></ImageView></graphic>
             </Button>
 
-            <!-- Trainer: Manage Own Slots -->
-            <Button fx:id="btnManageSchedule"
-                    onAction="#handleNavManageSchedule"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  Manage Schedule">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/calendar.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnManageSchedule" onAction="#handleNavManageSchedule" maxWidth="Infinity" styleClass="sidebar-btn" text="  Manage Schedule">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/calendar.png"/></ImageView></graphic>
             </Button>
 
-            <!-- Member: Book a Trainer -->
-            <Button fx:id="btnBooking"
-                    onAction="#handleNavBooking"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  Book Session">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/book-session.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnBooking" onAction="#handleNavBooking" maxWidth="Infinity" styleClass="sidebar-btn" text="  Book Session">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/book-session.png"/></ImageView></graphic>
             </Button>
 
-            <!-- Shared: Workouts (Member and Trainer only) -->
-            <Button fx:id="btnWorkouts"
-                    onAction="#handleNavWorkouts"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  Workouts">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/muscle.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnWorkouts" onAction="#handleNavWorkouts" maxWidth="Infinity" styleClass="sidebar-btn" text="  Workouts">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/muscle.png"/></ImageView></graphic>
             </Button>
 
-            <!-- Community (Trainer only) -->
-            <Button fx:id="btnCommunity"
-                    onAction="#handleNavCommunity"
-                    maxWidth="Infinity"
-                    styleClass="sidebar-btn"
-                    text="  Community">
-                <graphic>
-                    <ImageView fitHeight="20" fitWidth="20"><Image url="@../images/group.png"/></ImageView>
-                </graphic>
+            <Button fx:id="btnCommunity" onAction="#handleNavCommunity" maxWidth="Infinity" styleClass="sidebar-btn" text="  Community">
+                <graphic><ImageView fitHeight="20" fitWidth="20" mouseTransparent="true"><Image url="@../images/group.png"/></ImageView></graphic>
             </Button>
-
         </VBox>
     </left>
 
-    <!-- MAIN CONTENT AREA -->
     <center>
-        <StackPane fx:id="contentArea" style="-fx-padding: 30;" />
+        <StackPane fx:id="contentArea" pickOnBounds="false" style="-fx-padding: 30;" />
     </center>
 </BorderPane>

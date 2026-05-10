@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
 
-<HBox spacing="15" alignment="CENTER_LEFT"
-      style="-fx-padding: 12; -fx-background-color: white; -fx-cursor: hand;"
+<!-- Ensure fx:controller points to the NEW class created in Step 1 -->
+<HBox spacing="15" alignment="CENTER_LEFT" prefWidth="340"
+      fx:controller="com.oop.gymquest.screens.notifications.NotificationItemController"
+      style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 12;"
       xmlns:fx="http://javafx.com/fxml/1">
 
-    <StackPane style="-fx-background-color: #eff6ff; -fx-background-radius: 10; -fx-padding: 8;">
-        <ImageView fitHeight="18" fitWidth="18">
-            <Image url="@../images/check.png"/>
-        </ImageView>
+    <StackPane style="-fx-background-color: #eff6ff; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40;">
+        <Label fx:id="iconLabel" text="🔔" style="-fx-font-size: 18;"/>
     </StackPane>
 
     <VBox spacing="2" HBox.hgrow="ALWAYS">
-        <Label text="Session Confirmed" style="-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #1e293b;"/>
-        <Label text="Coach Alex accepted your booking." style="-fx-text-fill: #64748b; -fx-font-size: 11;" wrapText="true"/>
+        <Label fx:id="msgLabel" text="Title" style="-fx-font-size: 13; -fx-font-weight: bold;"/>
+        <Label fx:id="timeLabel" text="Time" style="-fx-font-size: 11; -fx-text-fill: #94a3b8;"/>
     </VBox>
 </HBox>

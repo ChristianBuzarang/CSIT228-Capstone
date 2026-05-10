@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" maxWidth="500" spacing="15"
+      style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa); -fx-background-radius: 40; -fx-padding: 40 50;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.EditUserController">
+
+    <Label text="Edit User Details" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+    <VBox spacing="10">
+        <HBox spacing="10">
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="First Name" style="-fx-text-fill: white;"/>
+                <TextField fx:id="firstnameField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="Last Name" style="-fx-text-fill: white;"/>
+                <TextField fx:id="lastnameField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+            </VBox>
+        </HBox>
+
+        <Label text="Email" style="-fx-text-fill: white;"/>
+        <TextField fx:id="emailField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+
+        <Label text="Account Role" style="-fx-text-fill: white;"/>
+        <!-- IMPORTANT: This ID must match your Controller variable name -->
+        <ComboBox fx:id="typeBox" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-padding: 5;"/>
+    </VBox>
+
+    <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+        <Button text="Save Changes" onAction="#handleUpdate" maxWidth="Infinity"
+                style="-fx-background-color: white; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 15;"/>
+        <Button text="Cancel" onAction="#handleCancel" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;"/>
+    </VBox>
+
+    <Label fx:id="statusLabel" textFill="white"/>
+</VBox>
