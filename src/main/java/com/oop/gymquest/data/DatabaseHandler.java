@@ -6,44 +6,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHandler {
-    private static final String URL = "jdbc:mysql://localhost:3306/dbgymquest";
+    private static final String URL = "jdbc:mysql://localhost:3306/";
+    private static final String DB_NAME = "dbgymquest";
+    private static final String FULL_URL = URL + DB_NAME;
     private static final String USER = "root";
     private static final String PASS = "";
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASS);
+        return DriverManager.getConnection(FULL_URL, USER, PASS);
     }
 
     public static void init() {
-        // 1. Connection string WITHOUT the database name
-        String rootUrl = "jdbc:mysql://localhost:3306/";
-
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // Connect to the MySQL server itself
-            try (Connection conn = DriverManager.getConnection(rootUrl, USER, PASS);
+            try (Connection connection = DriverManager.getConnection(URL, USER, PASS);
+                Statement statement = connection.createStatement()) {
+                statement.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
+                System.out.println("Database " + DB_NAME + " created.");
+            }
+
+            try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
 
-                // 2. CREATE the database if it's missing
-                stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS dbgymquest");
-
-                // 3. TELL the connection to use it
-                stmt.executeUpdate("USE dbgymquest");
-
-                System.out.println("Checking/Creating tables...");
-
-                // 1. Core Users and Roles
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
-                        "  userid    INT PRIMARY KEY AUTO_INCREMENT, " +
-                        "  email     VARCHAR(255) NOT NULL UNIQUE, " + // Use 'email' instead of 'username'
-                        "  password  VARCHAR(255) NOT NULL, " +
-                        "  firstname VARCHAR(255) NOT NULL, " +
-                        "  lastname  VARCHAR(255) NOT NULL, " +
-                        "  type      VARCHAR(50)  NOT NULL" +         // Add the 'type' column
-                        ")");
+                        "userid INT PRIMARY KEY AUTO_INCREMENT, " +
+                        "email VARCHAR(255) UNIQUE, " +
+                        "password VARCHAR(255), " +
+                        "firstname VARCHAR(255), " +
+                        "lastname VARCHAR(255), " +
+                        "type VARCHAR(50))");
 
-                // --- MERGED: COLD STORAGE (Archive) Table ---
                 stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (" +
                         "userid INT, " +
                         "email VARCHAR(255), " +
@@ -62,7 +55,6 @@ public class DatabaseHandler {
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainers (userid INT PRIMARY KEY, " +
                         "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
-                // 2. Schedule and Bookings
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainer_slots (" +
                         "slot_id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "trainer_id INT, " +
@@ -76,7 +68,6 @@ public class DatabaseHandler {
                         "FOREIGN KEY (trainer_id) REFERENCES users(userid) ON DELETE CASCADE, " +
                         "FOREIGN KEY (member_id) REFERENCES users(userid) ON DELETE SET NULL)");
 
-                // 3. Community Feed
                 stmt.execute("CREATE TABLE IF NOT EXISTS posts (" +
                         "postid INT PRIMARY KEY AUTO_INCREMENT, " +
                         "username VARCHAR(255), " +
@@ -84,7 +75,6 @@ public class DatabaseHandler {
                         "milestone VARCHAR(255), " +
                         "reactions INT DEFAULT 0)");
 
-                // 4. Workouts
                 stmt.execute("CREATE TABLE IF NOT EXISTS workouts (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "title VARCHAR(255), " +
@@ -98,7 +88,6 @@ public class DatabaseHandler {
                 System.out.println("✅ Database Ready: All functions and tables restored.");
             }
         } catch (Exception e) {
-            System.err.println("Database initialization failed!");
             e.printStackTrace();
         }
     }
