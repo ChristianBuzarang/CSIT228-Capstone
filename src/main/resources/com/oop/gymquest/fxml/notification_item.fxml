@@ -9,11 +9,11 @@
       xmlns:fx="http://javafx.com/fxml/1">
 
     <StackPane style="-fx-background-color: #eff6ff; -fx-background-radius: 10; -fx-min-width: 40; -fx-min-height: 40;">
-        <Label fx:id="iconLabel" text="🔔" style="-fx-font-size: 18;"/>
+        <Label fx:id="iconLabel" text="🔔" style="-fx-font-size: 18; -fx-text-fill: #3b82f6;"/>
     </StackPane>
 
     <VBox spacing="2" HBox.hgrow="ALWAYS">
-        <Label fx:id="msgLabel" text="Title" style="-fx-font-size: 13; -fx-font-weight: bold;"/>
-        <Label fx:id="timeLabel" text="Time" style="-fx-font-size: 11; -fx-text-fill: #94a3b8;"/>
+        <Label fx:id="msgLabel" text="Notification Title" wrapText="true" style="-fx-font-size: 13; -fx-text-fill: #1e293b; -fx-font-weight: bold;"/>
+        <Label fx:id="timeLabel" text="2 hours ago" style="-fx-font-size: 11; -fx-text-fill: #64748b;"/>
     </VBox>
 </HBox>

@@ -1,45 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.profile.ProfileController">
+<VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.profile.ProfileController" style="-fx-background-color: #f8fafc;">
     <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
-    <!-- 1. USER PROFILE HEADER CARD -->
+    <!-- 1. USER PROFILE HEADER CARD (Always visible for all) -->
     <HBox spacing="30" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);">
         <StackPane style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa); -fx-background-radius: 50; -fx-min-width: 100; -fx-min-height: 100;">
-            <Label text="🎯" style="-fx-font-size: 45;"/>
+            <Label fx:id="avatarEmoji" text="🎯" style="-fx-font-size: 45;"/>
         </StackPane>
 
         <VBox spacing="5" HBox.hgrow="ALWAYS">
-            <Label fx:id="nameLabel" text="Juan Dela Cruz" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-            <Label text="Fitness Enthusiast • Member since Jan 2026" style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
-            <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
-                <Button text="✏️ Edit Profile" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10; -fx-padding: 8 15; -fx-font-weight: bold;"/>
-            </HBox>
+            <Label fx:id="nameLabel" text="User Name" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label fx:id="roleSubLabel" text="Fitness Enthusiast • Member since Jan 2026" style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
+            <Button text="✏️ Edit Profile" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10; -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
         </VBox>
     </HBox>
 
-    <!-- 2. QUICK STATS ROW -->
-    <HBox spacing="20">
+    <!-- 2. QUICK STATS ROW (Hidden for Admin) -->
+    <HBox fx:id="statsRow" spacing="20">
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #3b82f6; -fx-border-width: 0 0 0 4;">
             <Label text="Current Streak" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label fx:id="streakLabel" text="12 Days" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label text="12 Days" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
+
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #f59e0b; -fx-border-width: 0 0 0 4;">
-            <Label text="Workouts Done" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label fx:id="workoutsLabel" text="47" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label fx:id="workoutsDoneLabel" text="Workouts Done" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
+            <Label text="47" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
+
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #10b981; -fx-border-width: 0 0 0 4;">
             <Label text="Badges Earned" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label fx:id="badgesLabel" text="5 / 9" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label text="5 / 9" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
     </HBox>
 
-    <!-- 3. ACHIEVEMENTS SECTION -->
-    <VBox spacing="15" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20;">
+    <!-- 3. ACHIEVEMENTS SECTION (Hidden for Admin) -->
+    <VBox fx:id="achievementsSection" spacing="15" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20;">
         <Label text="🏆 Achievements" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
             <FlowPane fx:id="badgeContainer" hgap="15" vgap="15" />

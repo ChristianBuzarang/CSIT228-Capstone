@@ -34,16 +34,21 @@ public class DashboardController {
             boolean isAdmin = type.equals("admin");
             boolean isMember = type.equals("member");
             boolean isTrainer = type.equals("trainer");
+
             btnSchedules.setVisible(isAdmin);
             btnSchedules.setManaged(isAdmin);
+
             btnBooking.setVisible(isMember);
             btnBooking.setManaged(isMember);
+
             btnManageSchedule.setVisible(isTrainer);
             btnManageSchedule.setManaged(isTrainer);
+
             btnWorkouts.setVisible(!isAdmin);
             btnWorkouts.setManaged(!isAdmin);
-            btnCommunity.setVisible(isTrainer);
-            btnCommunity.setManaged(isTrainer);
+            btnCommunity.setVisible(!isAdmin);
+            btnCommunity.setManaged(!isAdmin);
+
             handleNavDashboard();
         }
     }
