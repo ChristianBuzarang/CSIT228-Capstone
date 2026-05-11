@@ -53,6 +53,7 @@ module com.oop.gymquest {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
+    requires mysql.connector.j;
     requires java.sql; // Add this line
 //    requires mysql.connector.j; // Add this line
 
@@ -93,5 +94,6 @@ module com.oop.gymquest {
     exports com.oop.gymquest.data.workoutdata;
     opens com.oop.gymquest.data.workoutdata to javafx.base;
     exports com.oop.gymquest.screens.dashboard.userdashboards;
+
 
 }
