@@ -311,7 +311,7 @@
     -fx-faint-focus-color: transparent;
 }
 
-.toggle-nav-btn:hover { -fx-text-fill: #3b82f6; }
+/*.toggle-nav-btn:hover { -fx-text-fill: #3b82f6; }*/
 .toggle-nav-btn-active { -fx-background-color: #3b82f6; -fx-text-fill: white; }
 
 /* --- ADMIN: MODERN TABLE (GRID VIEW) --- */
@@ -368,7 +368,7 @@
 .modern-table .table-row-cell:selected .table-cell { -fx-text-fill: #3b82f6; }
 
 /* Remove dividers from the very last column to keep it clean */
-.modern-table .table-row-cell .table-cell:last-visible { -fx-border-width: 0; }
+.modern-table .table-row-cell { -fx-border-width: 0; }
 
 /* --- ADMIN: PLACEHOLDER & SEARCH --- */
 .placeholder-label {
@@ -493,7 +493,6 @@
     -fx-background-radius: 8; -fx-min-width: 32; -fx-min-height: 32; -fx-cursor: hand;
 }
 
-// added for the admin schedule
 .modern-scroll {
     -fx-background-color: transparent;
     -fx-background: transparent;
