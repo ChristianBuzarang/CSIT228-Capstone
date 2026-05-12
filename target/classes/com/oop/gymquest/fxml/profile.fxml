@@ -3,19 +3,29 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.image.ImageView?>
 <VBox spacing="25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.profile.ProfileController" style="-fx-background-color: #f8fafc;">
     <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
     <!-- 1. USER PROFILE HEADER CARD (Always visible for all) -->
     <HBox spacing="30" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);">
         <StackPane style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa); -fx-background-radius: 50; -fx-min-width: 100; -fx-min-height: 100;">
+            <ImageView fx:id="profileImageView" fitHeight="80" fitWidth="80"/>
             <Label fx:id="avatarEmoji" text="🎯" style="-fx-font-size: 45;"/>
         </StackPane>
 
         <VBox spacing="5" HBox.hgrow="ALWAYS">
             <Label fx:id="nameLabel" text="User Name" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
             <Label fx:id="roleSubLabel" text="Fitness Enthusiast • Member since Jan 2026" style="-fx-text-fill: #64748b; -fx-font-size: 14;"/>
-            <Button text="✏️ Edit Profile" style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10; -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Button fx:id="editProfileBtn" text="Edit Profile" onAction="#handleEditProfile"
+                        style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10;
+                -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+                <Button fx:id="changeNameBtn" text="Change Name" onAction="#handleChangeName"
+                        style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10;
+                -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+            </HBox>
         </VBox>
     </HBox>
 

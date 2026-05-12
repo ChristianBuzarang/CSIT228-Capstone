@@ -9,6 +9,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Popup;
 
@@ -19,6 +21,7 @@ public class DashboardController {
     @FXML private StackPane contentArea;
     @FXML private Button btnDashboard, btnWorkouts, btnBooking, btnManageSchedule, btnSchedules, btnCommunity;
     @FXML private Button notificationBell;
+    @FXML private ImageView headerAvatarView;
 
     private Popup notificationPopup;
 
@@ -50,6 +53,7 @@ public class DashboardController {
             btnCommunity.setManaged(!isAdmin);
 
             handleNavDashboard();
+            refreshHeader();
         }
     }
 
@@ -74,6 +78,22 @@ public class DashboardController {
                 btn.getStyleClass().remove("sidebar-btn");
                 btn.getStyleClass().add("sidebar-btn-active");
             }
+        }
+    }
+
+    public void refreshHeader() {
+        User user = MainApp.instance.currentUser;
+        if (user.getAvatar() != null) {
+            try {
+                String path = "/com/oop/gymquest/images/" + user.getAvatar();
+                Image img = new Image(getClass().getResourceAsStream(path));
+                headerAvatarView.setImage(img);
+            } catch (Exception e) {
+                System.err.println("Header avatar not found: " + user.getAvatar());
+            }
+        }
+        if (headerNameLabel != null && MainApp.instance.currentUser != null) {
+            headerNameLabel.setText(MainApp.instance.currentUser.getFullName());
         }
     }
 

@@ -28,6 +28,9 @@ public class DatabaseHandler {
 
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+                stmt.execute("DROP TABLE IF EXISTS users, users_archive, admins, members, trainers, trainer_slots, posts, workouts");
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -35,7 +38,8 @@ public class DatabaseHandler {
                         "password VARCHAR(255), " +
                         "firstname VARCHAR(255), " +
                         "lastname VARCHAR(255), " +
-                        "type VARCHAR(50))");
+                        "type VARCHAR(50), " +
+                        "avatar VARCHAR(255) DEFAULT 'user.png')");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (" +
                         "userid INT, " +
@@ -44,6 +48,7 @@ public class DatabaseHandler {
                         "firstname VARCHAR(255), " +
                         "lastname VARCHAR(255), " +
                         "type VARCHAR(50), " +
+                        "avatar VARCHAR(255) DEFAULT 'user.png', " +
                         "archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, " +
@@ -92,8 +97,6 @@ public class DatabaseHandler {
         }
     }
 
-    // --- AUTHENTICATION ---
-
     public static User authenticate(String email, String pass) {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
         try (Connection conn = getConnection();
@@ -108,10 +111,12 @@ public class DatabaseHandler {
                 String ln = rs.getString("lastname");
                 String em = rs.getString("email");
                 String pw = rs.getString("password");
+                String avatar = rs.getString("avatar");
+                if (avatar == null || avatar.isEmpty()) avatar = "user.png";
                 return switch (type) {
-                    case "admin" -> new Admin(id, em, pw, fn, ln);
-                    case "trainer" -> new Trainer(id, em, pw, fn, ln);
-                    default -> new Member(id, em, pw, fn, ln);
+                    case "admin" -> new Admin(id, em, pw, fn, ln, type, avatar);
+                    case "trainer" -> new Trainer(id, em, pw, fn, ln, type, avatar);
+                    default -> new Member(id, em, pw, fn, ln, type, avatar);
                 };
             }
         } catch (SQLException e) { e.printStackTrace(); }
@@ -155,6 +160,20 @@ public class DatabaseHandler {
             ps.setString(3, lname);
             ps.setString(4, type);
             ps.setInt(5, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean updateUserName(int userId, String firstName, String lastName) {
+        String sql = "UPDATE users SET firstname = ?, lastname = ? WHERE userid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setInt(3, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -313,12 +332,26 @@ public class DatabaseHandler {
                 String fn = rs.getString("firstname");
                 String ln = rs.getString("lastname");
                 String em = rs.getString("email");
-                String pw = rs.getString("password"); // New code needs password for Switch mapping
-                if (type.equalsIgnoreCase("admin")) list.add(new Admin(id, em, pw, fn, ln));
-                else if (type.equalsIgnoreCase("trainer")) list.add(new Trainer(id, em, pw, fn, ln));
-                else list.add(new Member(id, em, pw, fn, ln));
+                String pw = rs.getString("password");
+                String avatar = rs.getString("avatar");
+                if (type.equalsIgnoreCase("admin")) list.add(new Admin(id, em, pw, fn, ln, type, avatar));
+                else if (type.equalsIgnoreCase("trainer")) list.add(new Trainer(id, em, pw, fn, ln, type, avatar));
+                else list.add(new Member(id, em, pw, fn, ln, type, avatar));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
+    }
+
+    public static boolean updateUserAvatar(int userId, String avatarName) {
+        String sql = "UPDATE users SET avatar = ? WHERE userid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, avatarName);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

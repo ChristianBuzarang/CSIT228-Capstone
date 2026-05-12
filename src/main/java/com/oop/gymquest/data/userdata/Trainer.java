@@ -1,7 +1,7 @@
 package com.oop.gymquest.data.userdata;
 public class Trainer extends User {
-    public Trainer(int id, String email, String password, String firstname, String lastname) {
-        super(id, email, password, firstname, lastname);
+    public Trainer(int id, String email, String password, String firstname, String lastname, String type, String avatar) {
+        super(id, email, password, firstname, lastname, type, avatar);
     }
     @Override
     public String getType() { return "trainer"; }

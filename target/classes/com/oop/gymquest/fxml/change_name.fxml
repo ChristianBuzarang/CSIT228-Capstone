@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" spacing="20" prefWidth="350"
+      style="-fx-background-color: #eff6ff; -fx-background-radius: 30; -fx-padding: 30;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.profile.ChangeNameController">
+
+    <Label text="Update Name" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+
+    <VBox spacing="10">
+        <TextField fx:id="firstNameField" promptText="First Name" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+        <TextField fx:id="lastNameField" promptText="Last Name" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+    </VBox>
+
+    <VBox spacing="10">
+        <Button onAction="#handleSave" text="Save Changes" maxWidth="Infinity"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;"/>
+        <Button onAction="#handleCancel" text="Cancel" maxWidth="Infinity"
+                style="-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-cursor: hand;"/>
+    </VBox>
+</VBox>

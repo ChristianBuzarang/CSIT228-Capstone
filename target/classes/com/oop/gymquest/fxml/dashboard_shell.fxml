@@ -46,7 +46,7 @@
                                 <Label fx:id="roleLabel" text="MEMBER" style="-fx-text-fill: #64748b; -fx-font-size: 10; -fx-font-weight: bold;"/>
                             </VBox>
                             <StackPane styleClass="profile-image-container" style="-fx-background-color: #3b82f6; -fx-background-radius: 20; -fx-min-width: 40; -fx-min-height: 40;">
-                                <ImageView fitHeight="22" fitWidth="22">
+                                <ImageView fx:id="headerAvatarView" fitHeight="22" fitWidth="22">
                                     <Image url="@../images/user.png"/>
                                 </ImageView>
                             </StackPane>

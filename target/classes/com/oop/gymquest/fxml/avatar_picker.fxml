@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" spacing="25" prefWidth="500"
+      style="-fx-background-color: #eff6ff; -fx-background-radius: 40; -fx-padding: 40; -fx-border-color: #3b82f6; -fx-border-width: 3; -fx-border-radius: 40;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.profile.AvatarPickerController">
+
+    <Label text="Choose Your Avatar" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+    <GridPane fx:id="avatarGrid" hgap="15" vgap="15" alignment="CENTER">
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="0" GridPane.rowIndex="0" userData="avatar1.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="1" GridPane.rowIndex="0" userData="avatar2.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="2" GridPane.rowIndex="0" userData="avatar3.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="0" GridPane.rowIndex="1" userData="avatar4.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="1" GridPane.rowIndex="1" userData="avatar5.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="2" GridPane.rowIndex="1" userData="avatar6.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="0" GridPane.rowIndex="2" userData="avatar7.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="1" GridPane.rowIndex="2" userData="avatar8.png"/>
+        <Button onAction="#onAvatarSelected" style="-fx-background-color: white; -fx-background-radius: 15;" GridPane.columnIndex="2" GridPane.rowIndex="2" userData="avatar9.png"/>
+    </GridPane>
+    <Button text="Cancel" onAction="#handleCancel" style="-fx-background-color: transparent; -fx-text-fill: #3b82f6;
+        -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14;"/>
+</VBox>

@@ -32,24 +32,25 @@ public class UserDAO {
                 c.commit();
                 return true;
             } catch (SQLException e) {
-                c.rollback(); // Undo if something fails
+                c.rollback();
                 return false;
             }
         } catch (SQLException e) { return false; }
     }
 
     private static User mapUser(ResultSet rs) throws SQLException {
-        String type = rs.getString("type").toLowerCase();
         int id = rs.getInt("userid");
         String email = rs.getString("email");
         String pass = rs.getString("password");
         String fname = rs.getString("firstname");
         String lname = rs.getString("lastname");
+        String type = rs.getString("type").toLowerCase();
+        String avatar = rs.getString("avatar");
 
         return switch (type) {
-            case "admin" -> new Admin(id, email, pass, fname, lname);
-            case "trainer" -> new Trainer(id, email, pass, fname, lname);
-            default -> new Member(id, email, pass, fname, lname);
+            case "admin" -> new Admin(id, email, pass, fname, lname, type, avatar);
+            case "trainer" -> new Trainer(id, email, pass, fname, lname, type, avatar);
+            default -> new Member(id, email, pass, fname, lname, type, avatar);
         };
     }
 
