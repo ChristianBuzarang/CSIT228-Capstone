@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Circle;
 import javafx.stage.Popup;
 
 import java.io.IOException;
@@ -87,7 +88,11 @@ public class DashboardController {
             try {
                 String path = "/com/oop/gymquest/images/" + user.getAvatar();
                 Image img = new Image(getClass().getResourceAsStream(path));
+                headerAvatarView.setFitHeight(32);
+                headerAvatarView.setFitWidth(32);
                 headerAvatarView.setImage(img);
+                Circle clip = new Circle(16, 16, 16);
+                headerAvatarView.setClip(clip);
             } catch (Exception e) {
                 System.err.println("Header avatar not found: " + user.getAvatar());
             }

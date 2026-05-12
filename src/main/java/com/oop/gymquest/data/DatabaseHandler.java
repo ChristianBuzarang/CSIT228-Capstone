@@ -89,6 +89,7 @@ public class DatabaseHandler {
                         "duration VARCHAR(50), " +
                         "category VARCHAR(50), " +
                         "description TEXT, " +
+                        "locked TINYINT(1) DEFAULT 0, " +
                         "is_custom TINYINT(1))");
 
                 registerUser("admin", "1234", "System", "Admin", "admin");

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="TOP_CENTER" spacing="25" prefWidth="500"
-      style="-fx-background-color: #eff6ff; -fx-background-radius: 40; -fx-padding: 40; -fx-border-color: #3b82f6; -fx-border-width: 3; -fx-border-radius: 40;"
+      style="-fx-background-color: #eff6ff; -fx-background-radius: 40; -fx-padding: 40; -fx-border-radius: 40;"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.oop.gymquest.screens.profile.AvatarPickerController">
 
