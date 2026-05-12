@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15" prefWidth="400" alignment="TOP_CENTER"
+      style="-fx-background-color: #eff6ff; -fx-background-radius: 30; -fx-padding: 30;"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.community.PostController">
+
+    <Label text="Share a Milestone" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"/>
+
+    <VBox spacing="8">
+        <Label text="What's on your mind?" style="-fx-text-fill: #64748b; -fx-font-size: 12;"/>
+        <TextArea fx:id="contentArea" promptText="I just finished a heavy leg day!..." prefHeight="100" wrapText="true"
+                  style="-fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
+    </VBox>
+
+    <VBox spacing="8">
+        <Label text="Achievement (Optional)" style="-fx-text-fill: #64748b; -fx-font-size: 12;"/>
+        <TextField fx:id="milestoneField" promptText="e.g. 10km Run Completed"
+                   style="-fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
+    </VBox>
+
+    <HBox spacing="10">
+        <Button onAction="#handlePost" text="Post to Feed" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;"/>
+        <Button onAction="#handleCancel" text="Cancel"
+                style="-fx-background-color: white; -fx-text-fill: #64748b; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>

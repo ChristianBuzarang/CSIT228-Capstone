@@ -28,9 +28,9 @@ public class DatabaseHandler {
 
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
-                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
-                stmt.execute("DROP TABLE IF EXISTS users, users_archive, admins, members, trainers, trainer_slots, posts, workouts");
-                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+//                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+//                stmt.execute("DROP TABLE IF EXISTS users, users_archive, admins, members, trainers, trainer_slots, posts, workouts");
+//                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -75,10 +75,12 @@ public class DatabaseHandler {
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS posts (" +
                         "postid INT PRIMARY KEY AUTO_INCREMENT, " +
-                        "username VARCHAR(255), " +
+                        "userid INT, " +
                         "content TEXT, " +
-                        "milestone VARCHAR(255), " +
-                        "reactions INT DEFAULT 0)");
+                        "milestone_text VARCHAR(255), " +
+                        "reactions INT DEFAULT 0, " +
+                        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                        "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS workouts (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -353,5 +355,25 @@ public class DatabaseHandler {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void createPost(int userId, String content, String milestone) {
+        String sql = "INSERT INTO posts (userid, content, milestone_text) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, content);
+            ps.setString(3, milestone);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public static ResultSet fetchPosts() {
+        String sql = "SELECT p.*, u.firstname, u.lastname, u.avatar FROM posts p " +
+                "JOIN users u ON p.userid = u.userid ORDER BY p.created_at DESC";
+        try {
+            Connection conn = getConnection();
+            return conn.createStatement().executeQuery(sql);
+        } catch (SQLException e) { return null; }
     }
 }
