@@ -376,4 +376,21 @@ public class DatabaseHandler {
             return conn.createStatement().executeQuery(sql);
         } catch (SQLException e) { return null; }
     }
+
+    // added for the admin schedules
+    public static List<String> fetchTrainersNames() {
+        List<String> trainers = new ArrayList<>();
+        String sql = "SELECT firstname, lastname FROM users WHERE type = 'trainer'";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String fullName = rs.getString("firstname") + " " + rs.getString("lastname");
+                trainers.add(fullName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trainers;
+    }
 }

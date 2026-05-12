@@ -1,56 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import java.net.URL?>
 
-<VBox spacing="25"
-      xmlns:fx="http://javafx.com/fxml/1"
+<HBox spacing="25" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.AdminSchedulesController"
-      stylesheets="@../styles.css">
+      styleClass="main-container">
+    <stylesheets>
+        <URL value="@../styles.css" />
+    </stylesheets>
 
-    <!-- Header -->
-    <HBox styleClass="card" alignment="CENTER_LEFT" prefHeight="120">
-        <VBox spacing="5" HBox.hgrow="ALWAYS">
-            <Label text="Trainer Schedules" styleClass="title"/>
-            <Label text="View all trainer schedules and bookings" styleClass="subtitle-gray"/>
+    <!-- LEFT COLUMN: FILTER & CALENDAR -->
+    <VBox spacing="15" prefWidth="360" minWidth="360" styleClass="calendar-card">
+        <VBox spacing="8">
+            <Label text="Trainer Filter" styleClass="subtitle-gray" style="-fx-font-weight: bold;"/>
+            <ComboBox fx:id="trainerFilter" promptText="All Trainers" prefWidth="350" styleClass="modern-combo-box"/>
         </VBox>
-        <Label text="😊" style="-fx-font-size: 60;"/>
-    </HBox>
 
-    <!-- Stats Cards -->
-    <HBox spacing="15">
-        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-blue">
-            <Label text="📅 Total Sessions" styleClass="stat-label-blue"/><Label fx:id="totalSessionsLbl" text="0" styleClass="stat-value-blue"/>
-        </VBox>
-        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-yellow">
-            <Label text="👥 Bookings" styleClass="stat-label-yellow"/><Label fx:id="bookingsLbl" text="0" styleClass="stat-value-yellow"/>
-        </VBox>
-        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-blue-light">
-            <Label text="👥 Capacity" styleClass="stat-label-blue-light"/><Label fx:id="capacityLbl" text="0" styleClass="stat-value-blue-light"/>
-        </VBox>
-        <VBox HBox.hgrow="ALWAYS" styleClass="stat-card-green">
-            <Label text="🌱 Utilization" styleClass="stat-label-green"/><Label fx:id="utilLbl" text="0%" styleClass="stat-value-green"/>
-        </VBox>
-    </HBox>
+        <Separator style="-fx-opacity: 0.2;" />
 
-    <!-- List -->
-    <VBox spacing="20" VBox.vgrow="ALWAYS" styleClass="card">
-        <HBox spacing="20" alignment="CENTER_LEFT">
-            <Button text="‹" onAction="#prevDay" styleClass="nav-btn-round"/>
-            <Label fx:id="dateLabel" styleClass="heading-text"/>
-            <Button text="›" onAction="#nextDay" styleClass="nav-btn-round"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <!-- fx:id MUST match Java controller -->
-            <ComboBox fx:id="trainerFilter" prefWidth="200" promptText="All Trainers"/>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox HBox.hgrow="ALWAYS">
+                <Label fx:id="monthYearLabel" text="May 2026" styleClass="calendar-header-text"/>
+            </VBox>
+            <HBox spacing="8">
+                <Button onAction="#prevMonth" text="‹" styleClass="nav-arrow-btn" focusTraversable="false"/>
+                <Button onAction="#nextMonth" text="›" styleClass="nav-arrow-btn" focusTraversable="false"/>
+            </HBox>
         </HBox>
 
-        <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
-            <StackPane>
-                <VBox fx:id="placeholder" alignment="CENTER" spacing="10">
-                    <Label text="📅" style="-fx-font-size: 50;"/>
-                    <Label text="No sessions scheduled for this day" styleClass="subtitle-gray"/>
+        <GridPane fx:id="calendarGrid" hgap="5" vgap="5" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="40" halignment="CENTER" />
+            </columnConstraints>
+            <Label text="S" styleClass="day-label" GridPane.columnIndex="0" />
+            <Label text="M" styleClass="day-label" GridPane.columnIndex="1" />
+            <Label text="T" styleClass="day-label" GridPane.columnIndex="2" />
+            <Label text="W" styleClass="day-label" GridPane.columnIndex="3" />
+            <Label text="T" styleClass="day-label" GridPane.columnIndex="4" />
+            <Label text="F" styleClass="day-label" GridPane.columnIndex="5" />
+            <Label text="S" styleClass="day-label" GridPane.columnIndex="6" />
+        </GridPane>
+    </VBox>
+
+    <!-- RIGHT COLUMN: SCHEDULE DETAILS -->
+    <VBox spacing="20" HBox.hgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <ImageView fitHeight="25" fitWidth="25">
+                <Image url="@../images/calendar.png"/>
+            </ImageView>
+            <Label fx:id="dateLabel" text="Select a date" styleClass="heading-text" style="-fx-font-size: 20;"/>
+        </HBox>
+
+        <!-- Container for ScrollPane to ensure it fills height -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <StackPane fx:id="contentStack" alignment="CENTER">
+                <!-- PLACEHOLDER (Centered via StackPane) -->
+                <VBox fx:id="placeholder" alignment="CENTER" spacing="15">
+                    <ImageView fitHeight="65" fitWidth="65" opacity="0.3">
+                        <Image url="@../images/calendar.png"/>
+                    </ImageView>
+                    <Label text="Select a date to view trainer availability" styleClass="placeholder-label-small"/>
                 </VBox>
-                <VBox fx:id="scheduleContainer" spacing="10"/>
+
+                <!-- CONTAINER FOR CARDS -->
+                <VBox fx:id="scheduleContainer" spacing="15" visible="false"/>
             </StackPane>
         </ScrollPane>
     </VBox>
-</VBox>
+</HBox>

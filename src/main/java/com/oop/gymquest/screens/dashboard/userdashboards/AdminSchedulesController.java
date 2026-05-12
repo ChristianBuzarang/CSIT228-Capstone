@@ -4,56 +4,143 @@ import com.oop.gymquest.data.DatabaseHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AdminSchedulesController {
-    @FXML private Label totalSessionsLbl, bookingsLbl, capacityLbl, utilLbl, dateLabel;
+    @FXML private Label monthYearLabel, dateLabel;
+    @FXML private GridPane calendarGrid;
     @FXML private VBox scheduleContainer, placeholder;
     @FXML private ComboBox<String> trainerFilter;
 
-    private LocalDate selectedDate = LocalDate.now();
+    private LocalDate selectedDate = null;
+    private YearMonth currentMonthView;
 
     @FXML
     public void initialize() {
-        trainerFilter.getItems().add("All Trainers");
-        trainerFilter.getSelectionModel().selectFirst();
-        loadData();
+        currentMonthView = YearMonth.now();
+        setupTrainerFilter();
+        populateCalendar();
     }
 
-    private void loadData() {
-        scheduleContainer.getChildren().clear();
-        dateLabel.setText(selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")));
+    private void setupTrainerFilter() {
+        trainerFilter.getItems().add("All Trainers");
+        // Populating from Database (Assuming a helper exists, else add logic here)
+        trainerFilter.getItems().addAll(DatabaseHandler.fetchTrainersNames());
+        trainerFilter.getSelectionModel().selectFirst();
+        trainerFilter.setOnAction(e -> { if(selectedDate != null) loadSchedules(selectedDate); });
+    }
 
-        int total = 0, bookings = 0;
-        try (ResultSet rs = DatabaseHandler.getTrainerSchedule(0)) { // 0 pulls all
+    private void populateCalendar() {
+        calendarGrid.getChildren().removeIf(node -> GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) > 0);
+        monthYearLabel.setText(currentMonthView.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+
+        LocalDate firstOfMonth = currentMonthView.atDay(1);
+        int dayOfWeek = firstOfMonth.getDayOfWeek().getValue() % 7;
+        int daysInMonth = currentMonthView.lengthOfMonth();
+
+        int row = 1;
+        for (int i = 1; i <= daysInMonth; i++) {
+            int col = (dayOfWeek + i - 1) % 7;
+            Button dayBtn = new Button(String.valueOf(i));
+            dayBtn.getStyleClass().add("calendar-day-btn");
+
+            final LocalDate date = currentMonthView.atDay(i);
+            dayBtn.setOnAction(e -> selectDate(date, dayBtn));
+
+            if (date.equals(LocalDate.now())) dayBtn.setStyle("-fx-border-color: #3b82f6; -fx-border-width: 1.5; -fx-border-radius: 10;");
+            if (date.equals(selectedDate)) dayBtn.getStyleClass().add("calendar-day-selected");
+
+            calendarGrid.add(dayBtn, col, row);
+            if (col == 6) row++;
+        }
+    }
+
+    private void selectDate(LocalDate date, Button btn) {
+        // Toggle Logic: Deselect if clicked again
+        if (date.equals(selectedDate)) {
+            selectedDate = null;
+            btn.getStyleClass().remove("calendar-day-selected");
+            dateLabel.setText("Select a date");
+            scheduleContainer.getChildren().clear();
+            placeholder.setVisible(true);
+            return;
+        }
+
+        selectedDate = date;
+        calendarGrid.getChildren().forEach(n -> n.getStyleClass().remove("calendar-day-selected"));
+        btn.getStyleClass().add("calendar-day-selected");
+
+        dateLabel.setText("Schedules for " + date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")));
+        loadSchedules(date);
+    }
+
+    private void loadSchedules(LocalDate date) {
+        scheduleContainer.getChildren().clear();
+        String selectedTrainer = trainerFilter.getValue();
+        Map<String, VBox> coachCards = new HashMap<>();
+
+        try (ResultSet rs = DatabaseHandler.getTrainerSchedule(0)) {
             while (rs != null && rs.next()) {
-                if (!rs.getString("slot_date").equals(selectedDate.toString())) continue;
-                total++;
-                if (rs.getString("status").equalsIgnoreCase("Booked")) bookings++;
-                addScheduleRow(rs.getString("coach_name"), rs.getString("slot_time"), rs.getString("status"));
+                if (!rs.getString("slot_date").equals(date.toString())) continue;
+
+                String coach = rs.getString("coach_name");
+                if (selectedTrainer != null && !selectedTrainer.equals("All Trainers") && !coach.equals(selectedTrainer)) continue;
+
+                String time = rs.getString("slot_time");
+                String status = rs.getString("status");
+
+                VBox card = coachCards.computeIfAbsent(coach, k -> createCoachCard(coach));
+                FlowPane slots = (FlowPane) card.getChildren().get(1);
+
+                Label pill = new Label(time);
+                pill.getStyleClass().addAll("time-slot-pill", status.equalsIgnoreCase("Booked") ? "slot-booked" : "slot-available");
+                slots.getChildren().add(pill);
             }
         } catch (Exception e) { e.printStackTrace(); }
 
-        totalSessionsLbl.setText(String.valueOf(total));
-        bookingsLbl.setText(String.valueOf(bookings));
-        capacityLbl.setText(String.valueOf(total * 5));
-        double util = total == 0 ? 0 : ((double) bookings / total) * 100;
-        utilLbl.setText(String.format("%.0f%%", util));
+        boolean hasData = !coachCards.isEmpty();
 
-        placeholder.setVisible(total == 0);
-        scheduleContainer.setVisible(total > 0);
+        // Dynamic visibility logic
+        placeholder.setVisible(!hasData);
+        placeholder.setManaged(!hasData);
+
+        scheduleContainer.setVisible(hasData);
+        scheduleContainer.setManaged(hasData);
+
+        if (hasData) {
+            scheduleContainer.getChildren().addAll(coachCards.values());
+        }
     }
 
-    private void addScheduleRow(String coach, String time, String status) {
-        HBox row = new HBox(20); row.setAlignment(Pos.CENTER_LEFT); row.getStyleClass().add("card");
-        row.setStyle("-fx-padding: 15; -fx-border-color: #bae6fd; -fx-border-radius: 15;");
-        row.getChildren().addAll(new Label(coach), new Label(time), new Label(status.toUpperCase()));
-        scheduleContainer.getChildren().add(row);
+    private VBox createCoachCard(String name) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("coach-card");
+        HBox header = new HBox(12); header.setAlignment(Pos.CENTER_LEFT);
+
+        StackPane avatar = new StackPane(); avatar.getStyleClass().add("coach-avatar-circle");
+        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/avatar1.png")));
+        icon.setFitWidth(25); icon.setFitHeight(25);
+        avatar.getChildren().add(icon);
+
+        VBox info = new VBox(0);
+        Label nameLbl = new Label(name); nameLbl.setStyle("-fx-font-weight: bold; -fx-font-size: 15;");
+        Label sub = new Label("Fitness Coach"); sub.getStyleClass().add("subtitle-gray");
+        info.getChildren().addAll(nameLbl, sub);
+        header.getChildren().addAll(avatar, info);
+
+        FlowPane slotContainer = new FlowPane(10, 10);
+        card.getChildren().addAll(header, slotContainer);
+        return card;
     }
 
-    @FXML private void nextDay() { selectedDate = selectedDate.plusDays(1); loadData(); }
-    @FXML private void prevDay() { selectedDate = selectedDate.minusDays(1); loadData(); }
+    @FXML private void nextMonth() { currentMonthView = currentMonthView.plusMonths(1); populateCalendar(); }
+    @FXML private void prevMonth() { currentMonthView = currentMonthView.minusMonths(1); populateCalendar(); }
 }
