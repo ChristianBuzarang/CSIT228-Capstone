@@ -84,7 +84,7 @@ public class DashboardController {
 
     public void refreshHeader() {
         User user = MainApp.instance.currentUser;
-        if (user.getAvatar() != null) {
+        if (user != null && user.getAvatar() != null) {
             try {
                 String path = "/com/oop/gymquest/images/" + user.getAvatar();
                 Image img = new Image(getClass().getResourceAsStream(path));

@@ -16,19 +16,18 @@ public class RegisterAdminController {
         String lname = lastnameField.getText().trim();
         String email = emailField.getText().trim();
         String pass = passField.getText();
-
         if (fname.isEmpty() || lname.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-            showMessage("Please fill all fields", "#ef4444");
+            statusLabel.setText("Please fill all fields");
+            statusLabel.setStyle("-fx-text-fill: #ffd1d1;");
             return;
         }
-
         boolean success = DatabaseHandler.registerUser(email, pass, fname, lname, "admin");
-
         if (success) {
             Stage stage = (Stage) statusLabel.getScene().getWindow();
             stage.close();
         } else {
-            showMessage("Account creation failed. Email might exist.", "#ef4444");
+            statusLabel.setText("Creation failed. Email may exist.");
+            statusLabel.setStyle("-fx-text-fill: #ffd1d1;");
         }
     }
 

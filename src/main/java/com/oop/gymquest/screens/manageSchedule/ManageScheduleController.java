@@ -58,14 +58,17 @@ public class ManageScheduleController {
         HBox row = new HBox(20);
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("card");
-        row.setStyle("-fx-border-color: #bae6fd; -fx-border-width: 1.5; -fx-padding: 20;");
+        row.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);");
 
         StackPane iconBox = new StackPane();
-        iconBox.getStyleClass().add("coach-circle");
+        iconBox.setPrefSize(50, 50); // Equal width and height
+        iconBox.setMinSize(50, 50);
+        iconBox.setMaxSize(50, 50);
+        iconBox.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 25;");
 
         ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
-        icon.setFitHeight(20);
-        icon.setFitWidth(20);
+        icon.setFitHeight(22);
+        icon.setFitWidth(22);
         iconBox.getChildren().add(icon);
 
         VBox content = new VBox(8);

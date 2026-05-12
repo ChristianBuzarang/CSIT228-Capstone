@@ -394,4 +394,22 @@ public class DatabaseHandler {
         }
         return trainers;
     }
+
+    public static ResultSet getAvailableSlots(String date) {
+        String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
+                "FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+//                "WHERE s.slot_date = ? AND s.status = 'Available' " +
+                "ORDER BY s.slot_time ASC";
+        try {
+//            Connection conn = getConnection();
+//            PreparedStatement ps = conn.prepareStatement(sql);
+//            ps.setString(1, date);
+//            return ps.executeQuery();
+            Connection conn = getConnection();
+            return conn.createStatement().executeQuery(sql);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
 }
