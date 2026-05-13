@@ -42,7 +42,8 @@ public class ManageScheduleController {
                         rs.getString("slot_date"),
                         rs.getString("slot_time"),
                         rs.getString("duration"),
-                        rs.getString("status")
+                        rs.getString("status"),
+                        rs.getString("booked_by_name")
                 );
             }
         } catch (Exception e) {
@@ -54,7 +55,7 @@ public class ManageScheduleController {
         emptyPlaceholder.setManaged(isEmpty);
     }
 
-    private void addCard(int id, String act, String date, String time, String dur, String status) {
+    private void addCard(int id, String act, String date, String time, String dur, String status, String bookedByName) {
         HBox row = new HBox(20);
         row.setAlignment(Pos.CENTER_LEFT);
         row.getStyleClass().add("card");
@@ -73,7 +74,7 @@ public class ManageScheduleController {
 
         VBox content = new VBox(8);
         Label title = new Label(act);
-        title.setStyle("-fx-font-weight: bold; -fx-font-size: 16;");
+        title.setStyle("-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #1e293b;");
 
         Label details = new Label(date + "  •  " + time + " (" + dur + ")");
         details.setStyle("-fx-text-fill: #64748b;");
@@ -81,13 +82,21 @@ public class ManageScheduleController {
         HBox badgeRow = new HBox(10);
         badgeRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label memberCount = new Label("👥 0/5 members");
-        memberCount.setStyle("-fx-text-fill: #3b82f6; -fx-font-size: 13;");
+        Label memberInfo = new Label();
+        if (status.equalsIgnoreCase("Booked")) {
+            memberInfo.setText("👤 Booked by: " + (bookedByName != null ? bookedByName : "Unknown"));
+            memberInfo.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;"); // Green for booked
+        } else {
+            memberInfo.setText("👥 Open for booking (1/1)");
+            memberInfo.setStyle("-fx-text-fill: #3b82f6;");
+        }
 
         Label statusBadge = new Label(status.toUpperCase());
-        statusBadge.getStyleClass().add(status.equalsIgnoreCase("Available") ? "badge-available" : "badge-booked");
+        statusBadge.setStyle(status.equalsIgnoreCase("Available")
+                ? "-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-padding: 2 8; -fx-background-radius: 5;"
+                : "-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-padding: 2 8; -fx-background-radius: 5;");
 
-        badgeRow.getChildren().addAll(memberCount, statusBadge);
+        badgeRow.getChildren().addAll(memberInfo, statusBadge);
         content.getChildren().addAll(title, details, badgeRow);
 
         Region spacer = new Region();

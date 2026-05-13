@@ -295,18 +295,26 @@ public class DatabaseHandler {
         } catch (SQLException e) { return null; }
     }
 
-    public static boolean saveBooking(int uid, String coach, String date, String time) {
-        String sql = "UPDATE trainer_slots s JOIN users u ON s.trainer_id = u.userid " +
-                "SET s.status='Booked', s.member_id=?, s.booked_by_name=(SELECT CONCAT(firstname,' ',lastname) FROM users WHERE userid=?) " +
-                "WHERE CONCAT(u.firstname,' ',u.lastname)=? AND s.slot_date=? AND s.slot_time=? AND s.status='Available'";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, uid);
-            ps.setInt(2, uid);
-            ps.setString(3, coach);
-            ps.setString(4, date);
-            ps.setString(5, time);
-            return ps.executeUpdate() > 0;
+    public static boolean saveBooking(int memberId, int slotId) {
+        String memberName = "";
+        try (Connection conn = getConnection();
+             PreparedStatement psName = conn.prepareStatement("SELECT firstname, lastname FROM users WHERE userid = ?")) {
+            psName.setInt(1, memberId);
+            ResultSet rs = psName.executeQuery();
+            if (rs.next()) memberName = rs.getString("firstname") + " " + rs.getString("lastname");
         } catch (SQLException e) { return false; }
+        String sql = "UPDATE trainer_slots SET status = 'Booked', member_id = ?, booked_by_name = ? " +
+                "WHERE slot_id = ? AND status = 'Available'";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, memberId);
+            ps.setString(2, memberName);
+            ps.setInt(3, slotId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static boolean isSlotBooked(String coach, String date, String time) {

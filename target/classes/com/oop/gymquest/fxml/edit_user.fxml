@@ -3,38 +3,43 @@
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="TOP_CENTER" maxWidth="500" spacing="15"
-      style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #60a5fa); -fx-background-radius: 40; -fx-padding: 40 50;"
+      style="-fx-background-color: #eff6ff; -fx-background-radius: 40; -fx-padding: 40 50;"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.EditUserController">
 
-    <Label text="Edit User Details" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    <Label text="Edit User Details"
+           style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e3a5f; -fx-padding: 0 0 10 0;"/>
 
-    <VBox spacing="10">
+    <VBox spacing="12">
         <HBox spacing="10">
-            <VBox HBox.hgrow="ALWAYS">
-                <Label text="First Name" style="-fx-text-fill: white;"/>
-                <TextField fx:id="firstnameField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+            <VBox HBox.hgrow="ALWAYS" spacing="5">
+                <Label text="First Name" style="-fx-text-fill: #64748b; -fx-font-weight: bold;"/>
+                <TextField fx:id="firstnameField" style="-fx-background-radius: 10; -fx-padding: 10; -fx-background-color: white; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
             </VBox>
-            <VBox HBox.hgrow="ALWAYS">
-                <Label text="Last Name" style="-fx-text-fill: white;"/>
-                <TextField fx:id="lastnameField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+            <VBox HBox.hgrow="ALWAYS" spacing="5">
+                <Label text="Last Name" style="-fx-text-fill: #64748b; -fx-font-weight: bold;"/>
+                <TextField fx:id="lastnameField" style="-fx-background-radius: 10; -fx-padding: 10; -fx-background-color: white; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
             </VBox>
         </HBox>
 
-        <Label text="Email" style="-fx-text-fill: white;"/>
-        <TextField fx:id="emailField" style="-fx-background-radius: 10; -fx-padding: 10;"/>
+        <VBox spacing="5">
+            <Label text="Email" style="-fx-text-fill: #64748b; -fx-font-weight: bold;"/>
+            <TextField fx:id="emailField" style="-fx-background-radius: 10; -fx-padding: 10; -fx-background-color: white; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
+        </VBox>
 
-        <Label text="Account Role" style="-fx-text-fill: white;"/>
-        <!-- IMPORTANT: This ID must match your Controller variable name -->
-        <ComboBox fx:id="typeBox" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-padding: 5;"/>
+        <VBox spacing="5">
+            <Label text="Account Role" style="-fx-text-fill: #64748b; -fx-font-weight: bold;"/>
+            <ComboBox fx:id="typeBox" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-padding: 5; -fx-background-color: white; -fx-border-color: #bae6fd; -fx-border-radius: 10;"/>
+        </VBox>
     </VBox>
 
-    <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+    <VBox spacing="10" style="-fx-padding: 15 0 0 0;">
         <Button text="Save Changes" onAction="#handleUpdate" maxWidth="Infinity"
-                style="-fx-background-color: white; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 15;"/>
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 15; -fx-background-radius: 15; -fx-cursor: hand;"/>
+
         <Button text="Cancel" onAction="#handleCancel" maxWidth="Infinity"
-                style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                style="-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-cursor: hand;"/>
     </VBox>
 
-    <Label fx:id="statusLabel" textFill="white"/>
+    <Label fx:id="statusLabel" style="-fx-text-fill: #ef4444;"/>
 </VBox>

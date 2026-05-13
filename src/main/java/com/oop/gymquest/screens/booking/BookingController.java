@@ -163,10 +163,10 @@ public class BookingController implements Initializable {
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                int uid = MainApp.instance.currentUser.getUserId();
-                // Since the Trainer logic is finished, we use their existing saveBooking method
-                if (DatabaseHandler.saveBooking(uid, coach, selectedDate.toString(), time)) {
-                    showTrainers(); // Refresh UI
+                int memberId = MainApp.instance.currentUser.getUserId();
+                if (DatabaseHandler.saveBooking(memberId, slotId)) {
+                    showTrainers(); // Refresh Member UI
+                    System.out.println("✅ Session with " + coach + " confirmed.");
                 }
             }
         });
