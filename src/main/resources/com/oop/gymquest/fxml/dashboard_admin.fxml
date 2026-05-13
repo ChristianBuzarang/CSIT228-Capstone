@@ -51,6 +51,7 @@
                 <Button fx:id="btnToggleMembers" text="Members" onAction="#showMembers" styleClass="toggle-nav-btn" focusTraversable="false"/>
                 <Button fx:id="btnToggleTrainers" text="Trainers" onAction="#showTrainers" styleClass="toggle-nav-btn" focusTraversable="false"/>
                 <Button fx:id="btnToggleAdmins" text="Admins" onAction="#showAdmins" styleClass="toggle-nav-btn" focusTraversable="false"/>
+                <Button fx:id="btnToggleArchive" text="Archive" onAction="#showArchive" styleClass="toggle-nav-btn" focusTraversable="false"/>
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
             <TextField fx:id="searchField" promptText="🔍 Search user by name or email..." styleClass="search-field" prefWidth="350" focusTraversable="false"/>

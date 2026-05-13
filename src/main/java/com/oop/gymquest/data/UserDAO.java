@@ -38,7 +38,7 @@ public class UserDAO {
         } catch (SQLException e) { return false; }
     }
 
-    private static User mapUser(ResultSet rs) throws SQLException {
+    public static User mapUser(ResultSet rs) throws SQLException {
         int id = rs.getInt("userid");
         String email = rs.getString("email");
         String pass = rs.getString("password");
@@ -46,11 +46,12 @@ public class UserDAO {
         String lname = rs.getString("lastname");
         String type = rs.getString("type").toLowerCase();
         String avatar = rs.getString("avatar");
+        boolean is_active = rs.getBoolean("is_active");
 
         return switch (type) {
-            case "admin" -> new Admin(id, email, pass, fname, lname, type, avatar);
-            case "trainer" -> new Trainer(id, email, pass, fname, lname, type, avatar);
-            default -> new Member(id, email, pass, fname, lname, type, avatar);
+            case "admin" -> new Admin(id, email, pass, fname, lname, type, avatar, is_active);
+            case "trainer" -> new Trainer(id, email, pass, fname, lname, type, avatar, is_active);
+            default -> new Member(id, email, pass, fname, lname, type, avatar, is_active);
         };
     }
 

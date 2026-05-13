@@ -3,7 +3,10 @@ package com.oop.gymquest.data;
 import com.oop.gymquest.data.userdata.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import static com.oop.gymquest.data.UserDAO.mapUser;
 
 public class DatabaseHandler {
     private static final String URL = "jdbc:mysql://localhost:3306/";
@@ -28,9 +31,9 @@ public class DatabaseHandler {
 
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
-//                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
 //                stmt.execute("DROP TABLE IF EXISTS users, users_archive, admins, members, trainers, trainer_slots, posts, workouts");
-//                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -39,26 +42,21 @@ public class DatabaseHandler {
                         "firstname VARCHAR(255), " +
                         "lastname VARCHAR(255), " +
                         "type VARCHAR(50), " +
-                        "avatar VARCHAR(255) DEFAULT 'user.png')");
+                        "avatar VARCHAR(255) DEFAULT 'user.png'," +
+                        "is_active TINYINT(1) DEFAULT 1)");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users_archive (" +
+                        "archive_id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "userid INT, " +
+                        "full_name VARCHAR(255), " +
                         "email VARCHAR(255), " +
-                        "password VARCHAR(255), " +
-                        "firstname VARCHAR(255), " +
-                        "lastname VARCHAR(255), " +
                         "type VARCHAR(50), " +
-                        "avatar VARCHAR(255) DEFAULT 'user.png', " +
+                        "status VARCHAR(20) DEFAULT 'INACTIVE', " +
                         "archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
 
-                stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, " +
-                        "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
-
-                stmt.execute("CREATE TABLE IF NOT EXISTS members (userid INT PRIMARY KEY, " +
-                        "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
-
-                stmt.execute("CREATE TABLE IF NOT EXISTS trainers (userid INT PRIMARY KEY, " +
-                        "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
+                stmt.execute("CREATE TABLE IF NOT EXISTS admins (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
+                stmt.execute("CREATE TABLE IF NOT EXISTS members (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
+                stmt.execute("CREATE TABLE IF NOT EXISTS trainers (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainer_slots (" +
                         "slot_id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -101,7 +99,7 @@ public class DatabaseHandler {
     }
 
     public static User authenticate(String email, String pass) {
-        String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_active = 1";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -115,11 +113,13 @@ public class DatabaseHandler {
                 String em = rs.getString("email");
                 String pw = rs.getString("password");
                 String avatar = rs.getString("avatar");
+                boolean is_active = rs.getBoolean("is_active");
                 if (avatar == null || avatar.isEmpty()) avatar = "user.png";
+
                 return switch (type) {
-                    case "admin" -> new Admin(id, em, pw, fn, ln, type, avatar);
-                    case "trainer" -> new Trainer(id, em, pw, fn, ln, type, avatar);
-                    default -> new Member(id, em, pw, fn, ln, type, avatar);
+                    case "admin" -> new Admin(id, em, pw, fn, ln, type, avatar, is_active);
+                    case "trainer" -> new Trainer(id, em, pw, fn, ln, type, avatar, is_active);
+                    default -> new Member(id, em, pw, fn, ln, type, avatar, is_active);
                 };
             }
         } catch (SQLException e) { e.printStackTrace(); }
@@ -185,14 +185,14 @@ public class DatabaseHandler {
     }
 
     public static boolean archiveUser(int userId) {
-        String insertArchive = "INSERT INTO users_archive (userid, email, password, firstname, lastname, type) " +
-                "SELECT userid, email, password, firstname, lastname, type FROM users WHERE userid = ?";
-        String deleteActive = "DELETE FROM users WHERE userid = ?";
-
+        String logArchive = "INSERT INTO users_archive (userid, full_name, email, type, status) " +
+                "SELECT userid, CONCAT(firstname, ' ', lastname), email, type, 'INACTIVE' " +
+                "FROM users WHERE userid = ?";
+        String deactivate = "UPDATE users SET is_active = 0 WHERE userid = ?";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement ps1 = conn.prepareStatement(insertArchive);
-                 PreparedStatement ps2 = conn.prepareStatement(deleteActive)) {
+            try (PreparedStatement ps1 = conn.prepareStatement(logArchive);
+                 PreparedStatement ps2 = conn.prepareStatement(deactivate)) {
 
                 ps1.setInt(1, userId);
                 ps1.executeUpdate();
@@ -200,6 +200,26 @@ public class DatabaseHandler {
                 ps2.setInt(1, userId);
                 ps2.executeUpdate();
 
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                return false;
+            }
+        } catch (SQLException e) { return false; }
+    }
+
+    public static boolean restoreUser(int userId) {
+        String deleteArchive = "DELETE FROM users_archive WHERE userid = ?";
+        String activateUser = "UPDATE users SET is_active = 1 WHERE userid = ?";
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(deleteArchive);
+                 PreparedStatement ps2 = conn.prepareStatement(activateUser)) {
+                ps1.setInt(1, userId);
+                ps1.executeUpdate();
+                ps2.setInt(1, userId);
+                ps2.executeUpdate();
                 conn.commit();
                 return true;
             } catch (SQLException e) {
@@ -337,9 +357,10 @@ public class DatabaseHandler {
                 String em = rs.getString("email");
                 String pw = rs.getString("password");
                 String avatar = rs.getString("avatar");
-                if (type.equalsIgnoreCase("admin")) list.add(new Admin(id, em, pw, fn, ln, type, avatar));
-                else if (type.equalsIgnoreCase("trainer")) list.add(new Trainer(id, em, pw, fn, ln, type, avatar));
-                else list.add(new Member(id, em, pw, fn, ln, type, avatar));
+                boolean is_active = rs.getBoolean("is_active");
+                if (type.equalsIgnoreCase("admin")) list.add(new Admin(id, em, pw, fn, ln, type, avatar, is_active));
+                else if (type.equalsIgnoreCase("trainer")) list.add(new Trainer(id, em, pw, fn, ln, type, avatar, is_active));
+                else list.add(new Member(id, em, pw, fn, ln, type, avatar, is_active));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
@@ -411,5 +432,57 @@ public class DatabaseHandler {
         } catch (SQLException e) {
             return null;
         }
+    }
+
+    // Logic to Soft-Delete (Archive) or Restore
+    public static boolean setUserActiveStatus(int userId, boolean active) {
+        String sql = "UPDATE users SET is_active = ? WHERE userid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, active ? 1 : 0);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static List<User> fetchUsersByStatus(String type, boolean active) {
+        List<User> list = new ArrayList<>();
+        String sql = type.equals("archive")
+                ? "SELECT * FROM users WHERE is_active = 0"
+                : "SELECT * FROM users WHERE type = ? AND is_active = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (!type.equals("archive")) {
+                ps.setString(1, type);
+                ps.setInt(2, active ? 1 : 0);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapUser(rs));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public static List<ArchivedUser> fetchArchivedUsers() {
+        List<ArchivedUser> list = new ArrayList<>();
+        String sql = "SELECT * FROM users_archive ORDER BY archived_at DESC";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(new ArchivedUser(
+                        rs.getInt("userid"),
+                        rs.getString("full_name"),
+                        rs.getString("email"),
+                        rs.getString("type"),
+                        rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
     }
 }

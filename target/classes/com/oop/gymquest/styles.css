@@ -508,3 +508,13 @@
     -fx-font-weight: bold;
     -fx-text-alignment: CENTER;
 }
+
+.action-btn-restore {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+}
+.action-btn-restore:hover {
+    -fx-background-color: #a7f3d0;
+}

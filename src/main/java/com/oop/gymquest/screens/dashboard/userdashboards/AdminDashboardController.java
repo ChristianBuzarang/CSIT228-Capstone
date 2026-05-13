@@ -19,12 +19,13 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 import java.io.IOException;
+import java.util.List;
 
 public class AdminDashboardController {
     @FXML private Label totalMembersLabel, activeMembersLabel, totalTrainersLabel, activeTrainersLabel;
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, Void> actionsCol;
-    @FXML private Button btnToggleMembers, btnToggleTrainers, btnToggleAdmins;
+    @FXML private Button btnToggleMembers, btnToggleTrainers, btnToggleAdmins, btnToggleArchive;
     @FXML private TextField searchField;
 
     private String currentRoleFilter = "member";
@@ -44,23 +45,61 @@ public class AdminDashboardController {
             public TableCell<User, Void> call(final TableColumn<User, Void> param) {
                 return new TableCell<>() {
                     private final Button editBtn = new Button("Update");
-                    private final Button deleteBtn = new Button("Archive");
-                    private final HBox container = new HBox(10, editBtn, deleteBtn);
+                    private final Button actionBtn = new Button();
+                    private final HBox container = new HBox(10, editBtn, actionBtn);
                     {
                         container.setAlignment(Pos.CENTER);
                         editBtn.getStyleClass().add("action-btn-update");
-                        deleteBtn.getStyleClass().add("action-btn-archive");
+                        actionBtn.setFocusTraversable(false);
                         editBtn.setFocusTraversable(false);
-                        deleteBtn.setFocusTraversable(false);
-                        editBtn.setOnAction(event -> handleEditUser(getTableView().getItems().get(getIndex())));
-                        deleteBtn.setOnAction(event -> handleDeleteUser(getTableView().getItems().get(getIndex())));
                     }
+
                     @Override
                     protected void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);
-                        setGraphic(empty ? null : container);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            User user = getTableView().getItems().get(getIndex());
+                            if (user.isActive()) {
+                                actionBtn.setText("Archive");
+                                actionBtn.getStyleClass().setAll("action-btn-archive");
+                                actionBtn.setOnAction(e -> handleToggleStatus(user, false));
+                            } else {
+                                actionBtn.setText("Restore");
+                                actionBtn.getStyleClass().setAll("action-btn-restore"); // Add this to CSS
+                                actionBtn.setOnAction(e -> handleToggleStatus(user, true));
+                            }
+                            editBtn.setOnAction(event -> handleEditUser(user));
+                            setGraphic(container);
+                        }
                     }
                 };
+            }
+        });
+    }
+
+    private void handleToggleStatus(User selected, boolean activate) {
+        if (selected == null) return;
+        if (!activate && selected.getUserId() == MainApp.instance.currentUser.getUserId()) {
+            new Alert(Alert.AlertType.ERROR, "Security Guard: You cannot archive your own account.", ButtonType.OK).showAndWait();
+            return;
+        }
+        String verb = activate ? "Restore" : "Archive";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, verb + " " + selected.getFullName() + "?", ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                boolean success;
+                if (activate) {
+                    success = DatabaseHandler.restoreUser(selected.getUserId());
+                } else {
+                    success = DatabaseHandler.archiveUser(selected.getUserId());
+                }
+
+                if (success) {
+                    refreshUserTable();
+                    refreshStats();
+                }
             }
         });
     }
@@ -84,6 +123,7 @@ public class AdminDashboardController {
         btnToggleMembers.getStyleClass().remove("toggle-nav-btn-active");
         btnToggleTrainers.getStyleClass().remove("toggle-nav-btn-active");
         btnToggleAdmins.getStyleClass().remove("toggle-nav-btn-active");
+        btnToggleArchive.getStyleClass().remove("toggle-nav-btn-active");
         active.getStyleClass().add("toggle-nav-btn-active");
     }
 
@@ -139,13 +179,18 @@ public class AdminDashboardController {
         } catch (IOException e) { e.printStackTrace(); }
     }
 
-    @FXML private void showMembers() { updateToggleStyles(btnToggleMembers); updateTable("member"); }
-    @FXML private void showTrainers() { updateToggleStyles(btnToggleTrainers); updateTable("trainer"); }
-    @FXML private void showAdmins() { updateToggleStyles(btnToggleAdmins); updateTable("admin"); }
+    @FXML private void showMembers() { updateToggleStyles(btnToggleMembers); updateTable("member", true); }
+    @FXML private void showTrainers() { updateToggleStyles(btnToggleTrainers); updateTable("trainer", true); }
+    @FXML private void showAdmins() { updateToggleStyles(btnToggleAdmins); updateTable("admin", true); }
+    @FXML private void showArchive() {
+        updateToggleStyles(btnToggleArchive);
+        updateTable("archive", false);
+    }
 
-    private void updateTable(String type) {
+    private void updateTable(String type, boolean active) {
         currentRoleFilter = type;
-        filteredList = new FilteredList<>(FXCollections.observableArrayList(DatabaseHandler.fetchUsersByRole(type)), p -> true);
+        List<User> data = DatabaseHandler.fetchUsersByStatus(type, active);
+        filteredList = new FilteredList<>(FXCollections.observableArrayList(data), p -> true);
         userTable.setItems(filteredList);
         applyFilter(searchField.getText());
     }

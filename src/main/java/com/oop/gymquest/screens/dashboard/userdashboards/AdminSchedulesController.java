@@ -32,7 +32,6 @@ public class AdminSchedulesController {
 
     private void setupTrainerFilter() {
         trainerFilter.getItems().add("All Trainers");
-        // Populating from Database (Assuming a helper exists, else add logic here)
         trainerFilter.getItems().addAll(DatabaseHandler.fetchTrainersNames());
         trainerFilter.getSelectionModel().selectFirst();
         trainerFilter.setOnAction(e -> { if(selectedDate != null) loadSchedules(selectedDate); });
@@ -64,7 +63,6 @@ public class AdminSchedulesController {
     }
 
     private void selectDate(LocalDate date, Button btn) {
-        // Toggle Logic: Deselect if clicked again
         if (date.equals(selectedDate)) {
             selectedDate = null;
             btn.getStyleClass().remove("calendar-day-selected");
@@ -126,7 +124,7 @@ public class AdminSchedulesController {
         HBox header = new HBox(12); header.setAlignment(Pos.CENTER_LEFT);
 
         StackPane avatar = new StackPane(); avatar.getStyleClass().add("coach-avatar-circle");
-        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/avatar1.png")));
+        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
         icon.setFitWidth(25); icon.setFitHeight(25);
         avatar.getChildren().add(icon);
 

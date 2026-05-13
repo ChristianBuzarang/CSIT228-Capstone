@@ -10,8 +10,9 @@ public abstract class User implements Serializable {
     protected String lastname;
     protected String type;
     protected String avatar;
+    private boolean isActive;
 
-    public User(int userId, String email, String password, String firstname, String lastname, String type, String avatar) {
+    public User(int userId, String email, String password, String firstname, String lastname, String type, String avatar, boolean isActive) {
         this.userid = userId;
         this.email = email;
         this.password = password;
@@ -19,6 +20,7 @@ public abstract class User implements Serializable {
         this.lastname = lastname;
         this.type = type;
         this.avatar = avatar;
+        this.isActive = isActive;
     }
 
     public int getUserId() { return userid; }
@@ -29,8 +31,10 @@ public abstract class User implements Serializable {
     public String getFullName() { return firstname + " " + lastname; }
     public String getType() { return type; };
     public String getAvatar() { return avatar; }
+    public boolean isActive() { return isActive; }
 
     public void setFirstName(String firstname) { this.firstname = firstname; }
     public void setLastName(String lastname) { this.lastname = lastname; }
     public void setAvatar(String avatar) { this.avatar = avatar; }
+    public void setActive(boolean active) { isActive = active; }
 }
