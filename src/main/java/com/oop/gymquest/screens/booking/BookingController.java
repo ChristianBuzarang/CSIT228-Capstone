@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.net.URL;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -74,10 +75,10 @@ public class BookingController implements Initializable {
 
     private void showTrainers() {
         trainerPanel.getChildren().clear();
-        String headText = "Available on " + selectedDate.format(DateTimeFormatter.ofPattern("MMMM d"));
-        Label headingLabel = new Label(headText);
-        headingLabel.setStyle("-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
-        trainerPanel.getChildren().add(headingLabel);
+
+        Label availHeader = new Label("Available on " + selectedDate.format(DateTimeFormatter.ofPattern("MMMM d")));
+        availHeader.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
+        trainerPanel.getChildren().add(availHeader);
 
         // Fetch real slots from the database
         try (ResultSet rs = DatabaseHandler.getAvailableSlots(selectedDate.toString())) {
@@ -112,6 +113,16 @@ public class BookingController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Separator sep = new Separator();
+        sep.setPadding(new Insets(20, 0, 10, 0));
+        trainerPanel.getChildren().add(sep);
+
+        Label myBookingsHeader = new Label("Your Scheduled Sessions");
+        myBookingsHeader.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #3b82f6;");
+        trainerPanel.getChildren().add(myBookingsHeader);
+
+        loadMemberOwnedBookings();
     }
 
     private VBox createHighFidelityTrainerCard(String name, String avatar, String specialization) {
@@ -186,6 +197,44 @@ public class BookingController implements Initializable {
         Label s = new Label("Choose a day to view available trainer slots");
         ph.getChildren().addAll(iv, t, s);
         trainerPanel.getChildren().add(ph);
+    }
+
+    private void loadMemberOwnedBookings() {
+        int currentMemberId = MainApp.instance.currentUser.getUserId();
+
+        try (ResultSet rs = DatabaseHandler.getMemberBookings(currentMemberId)) {
+            boolean found = false;
+            while (rs != null && rs.next()) {
+                found = true;
+                VBox bookedCard = createConfirmedBookingCard(
+                        rs.getString("firstname") + " " + rs.getString("lastname"),
+                        rs.getString("slot_time"),
+                        rs.getString("slot_date"),
+                        rs.getString("activity")
+                );
+                trainerPanel.getChildren().add(bookedCard);
+            }
+
+            if (!found) {
+                Label none = new Label("You have no sessions booked yet.");
+                none.setStyle("-fx-text-fill: #94a3b8; -fx-italic: true;");
+                trainerPanel.getChildren().add(none);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    private VBox createConfirmedBookingCard(String coach, String time, String date, String activity) {
+        VBox card = new VBox(5);
+        card.setStyle("-fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 15;");
+
+        Label title = new Label("✅ Confirmed: " + activity);
+        title.setStyle("-fx-font-weight: bold; -fx-text-fill: #166534;");
+
+        Label details = new Label("With " + coach + " at " + time + " on " + date);
+        details.setStyle("-fx-text-fill: #15803d; -fx-font-size: 12;");
+
+        card.getChildren().addAll(title, details);
+        return card;
     }
 
     @FXML private void onPrevMonth() { currentYM = currentYM.minusMonths(1); selectedDate = null; refreshCalendar(); showPlaceholder(); }

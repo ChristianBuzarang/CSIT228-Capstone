@@ -284,9 +284,13 @@ public class DatabaseHandler {
     // --- MEMBER DASHBOARD METHODS ---
 
     public static ResultSet getMemberBookings(int memberId) {
-        String sql = "SELECT s.*, CONCAT(u.firstname, ' ', u.lastname) as coach_name " +
-                "FROM trainer_slots s JOIN users u ON s.trainer_id = u.userid " +
-                "WHERE s.member_id = ? AND s.status = 'Booked' ORDER BY s.slot_date ASC";
+        String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
+                "FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? " +
+                "AND s.status = 'Booked' " +
+                "AND s.slot_date >= CURRENT_DATE " + // <--- THE FILTER
+                "ORDER BY s.slot_date ASC, s.slot_time ASC";
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -428,16 +432,16 @@ public class DatabaseHandler {
         String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
                 "FROM trainer_slots s " +
                 "JOIN users u ON s.trainer_id = u.userid " +
-//                "WHERE s.slot_date = ? AND s.status = 'Available' " +
+                "WHERE s.slot_date = ? AND s.status = 'Available' " +
                 "ORDER BY s.slot_time ASC";
         try {
-//            Connection conn = getConnection();
-//            PreparedStatement ps = conn.prepareStatement(sql);
-//            ps.setString(1, date);
-//            return ps.executeQuery();
             Connection conn = getConnection();
-            return conn.createStatement().executeQuery(sql);
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, date);
+            return ps.executeQuery();
         } catch (SQLException e) {
+            System.err.println("Error fetching slots for date: " + date);
+            e.printStackTrace();
             return null;
         }
     }
