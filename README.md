@@ -18,7 +18,6 @@ The system provides a centralized platform for trainers and admins to manage ope
 - **Secure Authentication:** Role-based access control for Admins, Trainers, and Members to ensure data security and personalized views.
 - **Member Directory:** Full CRUD (Create, Read, Update, Delete) functionality with advanced filtering for Active, Expired, and Pending memberships.
 - **Session Booking:** An interactive scheduling system for members to book and manage personal training sessions.
-- **Financial Tracking:** Secure recording of member payments and the generation of basic revenue and financial reports.
 - **Dashboard Analytics:** A visual summary panel providing real-time data on gym health, including total members, daily attendance, and revenue trends.
 
 # Planned Technologies
