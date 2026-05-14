@@ -9,189 +9,193 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * WorkoutDAO
+ *
+ * In-memory + database-backed catalog of workouts.
+ *
+ * ── Design decisions ───────────────────────────────────────────────────────
+ *  • No hardcoded default workouts.  The catalog starts empty and is populated
+ *    entirely from the database (when connected) or by the user via the Custom
+ *    Workout Creator.  This reflects the project requirement that users create
+ *    their own workouts.
+ *  • Runtime cache — mutations (add / remove) apply to the in-memory list
+ *    immediately so the UI always shows the current state without reloading.
+ *  • DB writes are best-effort: if MySQL is unavailable the in-memory operation
+ *    still succeeds so the session keeps working.
+ */
 public class WorkoutDAO {
 
     // ── In-memory cache ────────────────────────────────────────────────────
-    // Mutable so that newly-created custom workouts can be appended at runtime.
     private static final List<Workout> runtimeCache = new ArrayList<>();
     private static boolean cacheInitialized = false;
 
     // ── Public API ─────────────────────────────────────────────────────────
 
-
+    /**
+     * Returns the live workout catalog.
+     * Tries the database on the first call; stays empty if DB is unavailable —
+     * no hardcoded defaults are injected.
+     */
     public static List<Workout> getAllWorkouts() {
-        if (!cacheInitialized) {
-            initializeCache();
-        }
+        if (!cacheInitialized) initializeCache();
         return Collections.unmodifiableList(runtimeCache);
     }
 
+    /**
+     * Persists a custom workout to the DB and immediately adds it to the
+     * runtime cache so the workouts view shows it on navigation back.
+     * {@code workout.setCustom(true)} is called here regardless of DB outcome.
+     *
+     * @return {@code true} if the DB write succeeded
+     */
     public static boolean createCustomWorkout(Workout workout) {
-        // Ensure the cache is ready before appending
         if (!cacheInitialized) initializeCache();
 
+        workout.setCustom(true);
+
         boolean dbSuccess = false;
-        String sql = "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom, locked)"
-                   + " VALUES (?, ?, ?, ?, ?, 1, 0)";
+        String sql =
+            "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom, locked)"
+          + " VALUES (?, ?, ?, ?, ?, 1, 0)";
         try (Connection c = MySQLConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, workout.getTitle());
             ps.setString(2, workout.getDifficulty().name());
             ps.setString(3, workout.getDuration());
             ps.setString(4, workout.getCategory().name());
             ps.setString(5, workout.getDescription());
             dbSuccess = ps.executeUpdate() > 0;
+
+            // Back-fill the auto-generated DB id into the object so future
+            // deletes can match by the real DB id.
+            if (dbSuccess) {
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) workout.setId(keys.getInt(1));
+                }
+            }
         } catch (Exception e) {
-            System.err.println("[WorkoutDAO] DB write failed (continuing in-memory): " + e.getMessage());
+            System.err.println("[WorkoutDAO] DB write failed (in-memory only): " + e.getMessage());
         }
 
-        // Always add to the runtime cache regardless of DB outcome.
-        // This is the fix for custom workouts not appearing in the list.
         runtimeCache.add(workout);
         return dbSuccess;
+    }
+
+    /**
+     * Removes a custom workout by id from both the runtime cache and the DB.
+     *
+     * Called as {@code WorkoutDAO.removeWorkout(id)} — method name matches
+     * what {@link com.oop.gymquest.screens.workouts.WorkoutsViewController}
+     * uses in {@code confirmAndDelete()}.
+     *
+     * @param workoutId the {@link Workout#getId()} value to remove
+     * @return {@code true} if the workout was found and removed from the cache
+     */
+    public static boolean removeWorkout(int workoutId) {
+        boolean removed = runtimeCache.removeIf(w -> w.getId() == workoutId);
+
+        if (!removed) {
+            System.err.println("[WorkoutDAO] removeWorkout: id " + workoutId + " not found in cache.");
+            return false;
+        }
+
+        // Best-effort DB removal
+        String sql = "DELETE FROM workouts WHERE id = ?";
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, workoutId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] DB delete failed (removed from cache): " + e.getMessage());
+        }
+
+        return true;
     }
 
     // ── Cache initialization ───────────────────────────────────────────────
 
     private static synchronized void initializeCache() {
-        if (cacheInitialized) return; // double-checked locking guard
-
+        if (cacheInitialized) return;
         try {
             loadFromDatabase();
         } catch (Exception e) {
-            System.err.println("[WorkoutDAO] DB unavailable, using default catalog: " + e.getMessage());
-            loadDefaultWorkouts();
+            // DB not available — start with empty list; user creates their own workouts
+            System.err.println("[WorkoutDAO] DB unavailable, starting with empty catalog: " + e.getMessage());
         }
         cacheInitialized = true;
     }
 
-
+    /**
+     * Queries the {@code workouts} table and populates the cache.
+     * Exercises are fetched via a second query keyed on workout_id.
+     */
     private static void loadFromDatabase() throws SQLException {
-        String sql = "SELECT id, title, difficulty, duration, category, description, locked"
-                   + " FROM workouts ORDER BY id";
+        String workoutSql =
+            "SELECT id, title, difficulty, duration, category, description, locked, is_custom"
+          + " FROM workouts ORDER BY id";
+        String exerciseSql =
+            "SELECT id, name, sets, reps, emoji, category FROM workout_exercises"
+          + " WHERE workout_id = ? ORDER BY sort_order";
+
         try (Connection c = MySQLConnection.getConnection();
              Statement st = c.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             ResultSet rs = st.executeQuery(workoutSql)) {
+
             while (rs.next()) {
-                WorkoutCategory cat = parseCategory(rs.getString("category"));
+                int wid = rs.getInt("id");
+
+                // Load exercises for this workout
+                List<Exercise> exercises = new ArrayList<>();
+                try (PreparedStatement eps = c.prepareStatement(exerciseSql)) {
+                    eps.setInt(1, wid);
+                    try (ResultSet ers = eps.executeQuery()) {
+                        while (ers.next()) {
+                            exercises.add(new Exercise(
+                                ers.getInt("id"),
+                                ers.getString("name"),
+                                ers.getInt("sets"),
+                                ers.getString("reps"),
+                                ers.getString("emoji"),
+                                ers.getString("category")
+                            ));
+                        }
+                    }
+                } catch (SQLException ex) {
+                    // workout_exercises table may not exist yet — skip exercises
+                }
+
+                WorkoutCategory cat  = parseCategory(rs.getString("category"));
                 Workout.Difficulty diff = parseDifficulty(rs.getString("difficulty"));
-                boolean locked = rs.getBoolean("locked");
 
                 Workout w = new Workout(
-                    rs.getInt("id"),
+                    wid,
                     rs.getString("title"),
                     diff,
                     rs.getString("duration"),
-                    locked,
-                    new ArrayList<>(),   // exercises — extend with JOIN when ready
+                    rs.getBoolean("locked"),
+                    exercises,
                     cat,
                     rs.getString("description"),
-                    null                 // imagePath — extend when assets are ready
+                    null
                 );
+                w.setCustom(rs.getBoolean("is_custom"));
                 runtimeCache.add(w);
             }
         }
     }
 
-    // ── Default catalog (DB fallback) ─────────────────────────────────────
-
-    private static void loadDefaultWorkouts() {
-        runtimeCache.add(new Workout(
-            0, "Full Body Blast", Workout.Difficulty.BEGINNER, "30 min", false,
-            List.of(
-                new Exercise(1, "Push-ups",  3, "10-12",   "💪", "strength"),
-                new Exercise(2, "Squats",    3, "15",      "🦵", "strength"),
-                new Exercise(3, "Plank",     3, "30 sec",  "🧘", "core"),
-                new Exercise(4, "Lunges",    3, "10 each", "🏃", "strength")
-            ),
-            WorkoutCategory.STRENGTH,
-            "A complete beginner-friendly routine targeting all major muscle groups "
-            + "through fundamental movement patterns.",
-            null
-        ));
-
-        runtimeCache.add(new Workout(
-            1, "Upper Body Power", Workout.Difficulty.BEGINNER, "25 min", false,
-            List.of(
-                new Exercise(1, "Dumbbell Press", 4, "8-10", "🏋️", "strength"),
-                new Exercise(2, "Pull-ups",       3, "6-8",  "💪", "strength"),
-                new Exercise(3, "Bicep Curls",    3, "12",   "💪", "strength"),
-                new Exercise(4, "Tricep Dips",    3, "10",   "🔥", "strength")
-            ),
-            WorkoutCategory.STRENGTH,
-            "Build upper-body strength and muscle with compound pushing and pulling exercises.",
-            null
-        ));
-
-        runtimeCache.add(new Workout(
-            2, "Core Crusher", Workout.Difficulty.INTERMEDIATE, "20 min", false,
-            List.of(
-                new Exercise(1, "Crunches",          4, "20",      "🔥", "core"),
-                new Exercise(2, "Russian Twists",    3, "15 each", "🌀", "core"),
-                new Exercise(3, "Leg Raises",        3, "12",      "🦵", "core"),
-                new Exercise(4, "Mountain Climbers", 3, "20",      "⛰️", "cardio")
-            ),
-            WorkoutCategory.CORE,
-            "Intense core-focused routine to build a strong, stable midsection.",
-            null
-        ));
-
-        runtimeCache.add(new Workout(
-            3, "Leg Day Legends", Workout.Difficulty.INTERMEDIATE, "40 min", false,
-            List.of(
-                new Exercise(1, "Barbell Squats", 4, "8-10", "🏋️", "strength"),
-                new Exercise(2, "Deadlifts",      4, "6-8",  "💪", "strength"),
-                new Exercise(3, "Leg Press",      3, "12",   "🦵", "strength"),
-                new Exercise(4, "Calf Raises",    4, "15",   "🔥", "strength")
-            ),
-            WorkoutCategory.STRENGTH,
-            "Heavy compound lower-body work to build powerful legs and glutes from the ground up.",
-            null
-        ));
-
-        runtimeCache.add(new Workout(
-            4, "Beast Mode HIIT", Workout.Difficulty.ADVANCED, "45 min", true,
-            List.of(
-                new Exercise(1, "Burpees",           5, "15",     "💥", "cardio"),
-                new Exercise(2, "Box Jumps",         4, "12",     "📦", "cardio"),
-                new Exercise(3, "Kettlebell Swings", 4, "20",     "⚡", "cardio"),
-                new Exercise(4, "Battle Ropes",      4, "30 sec", "🔥", "cardio")
-            ),
-            WorkoutCategory.HIIT,
-            "Maximum-intensity interval training for advanced athletes. Unlock by completing 3 other workouts.",
-            null
-        ));
-
-        runtimeCache.add(new Workout(
-            5, "Champion Circuit", Workout.Difficulty.ADVANCED, "50 min", true,
-            List.of(
-                new Exercise(1, "Clean & Press",      5, "8",      "🏋️", "strength"),
-                new Exercise(2, "Muscle-ups",         4, "5",      "💪", "strength"),
-                new Exercise(3, "Pistol Squats",      3, "8 each", "🦵", "strength"),
-                new Exercise(4, "Handstand Push-ups", 3, "6",      "🤸", "strength")
-            ),
-            WorkoutCategory.BALANCE,
-            "Elite-level circuit featuring advanced calisthenics and Olympic movements.",
-            null
-        ));
-    }
+    // ── Parse helpers ──────────────────────────────────────────────────────
 
     private static WorkoutCategory parseCategory(String raw) {
         if (raw == null) return WorkoutCategory.STRENGTH;
-        try {
-            return WorkoutCategory.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return WorkoutCategory.STRENGTH;
-        }
+        try { return WorkoutCategory.valueOf(raw.toUpperCase()); }
+        catch (IllegalArgumentException e) { return WorkoutCategory.STRENGTH; }
     }
 
     private static Workout.Difficulty parseDifficulty(String raw) {
         if (raw == null) return Workout.Difficulty.BEGINNER;
-        try {
-            return Workout.Difficulty.valueOf(raw.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Workout.Difficulty.BEGINNER;
-        }
+        try { return Workout.Difficulty.valueOf(raw.toUpperCase()); }
+        catch (IllegalArgumentException e) { return Workout.Difficulty.BEGINNER; }
     }
 }

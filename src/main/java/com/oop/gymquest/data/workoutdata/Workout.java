@@ -4,66 +4,75 @@ import java.util.List;
 
 public class Workout {
 
-    // ── Core fields (unchanged) ────────────────────────────────────────────
-    private int id;
-    private final String title;
-    private final Difficulty  difficulty;
-    private final String  duration;
-    private final boolean locked;
+    private int              id;
+    private final String     title;
+    private final Difficulty difficulty;
+    private final String     duration;
+    private final boolean    locked;
     private final List<Exercise> exercises;
 
-    // ── Extended fields (new) ──────────────────────────────────────────────
-    private WorkoutCategory category;    // training discipline
-    private String description; // shown in WorkoutDetailView
-    private String imagePath;   // e.g. "/images/workouts/full-body-blast.png"
+    private WorkoutCategory  category;
+    private String           description;
+    private String           imagePath;
+    private boolean          custom = false;
 
-    // ── Difficulty enum ───────────────────────────────────────────────────
     public enum Difficulty { BEGINNER, INTERMEDIATE, ADVANCED }
 
-    // ── Constructors ──────────────────────────────────────────────────────
+    // ── Full constructor ──────────────────────────────────────────────────
+
     public Workout(int id, String title, Difficulty difficulty, String duration,
                    boolean locked, List<Exercise> exercises,
                    WorkoutCategory category, String description, String imagePath) {
-        this.id = id;
-        this.title = title;
-        this.difficulty = difficulty;
-        this.duration = duration;
-        this.locked = locked;
-        this.exercises = exercises;
-        this.category = category;
+        this.id          = id;
+        this.title       = title;
+        this.difficulty  = difficulty;
+        this.duration    = duration;
+        this.locked      = locked;
+        this.exercises   = exercises;
+        this.category    = category;
         this.description = description;
-        this.imagePath = imagePath;
+        this.imagePath   = imagePath;
     }
 
-
+    /** Legacy 6-arg constructor — kept for backward compatibility. */
     public Workout(int id, String title, Difficulty difficulty, String duration,
                    boolean locked, List<Exercise> exercises) {
         this(id, title, difficulty, duration, locked, exercises,
-                WorkoutCategory.STRENGTH, null, null);
+             WorkoutCategory.STRENGTH, null, null);
     }
 
-    // ── Getters ────────────────────────────────────────────────────────────
+    // ── Getters ───────────────────────────────────────────────────────────
 
-    public int getId() { return id; }
-    public String getTitle() { return title; }
-    public Difficulty getDifficulty() { return difficulty; }
-    public String getDuration() { return duration; }
-    public boolean isLocked() { return locked; }
-    public List<Exercise> getExercises() { return exercises; }
-    public WorkoutCategory getCategory() { return category; }
-    public String getDescription() { return description; }
-    public String getImagePath()  { return imagePath; }
+    public int             getId()          { return id; }
+    public String          getTitle()       { return title; }
+    public Difficulty      getDifficulty()  { return difficulty; }
+    public String          getDuration()    { return duration; }
+    public boolean         isLocked()       { return locked; }
+    public List<Exercise>  getExercises()   { return exercises; }
+    public WorkoutCategory getCategory()    { return category; }
+    public String          getDescription() { return description; }
+    public String          getImagePath()   { return imagePath; }
+    public boolean         isCustom()       { return custom; }
 
-    // ── Setters (extended fields only) ────────────────────────────────────
+    // ── Setters ───────────────────────────────────────────────────────────
+
+    /**
+     * Allows WorkoutDAO to back-fill the auto-generated database id after an
+     * INSERT, so that subsequent removeWorkout() calls match the correct row.
+     */
+    public void setId(int id)                      { this.id = id; }
+
+    public void setCustom(boolean custom)          { this.custom = custom; }
+    public void setDescription(String description) { this.description = description; }
+    public void setImagePath(String imagePath)     { this.imagePath = imagePath; }
+
     public void setCategory(WorkoutCategory category) {
         if (category == null) throw new IllegalArgumentException("Category must not be null.");
         this.category = category;
     }
 
-    public void setDescription(String description) { this.description = description; }
-    public void setImagePath(String imagePath)     { this.imagePath   = imagePath;   }
+    // ── Helpers ───────────────────────────────────────────────────────────
 
-    // ── Helpers ────────────────────────────────────────────────────────────
     public String getDifficultyLabel() {
         return switch (difficulty) {
             case BEGINNER     -> "Beginner";
@@ -74,7 +83,7 @@ public class Workout {
 
     @Override
     public String toString() {
-        return String.format("Workout{id=%d, title='%s', category=%s, difficulty=%s}",
-                id, title, category, difficulty);
+        return String.format("Workout{id=%d, title='%s', category=%s, difficulty=%s, custom=%b}",
+                id, title, category, difficulty, custom);
     }
 }

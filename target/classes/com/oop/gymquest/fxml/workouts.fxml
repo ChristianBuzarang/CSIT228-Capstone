@@ -2,11 +2,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-
 <ScrollPane fitToWidth="true"
-            style="-fx-background-color: #f0f8ff; -fx-background: #f0f8ff;"
+            style="-fx-background-color: #f8fafc; -fx-background: #f8fafc;"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.oop.gymquest.screens.workouts.WorkoutsViewController">
 
@@ -19,7 +20,7 @@
                   style="-fx-background-color: white; -fx-background-radius: 24;
                          -fx-padding: 28; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 16, 0, 0, 4);">
 
-                <!-- Title row + Create Custom button -->
+                <!-- Title row + Create Custom button + muscle image -->
                 <HBox alignment="CENTER_LEFT" spacing="16.0">
                     <VBox spacing="4.0">
                         <Label text="All Workouts"
@@ -30,30 +31,41 @@
 
                     <Region HBox.hgrow="ALWAYS"/>
 
-                    <!-- "+ Create Custom" button - calls handleCreateCustom() -->
+                    <!-- "+ Create Custom" button -->
                     <Button text="+ Create Custom"
                             onAction="#handleCreateCustom"
                             style="-fx-background-color: linear-gradient(to right, #d97706, #f59e0b);
                                    -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;
                                    -fx-padding: 10 22; -fx-background-radius: 14; -fx-cursor: hand;"/>
 
-                    <Label text="🏋️" style="-fx-font-size: 46px;"/>
+                    <!--
+                        Muscle image replaces the old 🏋️ emoji.
+                        Path: src/main/resources/com/oop/gymquest/images/muscle.png
+                        fitHeight/fitWidth keep it proportional at 52 px.
+                        preserveRatio="true" prevents stretching.
+                    -->
+                    <ImageView fitHeight="52" fitWidth="52" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@../images/muscle.png"/>
+                        </image>
+                    </ImageView>
                 </HBox>
 
                 <!-- ── Search bar ──────────────────────────────────────── -->
                 <TextField fx:id="searchField"
-                           promptText="🔍  Search workouts by name or keyword…"
+                           promptText="Search workouts by name or keyword..."
                            style="-fx-padding: 12 16; -fx-border-color: #bae6fd; -fx-border-width: 2;
                                   -fx-background-radius: 14; -fx-border-radius: 14; -fx-font-size: 13px;
                                   -fx-background-color: white;"/>
 
-
+                <!-- ── Category filter pills (built at runtime) ─────────── -->
                 <HBox fx:id="filterContainer" spacing="8.0" alignment="CENTER_LEFT">
                     <padding><Insets top="2"/></padding>
                 </HBox>
             </VBox>
 
-
+            <!-- ══ WORKOUT CARD GRID ════════════════════════════════════════ -->
+            <!-- Cards are injected here by WorkoutsViewController.renderCards() -->
             <FlowPane fx:id="cardContainer"
                       hgap="18.0"
                       vgap="18.0"
