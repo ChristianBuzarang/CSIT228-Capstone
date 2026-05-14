@@ -10,5 +10,7 @@ public class NotificationItemController {
         iconLabel.setText(icon);
         msgLabel.setText(msg);
         timeLabel.setText(time);
+        iconLabel.setStyle("-fx-text-fill: #3b82f6; -fx-font-size: 18px;");
+        msgLabel.setStyle("-fx-text-fill: #1e293b; -fx-font-weight: bold; -fx-font-size: 13px;");
     }
 }

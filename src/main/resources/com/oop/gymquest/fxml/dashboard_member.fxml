@@ -22,9 +22,9 @@
             <ImageView fitHeight="130" preserveRatio="true"><Image url="@../images/muscle.png"/></ImageView>
         </HBox>
 
-        <!-- Today's Workouts -->
-        <VBox spacing="20" styleClass="card">
-            <Label text="Today's Workouts" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: black;"/>
+        <!-- Your Sessions Today -->
+        <VBox fx:id="sessionsTodayContainer" spacing="12">
+            <Label text="Your Sessions Today" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
             <GridPane hgap="20" vgap="20">
                 <HBox spacing="15" style="-fx-background-color: #f8fafc; -fx-padding: 20; -fx-background-radius: 20; -fx-border-color: #f1f5f9; -fx-border-width: 1; -fx-border-radius: 20;" GridPane.columnIndex="0">
                     <StackPane style="-fx-background-color: #dcf0ff; -fx-padding: 12; -fx-background-radius: 12;"><ImageView fitHeight="24" fitWidth="24"><Image url="@../images/check.png"/></ImageView></StackPane>

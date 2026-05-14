@@ -299,6 +299,23 @@ public class DatabaseHandler {
         } catch (SQLException e) { return null; }
     }
 
+    public static ResultSet getMemberSessionsToday(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname " +
+                "FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? " +
+                "AND s.slot_date = CURDATE() " + // Only today
+                "ORDER BY s.slot_time ASC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
     public static boolean saveBooking(int memberId, int slotId) {
         String memberName = "";
         try (Connection conn = getConnection();

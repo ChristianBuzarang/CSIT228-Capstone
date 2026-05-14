@@ -1,6 +1,7 @@
 package com.oop.gymquest.screens.dashboard;
 
 import com.oop.gymquest.app.MainApp;
+import com.oop.gymquest.data.DatabaseHandler;
 import com.oop.gymquest.data.userdata.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,9 +17,10 @@ import javafx.scene.shape.Circle;
 import javafx.stage.Popup;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 
 public class DashboardController {
-    @FXML private Label headerNameLabel, roleLabel;
+    @FXML private Label headerNameLabel, roleLabel, notifBadge;
     @FXML private StackPane contentArea;
     @FXML private Button btnDashboard, btnWorkouts, btnBooking, btnManageSchedule, btnSchedules, btnCommunity;
     @FXML private Button notificationBell;
@@ -55,16 +57,21 @@ public class DashboardController {
 
             handleNavDashboard();
             refreshHeader();
+            updateNotificationBadge();
         }
     }
 
     public void loadView(String fxml) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/" + fxml));
+            String path = "/com/oop/gymquest/fxml/" + fxml;
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+            if (loader.getLocation() == null) {
+                System.err.println("❌ FXML not found at: " + path);
+                return;
+            }
             Node view = loader.load();
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
-            System.err.println("❌ Could not load view: " + fxml);
             e.printStackTrace();
         }
     }
@@ -99,6 +106,27 @@ public class DashboardController {
         }
         if (headerNameLabel != null && MainApp.instance.currentUser != null) {
             headerNameLabel.setText(MainApp.instance.currentUser.getFullName());
+        }
+    }
+
+    public void updateNotificationBadge() {
+        if (notifBadge == null) return;
+        int count = 0;
+        User user = MainApp.instance.currentUser;
+        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(user.getUserId())) {
+            while (rs != null && rs.next()) {
+                count++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (count > 0) {
+            notifBadge.setText(String.valueOf(count));
+            notifBadge.setVisible(true);
+            notifBadge.setManaged(true);
+        } else {
+            notifBadge.setVisible(false);
+            notifBadge.setManaged(false);
         }
     }
 

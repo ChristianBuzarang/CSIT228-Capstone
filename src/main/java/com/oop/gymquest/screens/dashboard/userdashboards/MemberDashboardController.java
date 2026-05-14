@@ -9,42 +9,87 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.sql.ResultSet;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class MemberDashboardController {
-    @FXML
-    private VBox sessionsContainer;
+    @FXML private VBox sessionsTodayContainer;
 
-    @FXML
-    public void initialize() {
-        loadUpcomingSessions();
+    @FXML public void initialize() {
+        loadTodaySessions();
     }
 
-    public void loadUpcomingSessions() {
-        if (sessionsContainer == null) {
-            return;
-        }
-        sessionsContainer.getChildren().clear();
+    public void loadTodaySessions() {
+        sessionsTodayContainer.getChildren().clear();
         int memberId = MainApp.instance.currentUser.getUserId();
-        try (ResultSet rs = DatabaseHandler.getMemberBookings(memberId)) {
-            boolean hasData = false;
+
+        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(memberId)) {
+            boolean hasSessions = false;
             while (rs != null && rs.next()) {
-                hasData = true;
-                addSessionCard(
-                        rs.getInt("slot_id"),
-                        rs.getString("activity"),
-                        rs.getString("coach_name"),
-                        rs.getString("slot_date"),
-                        rs.getString("slot_time")
-                );
+                hasSessions = true;
+                String trainer = rs.getString("firstname") + " " + rs.getString("lastname");
+                String activity = rs.getString("activity");
+                String timeStr = rs.getString("slot_time"); // Format "01:00 PM"
+
+                sessionsTodayContainer.getChildren().add(createSessionCard(trainer, activity, timeStr));
             }
-            if (!hasData) {
-                Label empty = new Label("No upcoming sessions.");
-                empty.setStyle("-fx-text-fill: #94a3b8; -fx-padding: 10;");
-                sessionsContainer.getChildren().add(empty);
+
+            if (!hasSessions) {
+                Label placeholder = new Label("No sessions scheduled for today.");
+                placeholder.setStyle("-fx-text-fill: #94a3b8; -fx-padding: 20;");
+                sessionsTodayContainer.getChildren().add(placeholder);
             }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private VBox createSessionCard(String trainer, String activity, String time) {
+        VBox card = new VBox(10);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+
+        HBox row = new HBox(15);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        java.time.format.DateTimeFormatter parser = java.time.format.DateTimeFormatter
+                .ofPattern("h:mm a", java.util.Locale.ENGLISH);
+        LocalTime sessionTime;
+        try {
+            sessionTime = LocalTime.parse(time, parser);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("❌ Could not parse time: " + time + ". Defaulting to now.");
+            sessionTime = LocalTime.now();
         }
+        LocalTime now = LocalTime.now();
+
+        String statusText;
+        String statusStyle;
+        if (now.isBefore(sessionTime)) {
+            statusText = "UPCOMING";
+            statusStyle = "-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6;";
+        } else if (now.isAfter(sessionTime) && now.isBefore(sessionTime.plusHours(1))) {
+            statusText = "ONGOING";
+            statusStyle = "-fx-background-color: #fff7ed; -fx-text-fill: #f97316;";
+        } else {
+            statusText = "FINISHED";
+            statusStyle = "-fx-background-color: #f0fdf4; -fx-text-fill: #10b981;";
+        }
+
+        VBox info = new VBox(2);
+        Label title = new Label(activity + " with " + trainer);
+        title.setStyle("-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #1e293b;");
+        Label timeLbl = new Label("⏱ " + time);
+        timeLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12;");
+        info.getChildren().addAll(title, timeLbl);
+
+        Label badge = new Label(statusText);
+        badge.setStyle(statusStyle + "-fx-padding: 4 10; -fx-background-radius: 10; -fx-font-size: 10; -fx-font-weight: bold;");
+
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        row.getChildren().addAll(info, spacer, badge);
+        card.getChildren().add(row);
+        return card;
     }
 
     private void addSessionCard(int slotId, String act, String coach, String date, String time) {
@@ -73,7 +118,7 @@ public class MemberDashboardController {
         cancelBtn.setStyle("-fx-background-color: white; -fx-text-fill: #ef4444; -fx-border-color: #fee2e2; -fx-border-radius: 8; -fx-cursor: hand;");
         cancelBtn.setOnAction(e -> {
             if (DatabaseHandler.cancelBooking(slotId)) {
-                loadUpcomingSessions();
+                loadTodaySessions();
             }
         });
 
@@ -81,6 +126,6 @@ public class MemberDashboardController {
         card.getChildren().add(info);
         card.getChildren().add(spacer);
         card.getChildren().add(cancelBtn);
-        sessionsContainer.getChildren().add(card);
+        sessionsTodayContainer.getChildren().add(card);
     }
 }
