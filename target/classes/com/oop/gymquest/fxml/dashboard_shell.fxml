@@ -97,6 +97,13 @@
 
     <!-- MAIN CONTENT AREA -->
     <center>
-        <StackPane fx:id="contentArea" pickOnBounds="false" style="-fx-padding: 30;" />
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;
+            -fx-border-color: transparent;" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+
+            <StackPane fx:id="contentArea" style="-fx-padding: 30;">
+                <!-- Content from dashboard_member.fxml etc. loads here -->
+            </StackPane>
+
+        </ScrollPane>
     </center>
 </BorderPane>

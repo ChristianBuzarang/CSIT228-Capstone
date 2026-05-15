@@ -97,4 +97,16 @@ public class TrainerDashboardController {
         card.getChildren().addAll(profile, p);
         clientContainer.getChildren().add(card);
     }
+
+    @FXML private void handleSeeAllSchedules() {
+        DashboardController.instance.loadView("trainer_sessions_list.fxml");
+    }
+
+    @FXML private void handleSeeAllClients() {
+        DashboardController.instance.loadView("trainer_clients_list.fxml");
+    }
+
+    @FXML private void handleSeeAll() {
+        DashboardController.instance.loadView("trainer_sessions_list.fxml");
+    }
 }

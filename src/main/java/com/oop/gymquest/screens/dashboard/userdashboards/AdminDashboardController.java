@@ -67,7 +67,7 @@ public class AdminDashboardController {
                                 actionBtn.setOnAction(e -> handleToggleStatus(user, false));
                             } else {
                                 actionBtn.setText("Restore");
-                                actionBtn.getStyleClass().setAll("action-btn-restore"); // Add this to CSS
+                                actionBtn.getStyleClass().setAll("action-btn-restore");
                                 actionBtn.setOnAction(e -> handleToggleStatus(user, true));
                             }
                             editBtn.setOnAction(event -> handleEditUser(user));
@@ -183,6 +183,7 @@ public class AdminDashboardController {
     @FXML private void showTrainers() { updateToggleStyles(btnToggleTrainers); updateTable("trainer", true); }
     @FXML private void showAdmins() { updateToggleStyles(btnToggleAdmins); updateTable("admin", true); }
     @FXML private void showArchive() {
+        currentRoleFilter = "archive";
         updateToggleStyles(btnToggleArchive);
         updateTable("archive", false);
     }
@@ -199,6 +200,7 @@ public class AdminDashboardController {
         switch (currentRoleFilter) {
             case "admin" -> showAdmins();
             case "trainer" -> showTrainers();
+            case "archive" -> showArchive();
             default -> showMembers();
         }
     }

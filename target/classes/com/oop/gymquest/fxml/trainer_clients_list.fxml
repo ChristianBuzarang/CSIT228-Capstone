@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="20" style="-fx-background-color: #f8fafc; -fx-padding: 30;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.TrainerClientsListController">
+
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button onAction="#handleBack" text="← Back"
+                style="-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14;"/>
+        <Label text="My Client Directory"
+               style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+    </HBox>
+
+    <Separator style="-fx-opacity: 0.5;" />
+
+    <VBox spacing="15" VBox.vgrow="ALWAYS"
+          style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);">
+
+        <TextField fx:id="searchField" promptText="🔍 Search clients by name..."
+                   style="-fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #e2e8f0; -fx-border-radius: 10;"/>
+
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox fx:id="clientListContainer" spacing="12" />
+        </ScrollPane>
+    </VBox>
+</VBox>

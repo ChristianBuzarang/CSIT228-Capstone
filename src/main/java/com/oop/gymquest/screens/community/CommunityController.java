@@ -82,11 +82,14 @@ public class CommunityController {
         VBox card = new VBox(15);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);");
+
         HBox topRow = new HBox(15);
         topRow.setAlignment(Pos.CENTER_LEFT);
+
         StackPane avatarBox = new StackPane();
         avatarBox.setPrefSize(45, 45);
         avatarBox.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 25;");
+
         ImageView userImg = new ImageView();
         try {
             String imgPath = "/com/oop/gymquest/images/" + (avatarFileName != null ? avatarFileName : "user.png");
@@ -96,9 +99,9 @@ public class CommunityController {
         }
         userImg.setFitHeight(45);
         userImg.setFitWidth(45);
-        Circle clip = new Circle(22.5, 22.5, 22.5);
-        userImg.setClip(clip);
+        userImg.setClip(new Circle(22.5, 22.5, 22.5));
         avatarBox.getChildren().add(userImg);
+
         VBox nameBox = new VBox(2);
         Label nameLabel = new Label(post.getUserName());
         nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 14;");
@@ -106,35 +109,56 @@ public class CommunityController {
         timeLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11;");
         nameBox.getChildren().addAll(nameLabel, timeLabel);
         topRow.getChildren().addAll(avatarBox, nameBox);
+
         Label contentLabel = new Label(post.getContent());
         contentLabel.setWrapText(true);
         contentLabel.setStyle("-fx-text-fill: #334155; -fx-line-spacing: 3;");
+
+        HBox milestone = null;
         if (post.getMilestone() != null && !post.getMilestone().isEmpty()) {
-            HBox milestone = new HBox(10);
+            milestone = new HBox(10);
             milestone.setAlignment(Pos.CENTER_LEFT);
             milestone.setPadding(new Insets(10, 15, 10, 15));
             milestone.setStyle("-fx-background-color: #fefce8; -fx-background-radius: 12; -fx-border-color: #fef08a; -fx-border-width: 1; -fx-border-radius: 12;");
-            ImageView muscleIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/muscle.png")));
-            muscleIcon.setFitHeight(18);
-            muscleIcon.setFitWidth(18);
+            try {
+                ImageView muscleIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/muscle.png")));
+                muscleIcon.setFitHeight(18);
+                muscleIcon.setFitWidth(18);
+                milestone.getChildren().add(muscleIcon);
+            } catch (Exception e) { /* ignore */ }
             Label mLabel = new Label(post.getMilestone());
             mLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #854d0e;");
-            milestone.getChildren().addAll(muscleIcon, mLabel);
-            card.getChildren().addAll(topRow, contentLabel, milestone);
-        } else {
-            card.getChildren().addAll(topRow, contentLabel);
+            milestone.getChildren().add(mLabel);
         }
-        Button likeBtn = new Button(String.valueOf(post.getReactions()));
+
+        final boolean[] isLiked = { false };
+        final int[] count = { post.getReactions() };
+        Button likeBtn = new Button(String.valueOf(count[0]));
         likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #64748b; -fx-font-weight: bold;");
-        String heartIcon = post.isHasReacted() ? "heart-filled.png" : "heart-empty.png";
-        ImageView heart = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/" + heartIcon)));
-        heart.setFitHeight(18);
-        heart.setFitWidth(18);
+
+        ImageView heart = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-empty.png")));
+        heart.setFitHeight(18); heart.setFitWidth(18);
         likeBtn.setGraphic(heart);
+
         likeBtn.setOnAction(e -> {
-            postDAO.toggleReaction(post.getId());
-            refreshFeed();
+            if (!isLiked[0]) {
+                count[0]++;
+                isLiked[0] = true;
+                likeBtn.setText(String.valueOf(count[0]));
+                likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-liked.png")));
+            } else {
+                count[0]--;
+                isLiked[0] = false;
+                likeBtn.setText(String.valueOf(count[0]));
+                likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #64748b; -fx-font-weight: bold;");
+                heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-empty.png")));
+            }
+            DatabaseHandler.updatePostReactionCount(post.getId(), count[0]);
         });
+
+        card.getChildren().addAll(topRow, contentLabel);
+        if (milestone != null) card.getChildren().add(milestone);
         card.getChildren().add(likeBtn);
         return card;
     }

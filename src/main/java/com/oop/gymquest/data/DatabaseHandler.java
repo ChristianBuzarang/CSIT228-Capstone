@@ -31,9 +31,9 @@ public class DatabaseHandler {
 
             try (Connection conn = getConnection();
                  Statement stmt = conn.createStatement()) {
-                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+//                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
 //                stmt.execute("DROP TABLE IF EXISTS users, users_archive, admins, members, trainers, trainer_slots, posts, workouts");
-                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+//                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -185,25 +185,23 @@ public class DatabaseHandler {
     }
 
     public static boolean archiveUser(int userId) {
-        String logArchive = "INSERT INTO users_archive (userid, full_name, email, type, status) " +
+        String insertArchive = "INSERT INTO users_archive (userid, full_name, email, type, status) " +
                 "SELECT userid, CONCAT(firstname, ' ', lastname), email, type, 'INACTIVE' " +
                 "FROM users WHERE userid = ?";
-        String deactivate = "UPDATE users SET is_active = 0 WHERE userid = ?";
+        String deactivateActive  = "UPDATE users SET is_active = 0 WHERE userid = ?";
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement ps1 = conn.prepareStatement(logArchive);
-                 PreparedStatement ps2 = conn.prepareStatement(deactivate)) {
-
+            try (PreparedStatement ps1 = conn.prepareStatement(insertArchive);
+                 PreparedStatement ps2 = conn.prepareStatement(deactivateActive)) {
                 ps1.setInt(1, userId);
                 ps1.executeUpdate();
-
                 ps2.setInt(1, userId);
                 ps2.executeUpdate();
-
                 conn.commit();
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
+                e.printStackTrace();
                 return false;
             }
         } catch (SQLException e) { return false; }
@@ -428,6 +426,18 @@ public class DatabaseHandler {
         } catch (SQLException e) { return null; }
     }
 
+    public static void updatePostReactionCount(int postId, int newCount) {
+        String sql = "UPDATE posts SET reactions = ? WHERE postid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newCount);
+            ps.setInt(2, postId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // added for the admin schedules
     public static List<String> fetchTrainersNames() {
         List<String> trainers = new ArrayList<>();
@@ -479,18 +489,20 @@ public class DatabaseHandler {
 
     public static List<User> fetchUsersByStatus(String type, boolean active) {
         List<User> list = new ArrayList<>();
-        String sql = type.equals("archive")
-                ? "SELECT * FROM users WHERE is_active = 0"
-                : "SELECT * FROM users WHERE type = ? AND is_active = ?";
+        String sql;
+
+        if (type.equalsIgnoreCase("archive")) sql = "SELECT * FROM users WHERE is_active = 0";
+        else sql = "SELECT * FROM users WHERE type = ? AND is_active = ?";
+
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (!type.equals("archive")) {
+            if (!type.equalsIgnoreCase("archive")) {
                 ps.setString(1, type);
                 ps.setInt(2, active ? 1 : 0);
             }
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapUser(rs));
+                list.add(UserDAO.mapUser(rs));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
@@ -513,5 +525,45 @@ public class DatabaseHandler {
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
+    }
+
+    public static ResultSet getTop3ActiveSessions(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? AND s.status = 'Booked' AND s.slot_date >= CURDATE() " +
+                "ORDER BY s.slot_date ASC, s.slot_time ASC LIMIT 3";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
+    }
+
+    public static ResultSet getTop3HistorySessions(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? " +
+                "ORDER BY s.slot_date DESC, s.slot_time DESC LIMIT 3";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
+    }
+
+    public static ResultSet getTrainerFullSchedule(int trainerId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname, u.email, u.avatar " +
+                "FROM trainer_slots s " +
+                "LEFT JOIN users u ON s.member_id = u.userid " +
+                "WHERE s.trainer_id = ? " +
+                "ORDER BY s.slot_date DESC, s.slot_time DESC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, trainerId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
     }
 }
