@@ -385,8 +385,41 @@
     -fx-focus-color: transparent;
 }
 
-.action-btn-update { -fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 5 15; -fx-cursor: hand; }
-.action-btn-archive { -fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 5 15; -fx-cursor: hand; }
+.action-btn-update {
+    -fx-background-color: #eff6ff;
+    -fx-text-fill: #3b82f6;
+    -fx-background-radius: 12;
+    -fx-font-weight: bold;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+.action-btn-update:hover {
+    -fx-background-color: #dbeafe;
+}
+
+.action-btn-archive {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #ef4444;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+.action-btn-archive:hover {
+    -fx-background-color: #fecaca;
+}
+
+.action-btn-restore {
+    -fx-background-color: #f0fdf4;
+    -fx-text-fill: #10b981;
+    -fx-background-radius: 12;
+    -fx-font-weight: bold;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+.action-btn-restore:hover {
+    -fx-background-color: #dcfce7;
+}
 
 /* --- BOOKING & OTHER STYLES --- */
 .btn-primary { -fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 25; -fx-font-weight: bold; -fx-cursor: hand; }
@@ -503,18 +536,31 @@
 }
 
 .placeholder-label-small {
-    -fx-font-size: 16px; /* Slightly larger for better readability */
+    -fx-font-size: 16px;
     -fx-text-fill: #94a3b8;
     -fx-font-weight: bold;
     -fx-text-alignment: CENTER;
 }
 
-.action-btn-restore {
-    -fx-background-color: #d1fae5;
-    -fx-text-fill: #065f46;
-    -fx-font-weight: bold;
-    -fx-background-radius: 5;
+/* Removes the border around the ScrollPane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-viewport-fill: transparent;
 }
-.action-btn-restore:hover {
-    -fx-background-color: #a7f3d0;
+
+/* Optional: Make the scrollbar thumb more subtle */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1; /* Soft gray */
+    -fx-background-radius: 10;
 }

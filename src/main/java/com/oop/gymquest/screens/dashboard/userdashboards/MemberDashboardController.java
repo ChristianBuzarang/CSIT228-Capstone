@@ -2,130 +2,122 @@ package com.oop.gymquest.screens.dashboard.userdashboards;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.screens.dashboard.DashboardController;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class MemberDashboardController {
-    @FXML private VBox sessionsTodayContainer;
+    @FXML private VBox activeSessionsContainer, historySessionsContainer;
+    @FXML private Label totalWorkoutsLabel, weeklyWorkoutsLabel;
 
-    @FXML public void initialize() {
-        loadTodaySessions();
+    @FXML
+    public void initialize() {
+        refreshDashboard();
     }
 
-    public void loadTodaySessions() {
-        sessionsTodayContainer.getChildren().clear();
-        int memberId = MainApp.instance.currentUser.getUserId();
+    public void refreshDashboard() {
+        int uid = MainApp.instance.currentUser.getUserId();
 
-        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(memberId)) {
-            boolean hasSessions = false;
+        // 1. Load Stats
+        totalWorkoutsLabel.setText(String.valueOf(DatabaseHandler.getActiveMemberCount()));
+
+        // 2. Load Top 3 Active (Future/Today)
+        activeSessionsContainer.getChildren().clear();
+        try (ResultSet rs = DatabaseHandler.getTop3ActiveSessions(uid)) {
             while (rs != null && rs.next()) {
-                hasSessions = true;
-                String trainer = rs.getString("firstname") + " " + rs.getString("lastname");
-                String activity = rs.getString("activity");
-                String timeStr = rs.getString("slot_time"); // Format "01:00 PM"
-
-                sessionsTodayContainer.getChildren().add(createSessionCard(trainer, activity, timeStr));
+                activeSessionsContainer.getChildren().add(buildSessionCard(rs, true));
             }
+            if (activeSessionsContainer.getChildren().isEmpty()) showEmptyMsg(activeSessionsContainer);
+        } catch (Exception e) { e.printStackTrace(); }
 
-            if (!hasSessions) {
-                Label placeholder = new Label("No sessions scheduled for today.");
-                placeholder.setStyle("-fx-text-fill: #94a3b8; -fx-padding: 20;");
-                sessionsTodayContainer.getChildren().add(placeholder);
+        // 3. Load Top 3 History
+        historySessionsContainer.getChildren().clear();
+        try (ResultSet rs = DatabaseHandler.getTop3HistorySessions(uid)) {
+            while (rs != null && rs.next()) {
+                historySessionsContainer.getChildren().add(buildSessionCard(rs, false));
             }
+            if (historySessionsContainer.getChildren().isEmpty()) showEmptyMsg(historySessionsContainer);
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private VBox createSessionCard(String trainer, String activity, String time) {
-        VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+    private VBox buildSessionCard(ResultSet rs, boolean checkStatus) throws Exception {
+        String activity = rs.getString("activity");
+        String trainer = rs.getString("firstname") + " " + rs.getString("lastname");
+        String date = rs.getString("slot_date");
+        String time = rs.getString("slot_time");
+
+        VBox card = new VBox(5);
+        card.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #f1f5f9; -fx-border-width: 1;");
 
         HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
 
-        java.time.format.DateTimeFormatter parser = java.time.format.DateTimeFormatter
-                .ofPattern("h:mm a", java.util.Locale.ENGLISH);
-        LocalTime sessionTime;
-        try {
-            sessionTime = LocalTime.parse(time, parser);
-        } catch (Exception e) {
-            System.err.println("❌ Could not parse time: " + time + ". Defaulting to now.");
-            sessionTime = LocalTime.now();
-        }
-        LocalTime now = LocalTime.now();
-
-        String statusText;
-        String statusStyle;
-        if (now.isBefore(sessionTime)) {
-            statusText = "UPCOMING";
-            statusStyle = "-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6;";
-        } else if (now.isAfter(sessionTime) && now.isBefore(sessionTime.plusHours(1))) {
-            statusText = "ONGOING";
-            statusStyle = "-fx-background-color: #fff7ed; -fx-text-fill: #f97316;";
-        } else {
-            statusText = "FINISHED";
-            statusStyle = "-fx-background-color: #f0fdf4; -fx-text-fill: #10b981;";
-        }
+        // Icon
+        StackPane iconBox = new StackPane();
+        iconBox.setStyle("-fx-background-color: #eff6ff; -fx-background-radius: 10; -fx-padding: 10;");
+        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+        icon.setFitHeight(20); icon.setFitWidth(20);
+        iconBox.getChildren().add(icon);
 
         VBox info = new VBox(2);
         Label title = new Label(activity + " with " + trainer);
-        title.setStyle("-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #1e293b;");
-        Label timeLbl = new Label("⏱ " + time);
-        timeLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12;");
-        info.getChildren().addAll(title, timeLbl);
+        title.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b;");
+        Label meta = new Label(date + " • " + time);
+        meta.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12;");
+        info.getChildren().addAll(title, meta);
 
-        Label badge = new Label(statusText);
-        badge.setStyle(statusStyle + "-fx-padding: 4 10; -fx-background-radius: 10; -fx-font-size: 10; -fx-font-weight: bold;");
+        row.getChildren().addAll(iconBox, info);
+        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+        row.getChildren().add(spacer);
 
-        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
-        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        // Status Badge Logic
+        if (checkStatus) {
+            Label badge = calculateStatus(date, time);
+            row.getChildren().add(badge);
+        }
 
-        row.getChildren().addAll(info, spacer, badge);
         card.getChildren().add(row);
         return card;
     }
 
-    private void addSessionCard(int slotId, String act, String coach, String date, String time) {
-        HBox card = new HBox(15);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.getStyleClass().add("card");
-        card.setStyle("-fx-padding: 15; -fx-border-color: #eff6ff; -fx-border-width: 1;");
+    private Label calculateStatus(String dateStr, String timeStr) {
+        LocalDate date = LocalDate.parse(dateStr);
+        DateTimeFormatter parser = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
+        LocalTime time = LocalTime.parse(timeStr, parser);
 
-        Image img = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png"));
-        ImageView icon = new ImageView(img);
-        icon.setFitHeight(30);
-        icon.setFitWidth(30);
+        Label badge = new Label();
+        badge.setPadding(new Insets(4, 12, 4, 12));
 
-        VBox info = new VBox(2);
-        Label title = new Label(act + " with " + coach);
-        title.setStyle("-fx-font-weight: bold; -fx-text-fill: black;");
-        Label dateTime = new Label(date + " at " + time);
-        dateTime.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12;");
-        info.getChildren().add(title);
-        info.getChildren().add(dateTime);
+        if (date.isBefore(LocalDate.now())) {
+            badge.setText("FINISHED");
+            badge.setStyle("-fx-background-color: #f0fdf4; -fx-text-fill: #10b981; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;");
+        } else if (date.isEqual(LocalDate.now()) && LocalTime.now().isAfter(time) && LocalTime.now().isBefore(time.plusHours(1))) {
+            badge.setText("ONGOING");
+            badge.setStyle("-fx-background-color: #fff7ed; -fx-text-fill: #f97316; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;");
+        } else {
+            badge.setText("UPCOMING");
+            badge.setStyle("-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 10;");
+        }
+        return badge;
+    }
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+    private void showEmptyMsg(VBox container) {
+        Label lbl = new Label("No recent sessions found.");
+        lbl.setStyle("-fx-text-fill: #94a3b8; -fx-padding: 10;");
+        container.getChildren().add(lbl);
+    }
 
-        Button cancelBtn = new Button("Cancel");
-        cancelBtn.setStyle("-fx-background-color: white; -fx-text-fill: #ef4444; -fx-border-color: #fee2e2; -fx-border-radius: 8; -fx-cursor: hand;");
-        cancelBtn.setOnAction(e -> {
-            if (DatabaseHandler.cancelBooking(slotId)) {
-                loadTodaySessions();
-            }
-        });
-
-        card.getChildren().add(icon);
-        card.getChildren().add(info);
-        card.getChildren().add(spacer);
-        card.getChildren().add(cancelBtn);
-        sessionsTodayContainer.getChildren().add(card);
+    @FXML private void handleSeeAll() {
+        DashboardController.instance.loadView("sessions.fxml");
     }
 }
