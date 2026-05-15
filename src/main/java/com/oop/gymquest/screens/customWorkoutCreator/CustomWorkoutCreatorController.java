@@ -19,38 +19,39 @@ import javafx.util.StringConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * CustomWorkoutCreatorController
+ *
+ * ── Changes in this version ────────────────────────────────────────────────
+ *  FIX — Exercise rows in updateExerciseList() now use the category image
+ *        (via WorkoutsViewController.buildExerciseIcon()) instead of an emoji
+ *        label.  This matches the visual language of the workouts list and
+ *        exercise picker dialog.
+ */
 public class CustomWorkoutCreatorController {
 
-    // ── FXML injections ────────────────────────────────────────────────────
-    @FXML private TextField               nameField;
-    @FXML private ComboBox<WorkoutCategory> categoryPicker;   // NEW
-    @FXML private VBox                    exerciseListBox;
+    @FXML private TextField                 nameField;
+    @FXML private ComboBox<WorkoutCategory> categoryPicker;
+    @FXML private VBox                      exerciseListBox;
 
-    // ── Runtime state ──────────────────────────────────────────────────────
     private final List<Exercise> selectedExercises = new ArrayList<>();
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
-        // ── Populate the category ComboBox from the enum ──────────────────
         categoryPicker.getItems().addAll(WorkoutCategory.values());
-        categoryPicker.setValue(WorkoutCategory.STRENGTH);  // sensible default
+        categoryPicker.setValue(WorkoutCategory.STRENGTH);
 
-        // Use human-readable labels instead of raw enum names (e.g. "Strength" vs "STRENGTH")
         categoryPicker.setConverter(new StringConverter<>() {
             @Override
             public String toString(WorkoutCategory cat) {
                 return cat == null ? "" : WorkoutsViewController.getCategoryLabel(cat);
             }
             @Override
-            public WorkoutCategory fromString(String s) {
-                return null; // not needed for a non-editable ComboBox
-            }
+            public WorkoutCategory fromString(String s) { return null; }
         });
 
-        // Style the ComboBox row cells to show the category color dot
         categoryPicker.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(WorkoutCategory cat, boolean empty) {
@@ -59,8 +60,7 @@ public class CustomWorkoutCreatorController {
                     setText(null);
                 } else {
                     String color = WorkoutsViewController.getCategoryColor(cat);
-                    String label = WorkoutsViewController.getCategoryLabel(cat);
-                    setText("  ● " + label);
+                    setText("  ● " + WorkoutsViewController.getCategoryLabel(cat));
                     setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
                 }
             }
@@ -71,15 +71,11 @@ public class CustomWorkoutCreatorController {
 
     // ── Navigation ─────────────────────────────────────────────────────────
 
-
     @FXML
     private void handleBack() {
-        // Return to the shell
         MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
-
-        // Refresh the content area to the workouts view
         if (DashboardController.instance != null) {
-            DashboardController.instance.handleNavWorkouts(); // Works now because it's public
+            DashboardController.instance.handleNavWorkouts();
         }
     }
 
@@ -89,8 +85,6 @@ public class CustomWorkoutCreatorController {
     private void handleAddExercise() {
         List<Exercise> library = ExerciseDAO.getAll();
 
-        // Fallback: if DB isn't connected, build a basic exercise list from
-        // the default workouts so the feature works during development.
         if (library.isEmpty()) {
             System.out.println("[CustomWorkoutCreator] ExerciseDAO returned empty — using fallback library.");
             library = buildFallbackLibrary();
@@ -105,19 +99,11 @@ public class CustomWorkoutCreatorController {
 
     // ── Save ───────────────────────────────────────────────────────────────
 
-    /**
-     * Validates inputs, creates the Workout, persists it, and navigates back.
-     *
-     * FIX: category is now read from the ComboBox, not hardcoded to STRENGTH.
-     * FIX: WorkoutDAO.createCustomWorkout() also adds to the runtime cache so
-     *      the workouts list shows the new workout immediately.
-     */
     @FXML
     private void handleSave() {
         String title = nameField.getText().trim();
         WorkoutCategory selectedCategory = categoryPicker.getValue();
 
-        // ── Validation ─────────────────────────────────────────────────────
         if (title.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Please enter a workout name.");
             return;
@@ -131,28 +117,23 @@ public class CustomWorkoutCreatorController {
             return;
         }
 
-        // ── Build Workout object ────────────────────────────────────────────
-        // ID uses list size + offset so it doesn't collide with the 0-5 defaults.
         int newId = WorkoutDAO.getAllWorkouts().size() + 100;
 
         Workout newWorkout = new Workout(
             newId,
             title,
-            Workout.Difficulty.BEGINNER,            // default for custom workouts
-            estimateDuration(selectedExercises),    // smart duration estimate
-            false,                                  // never locked
+            Workout.Difficulty.BEGINNER,
+            estimateDuration(selectedExercises),
+            false,
             new ArrayList<>(selectedExercises),
-            selectedCategory,                       // FIX: from ComboBox
+            selectedCategory,
             "Custom routine: " + title + ".",
-            null                                    // no image for custom workouts
+            null
         );
 
-        // ── Persist (DB + in-memory cache) ─────────────────────────────────
-        // createCustomWorkout() always adds to the runtime cache regardless of
-        // whether the DB write succeeds, so the workouts page always shows it.
+        // createCustomWorkout now also saves exercises to workout_exercises table
         WorkoutDAO.createCustomWorkout(newWorkout);
 
-        // ── Confirm and navigate ───────────────────────────────────────────
         Alert info = new Alert(Alert.AlertType.INFORMATION);
         info.setTitle("Workout Saved!");
         info.setHeaderText(null);
@@ -160,11 +141,18 @@ public class CustomWorkoutCreatorController {
             WorkoutsViewController.getCategoryLabel(selectedCategory) + " workouts! 🎉");
         info.showAndWait();
 
-        handleBack();   // navigate to workouts — new card will appear immediately
+        handleBack();
     }
 
     // ── Exercise list rendering ────────────────────────────────────────────
 
+    /**
+     * Renders the list of selected exercises.
+     *
+     * FIX: emoji Label replaced by {@link WorkoutsViewController#buildExerciseIcon}
+     *      so the creator screen is visually consistent with the workouts list
+     *      and exercise picker.
+     */
     private void updateExerciseList() {
         exerciseListBox.getChildren().clear();
 
@@ -208,9 +196,8 @@ public class CustomWorkoutCreatorController {
                 "-fx-border-color: #bae6fd; -fx-border-width: 2;"
             );
 
-            // Emoji
-            Label emojiLbl = new Label(ex.getEmoji());
-            emojiLbl.setStyle("-fx-font-size: 20px;");
+            // Category image icon (replaces emoji)
+            StackPane exIcon = WorkoutsViewController.buildExerciseIcon(ex.getCategory(), 20);
 
             // Name + sets/reps
             VBox info = new VBox(2);
@@ -220,7 +207,6 @@ public class CustomWorkoutCreatorController {
             detailLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
             info.getChildren().addAll(nameLbl, detailLbl);
 
-            // Spacer + remove button
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -233,49 +219,41 @@ public class CustomWorkoutCreatorController {
                 updateExerciseList();
             });
 
-            row.getChildren().addAll(numCircle, emojiLbl, info, spacer, removeBtn);
+            row.getChildren().addAll(numCircle, exIcon, info, spacer, removeBtn);
             exerciseListBox.getChildren().add(row);
         }
     }
 
     // ── Utilities ──────────────────────────────────────────────────────────
 
-    /**
-     * Estimates a workout duration from the exercise count.
-     * Assumes roughly 3–4 minutes per exercise (sets × rest).
-     */
     private static String estimateDuration(List<Exercise> exercises) {
         int totalSets = exercises.stream().mapToInt(Exercise::getSets).sum();
-        int minutes = Math.max(10, totalSets * 3);  // ≈3 min per set incl. rest
+        int minutes   = Math.max(10, totalSets * 3);
         return minutes + " min";
     }
 
-    /**
-     * Built-in exercise list used when the DB is not yet connected.
-     * Covers all major muscle groups so users can still build meaningful routines.
-     */
     private static List<Exercise> buildFallbackLibrary() {
         return List.of(
-            new Exercise(1,  "Push-ups",           3, "10-12",   "💪", "strength"),
-            new Exercise(2,  "Squats",             3, "15",      "🦵", "strength"),
-            new Exercise(3,  "Plank",              3, "30 sec",  "🧘", "core"),
-            new Exercise(4,  "Lunges",             3, "10 each", "🏃", "strength"),
-            new Exercise(5,  "Burpees",            4, "10",      "💥", "cardio"),
-            new Exercise(6,  "Mountain Climbers",  3, "20",      "⛰️", "cardio"),
-            new Exercise(7,  "Dumbbell Press",     4, "8-10",    "🏋️", "strength"),
-            new Exercise(8,  "Pull-ups",           3, "6-8",     "💪", "strength"),
-            new Exercise(9,  "Bicep Curls",        3, "12",      "💪", "strength"),
-            new Exercise(10, "Tricep Dips",        3, "10",      "🔥", "strength"),
-            new Exercise(11, "Crunches",           4, "20",      "🔥", "core"),
-            new Exercise(12, "Russian Twists",     3, "15 each", "🌀", "core"),
-            new Exercise(13, "Leg Raises",         3, "12",      "🦵", "core"),
-            new Exercise(14, "Jumping Jacks",      3, "30",      "⚡", "cardio"),
-            new Exercise(15, "Jump Rope",          3, "1 min",   "🪢", "cardio"),
-            new Exercise(16, "Yoga Stretches",     1, "10 min",  "🧘", "flexibility"),
-            new Exercise(17, "Hamstring Stretch",  2, "30 sec",  "🦵", "flexibility"),
-            new Exercise(18, "Deadlifts",          4, "6-8",     "🏋️", "strength"),
-            new Exercise(19, "Kettlebell Swings",  4, "15",      "⚡", "cardio"),
-            new Exercise(20, "Box Jumps",          3, "10",      "📦", "cardio")
+            new Exercise(1,  "Push-ups",          3, "10-12",   "💪", "strength"),
+            new Exercise(2,  "Squats",            3, "15",      "🦵", "strength"),
+            new Exercise(3,  "Plank",             3, "30 sec",  "🧘", "core"),
+            new Exercise(4,  "Lunges",            3, "10 each", "🏃", "strength"),
+            new Exercise(5,  "Burpees",           4, "10",      "💥", "cardio"),
+            new Exercise(6,  "Mountain Climbers", 3, "20",      "⛰️", "cardio"),
+            new Exercise(7,  "Dumbbell Press",    4, "8-10",    "🏋️", "strength"),
+            new Exercise(8,  "Pull-ups",          3, "6-8",     "💪", "strength"),
+            new Exercise(9,  "Bicep Curls",       3, "12",      "💪", "strength"),
+            new Exercise(10, "Tricep Dips",       3, "10",      "🔥", "strength"),
+            new Exercise(11, "Crunches",          4, "20",      "🔥", "core"),
+            new Exercise(12, "Russian Twists",    3, "15 each", "🌀", "core"),
+            new Exercise(13, "Leg Raises",        3, "12",      "🦵", "core"),
+            new Exercise(14, "Jumping Jacks",     3, "30",      "⚡", "cardio"),
+            new Exercise(15, "Jump Rope",         3, "1 min",   "🪢", "cardio"),
+            new Exercise(16, "Yoga Stretches",    1, "10 min",  "🧘", "flexibility"),
+            new Exercise(17, "Hamstring Stretch", 2, "30 sec",  "🦵", "flexibility"),
+            new Exercise(18, "Deadlifts",         4, "6-8",     "🏋️", "strength"),
+            new Exercise(19, "Kettlebell Swings", 4, "15",      "⚡", "cardio"),
+            new Exercise(20, "Box Jumps",         3, "10",      "📦", "cardio")
         );
     }
 

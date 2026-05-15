@@ -12,17 +12,17 @@ import java.util.List;
 /**
  * WorkoutDAO
  *
- * In-memory + database-backed catalog of workouts.
+ * ── Bug fixes in this version ──────────────────────────────────────────────
+ *  FIX 1 — createCustomWorkout() now also INSERTs each Exercise into the
+ *           workout_exercises table.  Previously only the workout header row
+ *           was saved, so exercises were lost on app restart.
  *
- * ── Design decisions ───────────────────────────────────────────────────────
- *  • No hardcoded default workouts.  The catalog starts empty and is populated
- *    entirely from the database (when connected) or by the user via the Custom
- *    Workout Creator.  This reflects the project requirement that users create
- *    their own workouts.
- *  • Runtime cache — mutations (add / remove) apply to the in-memory list
- *    immediately so the UI always shows the current state without reloading.
- *  • DB writes are best-effort: if MySQL is unavailable the in-memory operation
- *    still succeeds so the session keeps working.
+ *  FIX 2 — loadFromDatabase() reads workout_exercises to rehydrate exercises.
+ *           The query now works because DatabaseHandler.init() creates both
+ *           the workouts and workout_exercises tables.
+ *
+ *  FIX 3 — removeWorkout() uses a single DELETE on workouts; the workout_exercises
+ *           rows are removed automatically via ON DELETE CASCADE.
  */
 public class WorkoutDAO {
 
@@ -32,22 +32,17 @@ public class WorkoutDAO {
 
     // ── Public API ─────────────────────────────────────────────────────────
 
-    /**
-     * Returns the live workout catalog.
-     * Tries the database on the first call; stays empty if DB is unavailable —
-     * no hardcoded defaults are injected.
-     */
     public static List<Workout> getAllWorkouts() {
         if (!cacheInitialized) initializeCache();
         return Collections.unmodifiableList(runtimeCache);
     }
 
     /**
-     * Persists a custom workout to the DB and immediately adds it to the
-     * runtime cache so the workouts view shows it on navigation back.
-     * {@code workout.setCustom(true)} is called here regardless of DB outcome.
+     * Saves a custom workout (header + all exercises) to the DB and appends
+     * it to the runtime cache.
      *
-     * @return {@code true} if the DB write succeeded
+     * FIX: exercises are now persisted to workout_exercises so they survive
+     * an app restart.
      */
     public static boolean createCustomWorkout(Workout workout) {
         if (!cacheInitialized) initializeCache();
@@ -55,11 +50,14 @@ public class WorkoutDAO {
         workout.setCustom(true);
 
         boolean dbSuccess = false;
-        String sql =
+
+        // ── 1. Insert workout header ───────────────────────────────────────
+        String workoutSql =
             "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom, locked)"
           + " VALUES (?, ?, ?, ?, ?, 1, 0)";
         try (Connection c = MySQLConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = c.prepareStatement(workoutSql, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setString(1, workout.getTitle());
             ps.setString(2, workout.getDifficulty().name());
             ps.setString(3, workout.getDuration());
@@ -67,13 +65,18 @@ public class WorkoutDAO {
             ps.setString(5, workout.getDescription());
             dbSuccess = ps.executeUpdate() > 0;
 
-            // Back-fill the auto-generated DB id into the object so future
-            // deletes can match by the real DB id.
             if (dbSuccess) {
+                // Back-fill the auto-generated DB id so removeWorkout() matches correctly
                 try (ResultSet keys = ps.getGeneratedKeys()) {
-                    if (keys.next()) workout.setId(keys.getInt(1));
+                    if (keys.next()) {
+                        workout.setId(keys.getInt(1));
+                    }
                 }
+
+                // ── 2. Insert each exercise ────────────────────────────────
+                saveWorkoutExercises(c, workout.getId(), workout.getExercises());
             }
+
         } catch (Exception e) {
             System.err.println("[WorkoutDAO] DB write failed (in-memory only): " + e.getMessage());
         }
@@ -83,14 +86,35 @@ public class WorkoutDAO {
     }
 
     /**
-     * Removes a custom workout by id from both the runtime cache and the DB.
-     *
-     * Called as {@code WorkoutDAO.removeWorkout(id)} — method name matches
-     * what {@link com.oop.gymquest.screens.workouts.WorkoutsViewController}
-     * uses in {@code confirmAndDelete()}.
-     *
-     * @param workoutId the {@link Workout#getId()} value to remove
-     * @return {@code true} if the workout was found and removed from the cache
+     * Inserts all exercises for a workout into workout_exercises.
+     * Uses a batch insert for efficiency.
+     */
+    private static void saveWorkoutExercises(Connection c, int workoutId,
+                                             List<Exercise> exercises) throws SQLException {
+        if (exercises == null || exercises.isEmpty()) return;
+
+        String sql =
+            "INSERT INTO workout_exercises (workout_id, name, sets, reps, emoji, category, sort_order)"
+          + " VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            for (int i = 0; i < exercises.size(); i++) {
+                Exercise ex = exercises.get(i);
+                ps.setInt(1, workoutId);
+                ps.setString(2, ex.getName());
+                ps.setInt(3, ex.getSets());
+                ps.setString(4, ex.getReps());
+                ps.setString(5, ex.getEmoji());
+                ps.setString(6, ex.getCategory() != null ? ex.getCategory() : "strength");
+                ps.setInt(7, i);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    /**
+     * Removes a workout by id.
+     * ON DELETE CASCADE on workout_exercises removes the exercise rows automatically.
      */
     public static boolean removeWorkout(int workoutId) {
         boolean removed = runtimeCache.removeIf(w -> w.getId() == workoutId);
@@ -100,7 +124,6 @@ public class WorkoutDAO {
             return false;
         }
 
-        // Best-effort DB removal
         String sql = "DELETE FROM workouts WHERE id = ?";
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -120,23 +143,22 @@ public class WorkoutDAO {
         try {
             loadFromDatabase();
         } catch (Exception e) {
-            // DB not available — start with empty list; user creates their own workouts
             System.err.println("[WorkoutDAO] DB unavailable, starting with empty catalog: " + e.getMessage());
         }
         cacheInitialized = true;
     }
 
     /**
-     * Queries the {@code workouts} table and populates the cache.
-     * Exercises are fetched via a second query keyed on workout_id.
+     * Loads all workouts and their exercises from the DB.
+     * FIX: now reads from workout_exercises (was silently skipping due to missing table).
      */
     private static void loadFromDatabase() throws SQLException {
         String workoutSql =
             "SELECT id, title, difficulty, duration, category, description, locked, is_custom"
           + " FROM workouts ORDER BY id";
         String exerciseSql =
-            "SELECT id, name, sets, reps, emoji, category FROM workout_exercises"
-          + " WHERE workout_id = ? ORDER BY sort_order";
+            "SELECT id, name, sets, reps, emoji, category"
+          + " FROM workout_exercises WHERE workout_id = ? ORDER BY sort_order";
 
         try (Connection c = MySQLConnection.getConnection();
              Statement st = c.createStatement();
@@ -161,8 +183,6 @@ public class WorkoutDAO {
                             ));
                         }
                     }
-                } catch (SQLException ex) {
-                    // workout_exercises table may not exist yet — skip exercises
                 }
 
                 WorkoutCategory cat  = parseCategory(rs.getString("category"));

@@ -13,7 +13,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorkoutsViewController {
 
@@ -25,14 +27,19 @@ public class WorkoutsViewController {
     // ── State ──────────────────────────────────────────────────────────────
     private WorkoutCategory activeCategory = null;
 
-    private Image muscleImage;
-    private Image lockImage;
+    // ── Image cache ────────────────────────────────────────────────────────
+    // Keyed by WorkoutCategory; loaded once in initialize(), reused everywhere.
+    private static final Map<WorkoutCategory, Image> CATEGORY_IMAGES = new HashMap<>();
+    // Exercise images keyed by lowercase category string (strength/cardio/core/…)
+    private static final Map<String, Image> EXERCISE_IMAGES = new HashMap<>();
+    private static Image lockImage;
+    private static boolean imagesLoaded = false;
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
-        loadPlaceholderImages();
+        loadAllImages();
         buildCategoryPills();
         applyFilter();
         searchField.textProperty().addListener((obs, o, n) -> applyFilter());
@@ -40,17 +47,66 @@ public class WorkoutsViewController {
 
     // ── Image loading ──────────────────────────────────────────────────────
 
-    private void loadPlaceholderImages() {
+    /**
+     * Loads all six category images and the lock image once per JVM session.
+     * The static flag prevents reloading when the FXML is re-navigated to.
+     *
+     * Path convention: /com/oop/gymquest/images/<filename>.png
+     */
+    private void loadAllImages() {
+        if (imagesLoaded) return;
+
+        CATEGORY_IMAGES.put(WorkoutCategory.STRENGTH,    img("muscle.png",           40));
+        CATEGORY_IMAGES.put(WorkoutCategory.CARDIO,      img("treadmill.png",        40));
+        CATEGORY_IMAGES.put(WorkoutCategory.CORE,        img("core.png",             40));
+        CATEGORY_IMAGES.put(WorkoutCategory.FLEXIBILITY, img("flexibility.png",      40));
+        CATEGORY_IMAGES.put(WorkoutCategory.HIIT,        img("hiit.png",             40));
+        CATEGORY_IMAGES.put(WorkoutCategory.BALANCE,     img("tightrope-walker.png", 40));
+
+        // Exercise images — same mapping by lowercase category string
+        EXERCISE_IMAGES.put("strength",    img("muscle.png",           28));
+        EXERCISE_IMAGES.put("cardio",      img("treadmill.png",        28));
+        EXERCISE_IMAGES.put("core",        img("core.png",             28));
+        EXERCISE_IMAGES.put("flexibility", img("flexibility.png",      28));
+        EXERCISE_IMAGES.put("hiit",        img("hiit.png",             28));
+        EXERCISE_IMAGES.put("balance",     img("tightrope-walker.png", 28));
+
+        lockImage = img("lock.png", 32);   // optional — falls back gracefully if absent
+
+        imagesLoaded = true;
+    }
+
+    /** Loads a single image from the images resource folder. Returns null on failure. */
+    private Image img(String filename, int size) {
         try {
-            var muscleUrl = getClass().getResource("/com/oop/gymquest/images/muscle.png");
-            if (muscleUrl != null) {
-                muscleImage = new Image(muscleUrl.toExternalForm(), 44, 44, true, true);
-            } else {
-                System.err.println("[WorkoutsViewController] muscle.png not found.");
-            }
+            var url = getClass().getResource("/com/oop/gymquest/images/" + filename);
+            if (url != null) return new Image(url.toExternalForm(), size, size, true, true);
+            System.err.println("[Images] Not found: " + filename);
         } catch (Exception e) {
-            System.err.println("[WorkoutsViewController] Could not load muscle.png: " + e.getMessage());
+            System.err.println("[Images] Could not load " + filename + ": " + e.getMessage());
         }
+        return null;
+    }
+
+    // ── Public static image accessors (used by ExercisePickerDialog, CustomWorkoutCreatorController) ─
+
+    /**
+     * Returns the category image for a {@link WorkoutCategory}.
+     * Returns {@code null} if images haven't been loaded yet or the file was missing.
+     */
+    public static Image getCategoryImage(WorkoutCategory cat) {
+        return cat != null ? CATEGORY_IMAGES.get(cat) : null;
+    }
+
+    /**
+     * Returns the image for an exercise based on its category string
+     * (e.g. "strength", "cardio", "core", "flexibility").
+     * Falls back to the strength image, then null.
+     */
+    public static Image getExerciseImage(String category) {
+        if (category == null) return EXERCISE_IMAGES.get("strength");
+        Image img = EXERCISE_IMAGES.get(category.toLowerCase());
+        return img != null ? img : EXERCISE_IMAGES.get("strength");
     }
 
     // ── Live catalog ───────────────────────────────────────────────────────
@@ -122,45 +178,27 @@ public class WorkoutsViewController {
 
     // ── Card grid ──────────────────────────────────────────────────────────
 
-    /**
-     * Renders workout cards or a centered empty state.
-     *
-     * FIX: When the list is empty the FlowPane alignment is switched to CENTER
-     * so the empty-state VBox sits in the middle of the available space.
-     * When cards are present the alignment is reset to TOP_LEFT so the grid
-     * starts from the top-left corner as expected.
-     *
-     * A StackPane wrapper is used for the empty state — it stretches to the
-     * FlowPane's preferred width and provides its own centering, which is more
-     * reliable than relying on FlowPane's own alignment when there is only one
-     * child node.
-     */
     private void renderCards(List<Workout> workouts) {
         cardContainer.getChildren().clear();
 
         if (workouts.isEmpty()) {
-            // ── Center the empty state ─────────────────────────────────────
-            // Switch FlowPane to CENTER so its single child is centered.
             cardContainer.setAlignment(Pos.CENTER);
 
             VBox empty = new VBox(14);
             empty.setAlignment(Pos.CENTER);
             empty.setPadding(new Insets(60, 0, 60, 0));
-            // Make the empty box fill the full FlowPane width so centering works.
             empty.setMaxWidth(Double.MAX_VALUE);
 
-            Label icon = new Label("🏋️");
-            icon.setStyle("-fx-font-size: 52px;");
-
+            // No emoji — use a clean text-only empty state
             Label heading = new Label("No Workouts Yet");
             heading.setStyle(
                 "-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;"
             );
 
-            // Message adapts: different wording when a search/filter is active
             boolean isFiltering = (searchField.getText() != null
                                    && !searchField.getText().isBlank())
                                 || activeCategory != null;
+
             Label msg = new Label(isFiltering
                 ? "No workouts match your search."
                 : "Click \"+ Create Custom\" to build your first workout!");
@@ -169,9 +207,8 @@ public class WorkoutsViewController {
             msg.setMaxWidth(320);
             msg.setAlignment(Pos.CENTER);
 
-            empty.getChildren().addAll(icon, heading, msg);
+            empty.getChildren().addAll(heading, msg);
 
-            // Only show Clear Filters button when actively filtering
             if (isFiltering) {
                 Button clear = new Button("Clear Filters");
                 clear.setStyle(
@@ -189,20 +226,15 @@ public class WorkoutsViewController {
                 empty.getChildren().add(clear);
             }
 
-            // Wrap in a StackPane that stretches to the full container width
-            StackPane emptyWrapper = new StackPane(empty);
-            emptyWrapper.setMaxWidth(Double.MAX_VALUE);
-            emptyWrapper.setAlignment(Pos.CENTER);
-            // Give it a comfortable minimum height so it visually centres vertically
-            emptyWrapper.setMinHeight(340);
-
-            cardContainer.getChildren().add(emptyWrapper);
+            StackPane wrapper = new StackPane(empty);
+            wrapper.setMaxWidth(Double.MAX_VALUE);
+            wrapper.setAlignment(Pos.CENTER);
+            wrapper.setMinHeight(340);
+            cardContainer.getChildren().add(wrapper);
             return;
         }
 
-        // Cards present — restore normal top-left grid alignment
         cardContainer.setAlignment(Pos.TOP_LEFT);
-
         for (Workout w : workouts) {
             cardContainer.getChildren().add(buildCard(w));
         }
@@ -223,34 +255,46 @@ public class WorkoutsViewController {
             " -fx-cursor: " + (workout.isLocked() ? "default" : "hand") + ";");
         if (workout.isLocked()) card.setOpacity(0.55);
 
-        // ── Top row: icon pane + (custom badge + delete btn) ──────────────
+        // ── Icon pane: category image instead of emoji ────────────────────
         String catColor = getCategoryColor(workout.getCategory());
-
         StackPane iconPane = new StackPane();
         iconPane.setPrefSize(56, 56);
         iconPane.setMinSize(56, 56);
         iconPane.setStyle(
-            "-fx-background-color: " + catColor + "22;" +
-            "-fx-background-radius: 14;"
+            "-fx-background-color: " + catColor + "22; -fx-background-radius: 14;"
         );
 
         if (workout.isLocked()) {
-            Label lockLbl = new Label("🔒");
-            lockLbl.setStyle("-fx-font-size: 24px;");
-            iconPane.getChildren().add(lockLbl);
-        } else if (muscleImage != null) {
-            ImageView iv = new ImageView(muscleImage);
-            iv.setFitWidth(36);
-            iv.setFitHeight(36);
-            iv.setPreserveRatio(true);
-            iv.setSmooth(true);
-            iconPane.getChildren().add(iv);
+            // Lock icon: try image first, fall back to text
+            if (lockImage != null) {
+                ImageView lv = new ImageView(lockImage);
+                lv.setFitWidth(28);
+                lv.setFitHeight(28);
+                lv.setPreserveRatio(true);
+                iconPane.getChildren().add(lv);
+            } else {
+                Label lockLbl = new Label("🔒");
+                lockLbl.setStyle("-fx-font-size: 22px;");
+                iconPane.getChildren().add(lockLbl);
+            }
         } else {
-            Label fallback = new Label("💪");
-            fallback.setStyle("-fx-font-size: 24px;");
-            iconPane.getChildren().add(fallback);
+            Image catImg = getCategoryImage(workout.getCategory());
+            if (catImg != null) {
+                ImageView iv = new ImageView(catImg);
+                iv.setFitWidth(36);
+                iv.setFitHeight(36);
+                iv.setPreserveRatio(true);
+                iv.setSmooth(true);
+                iconPane.getChildren().add(iv);
+            } else {
+                // Image failed to load — show colored square, no emoji
+                Label placeholder = new Label("?");
+                placeholder.setStyle("-fx-text-fill: " + catColor + "; -fx-font-weight: bold;");
+                iconPane.getChildren().add(placeholder);
+            }
         }
 
+        // ── Top row: icon + (custom tag + delete btn for custom workouts) ─
         HBox topRow = new HBox(iconPane);
         topRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -310,15 +354,12 @@ public class WorkoutsViewController {
 
         if (workout.getCategory() != null) {
             badges.getChildren().add(makeBadge(
-                getCategoryLabel(workout.getCategory()),
-                catColor + "20",
-                catColor
-            ));
+                getCategoryLabel(workout.getCategory()), catColor + "20", catColor));
         }
 
         card.getChildren().addAll(title, badges);
 
-        // ── Description snippet (unlocked only) ───────────────────────────
+        // ── Description snippet ───────────────────────────────────────────
         if (!workout.isLocked()
                 && workout.getDescription() != null
                 && !workout.getDescription().isBlank()) {
@@ -343,38 +384,6 @@ public class WorkoutsViewController {
         }
 
         return card;
-    }
-
-    private StackPane createThemedIcon(String emoji, WorkoutCategory category) {
-        // Get the base color for the category
-        String baseColor = getCategoryColor(category);
-
-        // Create a circular background with 15% opacity (Glassmorphism look)
-        StackPane container = new StackPane();
-        container.setPrefSize(48, 48);
-        container.setMaxSize(48, 48);
-        container.setStyle(
-                "-fx-background-color: " + baseColor + "22;" + // '22' is ~15% transparency in hex
-                        "-fx-background-radius: 12;" +
-                        "-fx-border-color: " + baseColor + "44;" +
-                        "-fx-border-width: 1;" +
-                        "-fx-border-radius: 12;"
-        );
-
-        // If using the muscle image
-        if (emoji == null && muscleImage != null) {
-            ImageView iv = new ImageView(muscleImage);
-            iv.setFitHeight(24);
-            iv.setFitWidth(24);
-            container.getChildren().add(iv);
-        } else {
-            // If using a standard text emoji
-            Label label = new Label(emoji != null ? emoji : "💪");
-            label.setStyle("-fx-font-size: 22px;");
-            container.getChildren().add(label);
-        }
-
-        return container;
     }
 
     // ── Delete ─────────────────────────────────────────────────────────────
@@ -404,6 +413,7 @@ public class WorkoutsViewController {
         content.setPadding(new Insets(20));
         content.setPrefWidth(440);
 
+        // Title + meta row
         Label titleLbl = new Label(workout.getTitle());
         titleLbl.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;");
 
@@ -420,6 +430,7 @@ public class WorkoutsViewController {
         meta.getChildren().add(dur);
         content.getChildren().addAll(titleLbl, meta);
 
+        // Description
         if (workout.getDescription() != null && !workout.getDescription().isBlank()) {
             VBox descBox = new VBox();
             descBox.setPadding(new Insets(10, 12, 10, 12));
@@ -434,6 +445,7 @@ public class WorkoutsViewController {
             content.getChildren().add(descBox);
         }
 
+        // Exercise list
         if (workout.getExercises() != null && !workout.getExercises().isEmpty()) {
             Label exHeader = new Label("Exercises (" + workout.getExercises().size() + ")");
             exHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 15px; -fx-text-fill: #1e3a5f;");
@@ -449,6 +461,7 @@ public class WorkoutsViewController {
                     "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;"
                 );
 
+                // Step number circle
                 Label numLbl = new Label(String.valueOf(i + 1));
                 numLbl.setStyle("-fx-text-fill: #3b82f6; -fx-font-weight: bold;");
                 StackPane numCircle = new StackPane(numLbl);
@@ -459,22 +472,8 @@ public class WorkoutsViewController {
                     "-fx-border-color: #bae6fd; -fx-border-width: 1.5;"
                 );
 
-                StackPane exIcon = new StackPane();
-                exIcon.setPrefSize(36, 36);
-                exIcon.setMinSize(36, 36);
-                exIcon.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 10;");
-                if (muscleImage != null) {
-                    ImageView exIv = new ImageView(muscleImage);
-                    exIv.setFitWidth(22);
-                    exIv.setFitHeight(22);
-                    exIv.setPreserveRatio(true);
-                    exIv.setSmooth(true);
-                    exIcon.getChildren().add(exIv);
-                } else {
-                    Label emojiLbl = new Label(ex.getEmoji());
-                    emojiLbl.setStyle("-fx-font-size: 18px;");
-                    exIcon.getChildren().add(emojiLbl);
-                }
+                // Exercise icon: category image instead of emoji
+                StackPane exIcon = buildExerciseIcon(ex.getCategory(), 22);
 
                 VBox info = new VBox(2);
                 Label nameL = new Label(ex.getName());
@@ -499,6 +498,31 @@ public class WorkoutsViewController {
         dialog.showAndWait();
     }
 
+    /**
+     * Builds a small square icon pane for an exercise using the category image.
+     * Used in both the detail dialog and the custom workout creator exercise rows.
+     *
+     * @param category lowercase category string (e.g. "strength", "cardio")
+     * @param imageSize pixel size for the image inside the icon pane
+     */
+    public static StackPane buildExerciseIcon(String category, int imageSize) {
+        StackPane pane = new StackPane();
+        pane.setPrefSize(imageSize + 14, imageSize + 14);
+        pane.setMinSize(imageSize + 14, imageSize + 14);
+        pane.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 10;");
+
+        Image img = getExerciseImage(category);
+        if (img != null) {
+            ImageView iv = new ImageView(img);
+            iv.setFitWidth(imageSize);
+            iv.setFitHeight(imageSize);
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+            pane.getChildren().add(iv);
+        }
+        return pane;
+    }
+
     // ── Navigation ─────────────────────────────────────────────────────────
 
     @FXML
@@ -511,7 +535,7 @@ public class WorkoutsViewController {
         MainApp.instance.changeScene("workouts.fxml", "GymQuest - Workout Library");
     }
 
-    // ── Style helpers ──────────────────────────────────────────────────────
+    // ── Style helpers (public static — used by CustomWorkoutCreatorController) ─
 
     private static Label makeBadge(String text, String bg, String fg) {
         Label l = new Label(text);

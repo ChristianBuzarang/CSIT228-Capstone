@@ -120,4 +120,7 @@ public class MemberDashboardController {
     @FXML private void handleSeeAll() {
         DashboardController.instance.loadView("sessions.fxml");
     }
+
+
+
 }

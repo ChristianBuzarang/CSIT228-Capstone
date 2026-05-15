@@ -1,54 +1,55 @@
 package com.oop.gymquest.screens.exercisePicker;
 
 import com.oop.gymquest.data.workoutdata.Exercise;
+import com.oop.gymquest.screens.workouts.WorkoutsViewController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.util.List;
 
-
+/**
+ * ExercisePickerDialog
+ *
+ * ── Changes in this version ────────────────────────────────────────────────
+ *  FIX — Emoji icons replaced with category images.
+ *        Each card now shows the appropriate image (muscle.png, treadmill.png,
+ *        core.png, flexibility.png, hiit.png, tightrope-walker.png) via
+ *        {@link WorkoutsViewController#getExerciseImage(String)}.
+ *        Images are the same static cache loaded by WorkoutsViewController.initialize()
+ *        so no extra loading is needed here.
+ */
 public class ExercisePickerDialog extends Dialog<Exercise> {
 
-    // ── Color palette (mirrors WorkoutsViewController) ────────────────────
-    private static final String NAVY      = "#1e3a5f";
-    private static final String SLATE     = "#64748b";
-    private static final String BORDER    = "#bae6fd";
-    private static final String CARD_BG   = "#f0f8ff";
-    private static final String WHITE     = "white";
+    private static final String NAVY           = "#1e3a5f";
+    private static final String SLATE          = "#64748b";
+    private static final String BORDER         = "#bae6fd";
+    private static final String CARD_BG        = "#f0f8ff";
+    private static final String WHITE          = "white";
     private static final String SELECTED_BORDER = "#3b82f6";
 
-    // ── State ──────────────────────────────────────────────────────────────
     private final List<Exercise> allExercises;
     private Exercise selectedExercise = null;
 
-    // Live UI references kept so search + filter can re-render
-    private final TextField  searchField   = new TextField();
-    private final HBox       filterRow     = new HBox(8);
-    private final FlowPane   grid          = new FlowPane(14, 14);
-    private String           activeCategory = null;  // null = "All"
+    private final TextField searchField   = new TextField();
+    private final HBox      filterRow     = new HBox(8);
+    private final FlowPane  grid          = new FlowPane(14, 14);
+    private String          activeCategory = null;
 
-    // Buttons
-    private final Button addBtn    = new Button("Add to Workout");
-    private final Button cancelBtn = new Button("Cancel");
+    private Button addBtnRef;
 
     // ── Constructor ───────────────────────────────────────────────────────
 
     public ExercisePickerDialog(List<Exercise> exercises) {
         this.allExercises = exercises;
-
         setTitle("Exercise Library");
         setHeaderText(null);
-
         buildContent();
         buildButtons();
-
-        // Return the selected exercise when "Add to Workout" is clicked
-        setResultConverter(buttonType -> {
-            if (buttonType == ButtonType.OK) return selectedExercise;
-            return null;
-        });
+        setResultConverter(bt -> bt == ButtonType.OK ? selectedExercise : null);
     }
 
     // ── UI construction ────────────────────────────────────────────────────
@@ -58,7 +59,6 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         root.setPadding(new Insets(20));
         root.setPrefWidth(700);
 
-        // ── Search bar ─────────────────────────────────────────────────────
         searchField.setPromptText("🔍  Search exercises…");
         searchField.setStyle(
             "-fx-padding: 11 16; -fx-border-color: " + BORDER + "; -fx-border-width: 2;" +
@@ -68,11 +68,9 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         searchField.setMaxWidth(Double.MAX_VALUE);
         searchField.textProperty().addListener((obs, o, n) -> refreshGrid());
 
-        // ── Category filter pills ──────────────────────────────────────────
         filterRow.setAlignment(Pos.CENTER_LEFT);
         buildFilterPills();
 
-        // ── Exercise grid ──────────────────────────────────────────────────
         grid.setAlignment(Pos.TOP_LEFT);
         grid.setPrefWrapLength(660);
 
@@ -86,7 +84,6 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         scroll.getStyleClass().add("modern-scroll");
 
         root.getChildren().addAll(searchField, filterRow, scroll);
-
         getDialogPane().setContent(root);
         getDialogPane().setStyle("-fx-background-color: white;");
         getDialogPane().setPrefWidth(740);
@@ -95,17 +92,14 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     }
 
     private void buildButtons() {
-        // Use CANCEL and OK so setResultConverter can distinguish them
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // Grab the real Button nodes from the dialog pane and restyle them
         Button okNode = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okNode.setText("Add to Workout");
         okNode.setStyle(
             "-fx-background-color: #3b82f6; -fx-text-fill: white;" +
             "-fx-font-weight: bold; -fx-background-radius: 12; -fx-padding: 10 24; -fx-cursor: hand;"
         );
-        // Disable until an exercise is selected
         okNode.setDisable(true);
 
         Button cancelNode = (Button) getDialogPane().lookupButton(ButtonType.CANCEL);
@@ -115,13 +109,8 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             "-fx-background-radius: 12; -fx-padding: 10 24; -fx-cursor: hand;"
         );
 
-        // Expose okNode reference so card clicks can enable it
-        addBtn.setDisable(true);  // internal tracking mirror (unused, but kept for clarity)
         addBtnRef = okNode;
     }
-
-    /** Stored so card clicks can enable/disable the "Add to Workout" button. */
-    private Button addBtnRef;
 
     // ── Filter pills ───────────────────────────────────────────────────────
 
@@ -129,7 +118,6 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         filterRow.getChildren().clear();
         filterRow.getChildren().add(filterPill("All", null));
 
-        // Collect distinct categories from the exercise list
         allExercises.stream()
             .map(Exercise::getCategory)
             .filter(c -> c != null && !c.isBlank())
@@ -144,7 +132,8 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         Button btn = new Button(label);
         applyPillStyle(btn, active);
         btn.setOnAction(e -> {
-            activeCategory = (activeCategory != null && activeCategory.equals(category)) ? null : category;
+            activeCategory = (activeCategory != null && activeCategory.equals(category))
+                           ? null : category;
             buildFilterPills();
             refreshGrid();
         });
@@ -168,21 +157,22 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         }
     }
 
-    // ── Grid rendering ─────────────────────────────────────────────────────
+    // ── Grid ──────────────────────────────────────────────────────────────
 
     private void refreshGrid() {
         grid.getChildren().clear();
         selectedExercise = null;
         if (addBtnRef != null) addBtnRef.setDisable(true);
 
-        final String kw = searchField.getText().toLowerCase();
+        final String kw   = searchField.getText().toLowerCase();
         final boolean hasKw = !kw.isBlank();
 
         List<Exercise> visible = allExercises.stream()
             .filter(ex -> {
                 boolean nameOk = !hasKw || ex.getName().toLowerCase().contains(kw);
                 boolean catOk  = activeCategory == null
-                    || (ex.getCategory() != null && ex.getCategory().equalsIgnoreCase(activeCategory));
+                    || (ex.getCategory() != null
+                        && ex.getCategory().equalsIgnoreCase(activeCategory));
                 return nameOk && catOk;
             })
             .toList();
@@ -202,11 +192,10 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     /**
      * Builds one exercise card.
      *
-     * ── Text color fix ────────────────────────────────────────────────────
-     *  The previous version left text color unset, so JavaFX used the global
-     *  `.label { -fx-text-fill: black; }` style — but the stylesheet override
-     *  for light-blue backgrounds was forcing white.  Now every Label has an
-     *  explicit dark text color so the result is predictable regardless of CSS.
+     * ── Image fix ────────────────────────────────────────────────────────
+     *  Old: emoji label on light-blue background — text was nearly invisible.
+     *  New: category image (muscle/treadmill/core/…) in a clean icon pane.
+     *       Name and detail text use explicit dark colors so they are always readable.
      */
     private VBox buildExerciseCard(Exercise exercise) {
         VBox card = new VBox(8);
@@ -227,44 +216,42 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             "-fx-cursor: hand;";
         final String selectedStyle =
             "-fx-background-color: #eff6ff; -fx-background-radius: 14;" +
-            "-fx-border-color: " + SELECTED_BORDER + "; -fx-border-width: 2.5; -fx-border-radius: 14;" +
-            "-fx-cursor: hand;";
+            "-fx-border-color: " + SELECTED_BORDER + "; -fx-border-width: 2.5;" +
+            "-fx-border-radius: 14; -fx-cursor: hand;";
 
         card.setStyle(defaultStyle);
 
-        // ── Emoji ──────────────────────────────────────────────────────────
-        // Inside the card creation logic:
-        Label emojiLbl = new Label(exercise.getEmoji());
-        emojiLbl.setPrefSize(50, 50);
-        emojiLbl.setAlignment(Pos.CENTER);
+        // ── Category image (replaces emoji) ───────────────────────────────
+        Image img = WorkoutsViewController.getExerciseImage(exercise.getCategory());
+        StackPane iconPane = new StackPane();
+        iconPane.setPrefSize(42, 42);
+        iconPane.setMinSize(42, 42);
+        iconPane.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
 
-        // Dynamic styling based on exercise type (if available) or a default clean look
-        emojiLbl.setStyle(
-                "-fx-background-color: #f1f5f9;" + // Light slate background
-                        "-fx-background-radius: 10;" +
-                        "-fx-font-size: 24px;" +
-                        "-fx-text-fill: black;" // Emojis should usually stay 'black' to render native colors
-        );
+        if (img != null) {
+            ImageView iv = new ImageView(img);
+            iv.setFitWidth(28);
+            iv.setFitHeight(28);
+            iv.setPreserveRatio(true);
+            iv.setSmooth(true);
+            iconPane.getChildren().add(iv);
+        }
 
-        // ── Name (DARK text — the main fix) ───────────────────────────────
+        // ── Name — explicit dark color ────────────────────────────────────
         Label nameLbl = new Label(exercise.getName());
         nameLbl.setStyle(
-            "-fx-font-weight: bold; -fx-font-size: 13px;" +
-            "-fx-text-fill: " + NAVY + ";"          // ← was implicitly white
+            "-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: " + NAVY + ";"
         );
         nameLbl.setWrapText(true);
         nameLbl.setMaxWidth(170);
 
-        // ── Sets × reps (SLATE grey — readable on light blue) ─────────────
+        // ── Sets × reps — slate grey ──────────────────────────────────────
         Label detailLbl = new Label(exercise.getSets() + " sets × " + exercise.getReps());
-        detailLbl.setStyle(
-            "-fx-font-size: 11.5px;" +
-            "-fx-text-fill: " + SLATE + ";"         // ← was implicitly white
-        );
+        detailLbl.setStyle("-fx-font-size: 11.5px; -fx-text-fill: " + SLATE + ";");
 
-        card.getChildren().addAll(emojiLbl, nameLbl, detailLbl);
+        card.getChildren().addAll(iconPane, nameLbl, detailLbl);
 
-        // ── Hover & selection ──────────────────────────────────────────────
+        // ── Hover & selection ─────────────────────────────────────────────
         card.setOnMouseEntered(e -> {
             if (selectedExercise != exercise) card.setStyle(hoverStyle);
         });
@@ -272,28 +259,19 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             if (selectedExercise != exercise) card.setStyle(defaultStyle);
         });
         card.setOnMouseClicked(e -> {
-            // Deselect previous card visually
             grid.getChildren().forEach(node -> {
                 if (node instanceof VBox vc && vc.getUserData() instanceof Exercise) {
                     vc.setStyle(defaultStyle);
                 }
             });
-
-            // Select this card
             selectedExercise = exercise;
             card.setStyle(selectedStyle);
             if (addBtnRef != null) addBtnRef.setDisable(false);
-
-            // Double-click = confirm immediately
-            if (e.getClickCount() == 2 && addBtnRef != null) {
-                addBtnRef.fire();
-            }
+            if (e.getClickCount() == 2 && addBtnRef != null) addBtnRef.fire();
         });
 
         return card;
     }
-
-    // ── Utility ────────────────────────────────────────────────────────────
 
     private static String capitalize(String s) {
         if (s == null || s.isEmpty()) return s;
