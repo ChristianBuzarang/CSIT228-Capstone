@@ -32,7 +32,7 @@
                     <Region HBox.hgrow="ALWAYS"/>
 
                     <!-- "+ Create Custom" button -->
-                    <Button text="+ Create Custom"
+                    <Button text="+ Add Workout"
                             onAction="#handleCreateCustom"
                             style="-fx-background-color: linear-gradient(to right, #d97706, #f59e0b);
                                    -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;

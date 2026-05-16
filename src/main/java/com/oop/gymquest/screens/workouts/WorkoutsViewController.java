@@ -201,7 +201,7 @@ public class WorkoutsViewController {
 
             Label msg = new Label(isFiltering
                 ? "No workouts match your search."
-                : "Click \"+ Create Custom\" to build your first workout!");
+                : "Click \"+ Add Workout\" to build your first workout!");
             msg.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14px;");
             msg.setWrapText(true);
             msg.setMaxWidth(320);
