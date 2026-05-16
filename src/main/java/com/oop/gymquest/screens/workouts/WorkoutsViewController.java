@@ -456,10 +456,6 @@ public class WorkoutsViewController {
                 HBox row = new HBox(12);
                 row.setAlignment(Pos.CENTER_LEFT);
                 row.setPadding(new Insets(10));
-                row.setStyle(
-                    "-fx-background-color: #f8fafc; -fx-background-radius: 10;" +
-                    "-fx-border-color: #e2e8f0; -fx-border-width: 1; -fx-border-radius: 10;"
-                );
 
                 // Step number circle
                 Label numLbl = new Label(String.valueOf(i + 1));
@@ -468,21 +464,28 @@ public class WorkoutsViewController {
                 numCircle.setPrefSize(28, 28);
                 numCircle.setMinSize(28, 28);
                 numCircle.setStyle(
-                    "-fx-background-color: white; -fx-background-radius: 14;" +
-                    "-fx-border-color: #bae6fd; -fx-border-width: 1.5;"
+                        "-fx-background-color: white; -fx-background-radius: 14;" +
+                                "-fx-border-color: #bae6fd; -fx-border-width: 1.5;"
                 );
 
-                // Exercise icon: category image instead of emoji
-                StackPane exIcon = buildExerciseIcon(ex.getCategory(), 22);
+                // Text-based Category Badge (Replaces image icon)
+                Label catBadge = new Label((ex.getCategory() != null ? ex.getCategory() : "GENERAL").toUpperCase());
+                catBadge.setStyle(
+                        "-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #64748b;" +
+                                "-fx-background-color: #e2e8f0; -fx-padding: 3 8; -fx-background-radius: 6;"
+                );
 
-                VBox info = new VBox(2);
+                VBox info = new VBox(4);
                 Label nameL = new Label(ex.getName());
                 nameL.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e3a5f;");
                 Label detail = new Label(ex.getSets() + " sets × " + ex.getReps() + " reps");
                 detail.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
-                info.getChildren().addAll(nameL, detail);
 
-                row.getChildren().addAll(numCircle, exIcon, info);
+                HBox titleAndBadge = new HBox(8, nameL, catBadge);
+                titleAndBadge.setAlignment(Pos.CENTER_LEFT);
+                info.getChildren().addAll(titleAndBadge, detail);
+
+                row.getChildren().addAll(numCircle, info);
                 content.getChildren().add(row);
             }
         }
@@ -498,13 +501,7 @@ public class WorkoutsViewController {
         dialog.showAndWait();
     }
 
-    /**
-     * Builds a small square icon pane for an exercise using the category image.
-     * Used in both the detail dialog and the custom workout creator exercise rows.
-     *
-     * @param category lowercase category string (e.g. "strength", "cardio")
-     * @param imageSize pixel size for the image inside the icon pane
-     */
+
     public static StackPane buildExerciseIcon(String category, int imageSize) {
         StackPane pane = new StackPane();
         pane.setPrefSize(imageSize + 14, imageSize + 14);

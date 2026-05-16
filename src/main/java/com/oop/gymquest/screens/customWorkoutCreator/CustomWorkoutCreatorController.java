@@ -146,13 +146,7 @@ public class CustomWorkoutCreatorController {
 
     // ── Exercise list rendering ────────────────────────────────────────────
 
-    /**
-     * Renders the list of selected exercises.
-     *
-     * FIX: emoji Label replaced by {@link WorkoutsViewController#buildExerciseIcon}
-     *      so the creator screen is visually consistent with the workouts list
-     *      and exercise picker.
-     */
+
     private void updateExerciseList() {
         exerciseListBox.getChildren().clear();
 
@@ -185,6 +179,7 @@ public class CustomWorkoutCreatorController {
                 "-fx-border-color: #bae6fd; -fx-border-width: 2; -fx-border-radius: 12;"
             );
 
+
             // Step number circle
             Label numLbl = new Label(String.valueOf(i + 1));
             numLbl.setStyle("-fx-text-fill: #3b82f6; -fx-font-weight: bold;");
@@ -192,34 +187,41 @@ public class CustomWorkoutCreatorController {
             numCircle.setPrefSize(30, 30);
             numCircle.setMinSize(30, 30);
             numCircle.setStyle(
-                "-fx-background-color: white; -fx-background-radius: 15;" +
-                "-fx-border-color: #bae6fd; -fx-border-width: 2;"
+                    "-fx-background-color: white; -fx-background-radius: 15;" +
+                            "-fx-border-color: #bae6fd; -fx-border-width: 2;"
             );
 
-            // Category image icon (replaces emoji)
-            StackPane exIcon = WorkoutsViewController.buildExerciseIcon(ex.getCategory(), 20);
+            // Text-based Category Badge (Replaces image icon)
+            Label catBadge = new Label((ex.getCategory() != null ? ex.getCategory() : "GENERAL").toUpperCase());
+            catBadge.setStyle(
+                    "-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #64748b;" +
+                            "-fx-background-color: #e2e8f0; -fx-padding: 3 8; -fx-background-radius: 6;"
+            );
 
             // Name + sets/reps
-            VBox info = new VBox(2);
+            VBox info = new VBox(4);
             Label nameLbl = new Label(ex.getName());
             nameLbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e3a5f; -fx-font-size: 13px;");
             Label detailLbl = new Label(ex.getSets() + " sets × " + ex.getReps() + " reps");
             detailLbl.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
-            info.getChildren().addAll(nameLbl, detailLbl);
+
+            HBox titleAndBadge = new HBox(8, nameLbl, catBadge);
+            titleAndBadge.setAlignment(Pos.CENTER_LEFT);
+            info.getChildren().addAll(titleAndBadge, detailLbl);
 
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             Button removeBtn = new Button("🗑");
             removeBtn.setStyle(
-                "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;"
+                    "-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;"
             );
             removeBtn.setOnAction(e -> {
                 selectedExercises.remove(idx);
                 updateExerciseList();
             });
 
-            row.getChildren().addAll(numCircle, exIcon, info, spacer, removeBtn);
+            row.getChildren().addAll(numCircle, info, spacer, removeBtn);
             exerciseListBox.getChildren().add(row);
         }
     }
