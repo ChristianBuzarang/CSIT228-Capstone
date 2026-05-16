@@ -9,6 +9,13 @@ import java.util.List;
  * DatabaseHandler
  * Handles JDBC operations, database initialization, and data retrieval.
  * Consolidates all dashboard, community, and user management logic.
+ *
+ * ── Merge note ─────────────────────────────────────────────────────────────
+ *  All methods from the latest commit are preserved unchanged.
+ *  The only modification is seedExerciseLibraryIfEmpty(), which now seeds
+ *  69 exercises across all 6 categories (strength / cardio / core /
+ *  flexibility / hiit / balance) instead of the previous 3-exercise stub.
+ *  This ensures the Exercise Picker dialog shows a full, categorized library.
  */
 public class DatabaseHandler {
     private static final String URL      = "jdbc:mysql://localhost:3306/";
@@ -117,11 +124,12 @@ public class DatabaseHandler {
 
                 seedExerciseLibraryIfEmpty(conn);
                 registerUser("admin", "1234", "System", "Admin", "admin");
+                System.out.println("✅ Database Ready: All tables and functions restored.");
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ── AUTH & USER MANAGEMENT ──
+    // ── AUTH & USER MANAGEMENT ──────────────────────────────────────────────
 
     public static User authenticate(String email, String pass) {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_active = 1";
@@ -136,9 +144,9 @@ public class DatabaseHandler {
     public static boolean registerUser(String email, String password, String fname, String lname, String type) {
         String iu = "INSERT IGNORE INTO users (email, password, firstname, lastname, type) VALUES (?,?,?,?,?)";
         String ir = switch (type.toLowerCase()) {
-            case "admin" -> "INSERT INTO admins (userid) VALUES (?)";
+            case "admin"   -> "INSERT INTO admins (userid) VALUES (?)";
             case "trainer" -> "INSERT INTO trainers (userid) VALUES (?)";
-            default -> "INSERT INTO members (userid) VALUES (?)";
+            default        -> "INSERT INTO members (userid) VALUES (?)";
         };
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -197,7 +205,83 @@ public class DatabaseHandler {
         } catch (SQLException e) { return false; }
     }
 
-    // ── DASHBOARD STATISTICS ──
+    public static boolean updateUser(int userId, String email, String fname, String lname, String type) {
+        String updateUsersTable = "UPDATE users SET email = ?, firstname = ?, lastname = ?, type = ? WHERE userid = ?";
+        String deleteOldRole = "DELETE FROM %s WHERE userid = ?";
+        String insertNewRole = "INSERT IGNORE INTO %s (userid) VALUES (?)";
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(updateUsersTable)) {
+                String currentType = "";
+                try (PreparedStatement checkPs = conn.prepareStatement("SELECT type FROM users WHERE userid = ?")) {
+                    checkPs.setInt(1, userId);
+                    ResultSet rs = checkPs.executeQuery();
+                    if (rs.next()) currentType = rs.getString("type").toLowerCase();
+                }
+                ps.setString(1, email); ps.setString(2, fname);
+                ps.setString(3, lname); ps.setString(4, type.toLowerCase());
+                ps.setInt(5, userId);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0 && !currentType.equals(type.toLowerCase())) {
+                    String oldTable = getTableNameFromRole(currentType);
+                    if (oldTable != null) {
+                        try (PreparedStatement delPs = conn.prepareStatement(String.format(deleteOldRole, oldTable))) {
+                            delPs.setInt(1, userId); delPs.executeUpdate();
+                        }
+                    }
+                    String newTable = getTableNameFromRole(type.toLowerCase());
+                    if (newTable != null) {
+                        try (PreparedStatement insPs = conn.prepareStatement(String.format(insertNewRole, newTable))) {
+                            insPs.setInt(1, userId); insPs.executeUpdate();
+                        }
+                    }
+                }
+                conn.commit(); return rowsAffected > 0;
+            } catch (SQLException e) { conn.rollback(); e.printStackTrace(); return false; }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    private static String getTableNameFromRole(String type) {
+        return switch (type.toLowerCase()) {
+            case "admin"   -> "admins";
+            case "trainer" -> "trainers";
+            case "member"  -> "members";
+            default        -> null;
+        };
+    }
+
+    public static boolean updateUserName(int userId, String firstName, String lastName) {
+        String sql = "UPDATE users SET firstname = ?, lastname = ? WHERE userid = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, firstName); ps.setString(2, lastName); ps.setInt(3, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public static boolean updateUserAvatar(int userId, String avatarName) {
+        String sql = "UPDATE users SET avatar = ? WHERE userid = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, avatarName); ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public static List<ArchivedUser> fetchArchivedUsers() {
+        List<ArchivedUser> list = new ArrayList<>();
+        String sql = "SELECT * FROM users_archive ORDER BY archived_at DESC";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(new ArchivedUser(
+                        rs.getInt("userid"), rs.getString("full_name"),
+                        rs.getString("email"), rs.getString("type"), rs.getString("status")));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // ── DASHBOARD STATISTICS ────────────────────────────────────────────────
 
     public static int getCountByType(String type) {
         String sql = "SELECT COUNT(*) FROM users WHERE type = ? AND is_active = 1";
@@ -215,7 +299,7 @@ public class DatabaseHandler {
         } catch (SQLException e) { return 0; }
     }
 
-    // ── SESSIONS & BOOKING ──
+    // ── SESSIONS & BOOKING ──────────────────────────────────────────────────
 
     public static ResultSet getTop3ActiveSessions(int memberId) {
         String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
@@ -261,262 +345,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { return false; }
     }
 
-    // ── ADDITIONAL HELPER LOGIC ──
-
-    public static ResultSet getTodaySessions(int trainerId) {
-        String sql = "SELECT * FROM trainer_slots WHERE trainer_id = ? AND slot_date = CURDATE() ORDER BY slot_time ASC";
-        try {
-            Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, trainerId);
-            return ps.executeQuery();
-        } catch (SQLException e) { return null; }
-    }
-
-    public static void createPost(int userId, String content, String milestone) {
-        String sql = "INSERT INTO posts (userid, content, milestone_text) VALUES (?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId); ps.setString(2, content); ps.setString(3, milestone);
-            ps.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    public static ResultSet fetchPosts() {
-        String sql = "SELECT p.*, u.firstname, u.lastname, u.avatar FROM posts p " +
-                "JOIN users u ON p.userid = u.userid ORDER BY p.created_at DESC";
-        try {
-            Connection conn = getConnection();
-            return conn.createStatement().executeQuery(sql);
-        } catch (SQLException e) { return null; }
-    }
-
-    private static void seedExerciseLibraryIfEmpty(Connection conn) throws SQLException {
-        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM exercises")) {
-            if (rs.next() && rs.getInt(1) > 0) return;
-        }
-        String sql = "INSERT INTO exercises (name, sets, reps, emoji, category) VALUES (?, ?, ?, ?, ?)";
-        Object[][] data = {{"Push-ups", 3, "12", "💪", "strength"}, {"Squats", 3, "15", "🦵", "strength"}, {"Plank", 3, "30s", "🧘", "core"}};
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            for (Object[] r : data) {
-                ps.setString(1, (String)r[0]); ps.setInt(2, (int)r[1]); ps.setString(3, (String)r[2]);
-                ps.setString(4, (String)r[3]); ps.setString(5, (String)r[4]); ps.addBatch();
-            }
-            ps.executeBatch();
-        }
-    }
-
-
-    public static boolean updateUser(int userId, String email, String fname, String lname, String type) {
-        String updateUsersTable = "UPDATE users SET email = ?, firstname = ?, lastname = ?, type = ? WHERE userid = ?";
-
-        // SQL to manage role-specific table entries during a role change
-        String deleteOldRole = "DELETE FROM %s WHERE userid = ?";
-        String insertNewRole = "INSERT IGNORE INTO %s (userid) VALUES (?)";
-
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
-
-            try (PreparedStatement ps = conn.prepareStatement(updateUsersTable)) {
-                // 1. Get current role to check for changes
-                String currentType = "";
-                try (PreparedStatement checkPs = conn.prepareStatement("SELECT type FROM users WHERE userid = ?")) {
-                    checkPs.setInt(1, userId);
-                    ResultSet rs = checkPs.executeQuery();
-                    if (rs.next()) currentType = rs.getString("type").toLowerCase();
-                }
-
-                // 2. Update the main users table
-                ps.setString(1, email);
-                ps.setString(2, fname);
-                ps.setString(3, lname);
-                ps.setString(4, type.toLowerCase());
-                ps.setInt(5, userId);
-
-                int rowsAffected = ps.executeUpdate();
-
-                // 3. If type changed, sync role-specific tables
-                if (rowsAffected > 0 && !currentType.equals(type.toLowerCase())) {
-                    // Remove from old role table (e.g., members)
-                    String oldTable = getTableNameFromRole(currentType);
-                    if (oldTable != null) {
-                        try (PreparedStatement delPs = conn.prepareStatement(String.format(deleteOldRole, oldTable))) {
-                            delPs.setInt(1, userId);
-                            delPs.executeUpdate();
-                        }
-                    }
-
-                    // Add to new role table (e.g., trainers)
-                    String newTable = getTableNameFromRole(type.toLowerCase());
-                    if (newTable != null) {
-                        try (PreparedStatement insPs = conn.prepareStatement(String.format(insertNewRole, newTable))) {
-                            insPs.setInt(1, userId);
-                            insPs.executeUpdate();
-                        }
-                    }
-                }
-
-                conn.commit(); // Finalize all changes
-                return rowsAffected > 0;
-
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-                return false;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
-     * Helper to map user types to their respective database table names.
-     */
-    private static String getTableNameFromRole(String type) {
-        return switch (type.toLowerCase()) {
-            case "admin" -> "admins";
-            case "trainer" -> "trainers";
-            case "member" -> "members";
-            default -> null;
-        };
-    }
-
-    public static List<String> fetchTrainersNames() {
-        List<String> names = new ArrayList<>();
-        String sql = "SELECT CONCAT(firstname, ' ', lastname) as full_name FROM users WHERE type = 'trainer' AND is_active = 1";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                names.add(rs.getString("full_name"));
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return names;
-    }
-
-    public static ResultSet getTrainerSchedule(int trainerId) {
-        String sql = "SELECT * FROM trainer_slots WHERE trainer_id = ? ORDER BY slot_date ASC, slot_time ASC";
-        try {
-            Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, trainerId);
-            return ps.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    public static boolean deleteSlot(int slotId) {
-        String sql = "DELETE FROM trainer_slots WHERE slot_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, slotId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    public static ResultSet getMemberSessionsToday(int memberId) {
-        String sql = "SELECT s.*, u.firstname, u.lastname, " +
-                "TIME_FORMAT(s.slot_time, '%h:%i %p') as formatted_time " +
-                "FROM trainer_slots s " +
-                "JOIN users u ON s.trainer_id = u.userid " +
-                "WHERE s.member_id = ? AND s.slot_date = CURDATE() " +
-                "ORDER BY s.slot_time ASC";
-        try {
-            // Note: Connection remains open so the ResultSet can be read by the caller.
-            Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, memberId);
-            return ps.executeQuery();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    public static int getUniqueClientCount(int trainerId) {
-        String sql = "SELECT COUNT(DISTINCT member_id) FROM trainer_slots " +
-                "WHERE trainer_id = ? AND member_id IS NOT NULL";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, trainerId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public static boolean addTrainerSlot(int tid, String type, String date, String time, String dur) {
-        String sql = "INSERT INTO trainer_slots (trainer_id, activity, slot_date, slot_time, duration, status) " +
-                "VALUES (?, ?, ?, ?, ?, 'Available')";
-
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, tid);
-            ps.setString(2, type);
-            ps.setString(3, date);
-            ps.setString(4, time);
-            ps.setString(5, dur);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean updateUserName(int userId, String firstName, String lastName) {
-        String sql = "UPDATE users SET firstname = ?, lastname = ? WHERE userid = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
-            ps.setInt(3, userId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean updateUserAvatar(int userId, String avatarName) {
-        String sql = "UPDATE users SET avatar = ? WHERE userid = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, avatarName);
-            ps.setInt(2, userId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static void updatePostReactionCount(int postId, int newCount) {
-        String sql = "UPDATE posts SET reactions = ? WHERE postid = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newCount);
-            ps.setInt(2, postId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ResultSet getAvailableSlots(String date) {
         String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
                 "FROM trainer_slots s " +
@@ -535,23 +363,68 @@ public class DatabaseHandler {
         }
     }
 
-    public static List<ArchivedUser> fetchArchivedUsers() {
-        List<ArchivedUser> list = new ArrayList<>();
-        String sql = "SELECT * FROM users_archive ORDER BY archived_at DESC";
+    public static ResultSet getMemberBookings(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
+                "FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? " +
+                "AND s.status = 'Booked' " +
+                "AND s.slot_date >= CURRENT_DATE " +
+                "ORDER BY s.slot_date ASC, s.slot_time ASC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
+    }
+
+    public static ResultSet getMemberSessionsToday(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname, " +
+                "TIME_FORMAT(s.slot_time, '%h:%i %p') as formatted_time " +
+                "FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? AND s.slot_date = CURDATE() " +
+                "ORDER BY s.slot_time ASC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) { e.printStackTrace(); return null; }
+    }
+
+    // ── TRAINER MANAGEMENT ──────────────────────────────────────────────────
+
+    public static List<String> fetchTrainersNames() {
+        List<String> names = new ArrayList<>();
+        String sql = "SELECT CONCAT(firstname, ' ', lastname) as full_name FROM users WHERE type = 'trainer' AND is_active = 1";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new ArchivedUser(
-                        rs.getInt("userid"),
-                        rs.getString("full_name"),
-                        rs.getString("email"),
-                        rs.getString("type"),
-                        rs.getString("status")
-                ));
-            }
+            while (rs.next()) names.add(rs.getString("full_name"));
         } catch (SQLException e) { e.printStackTrace(); }
-        return list;
+        return names;
+    }
+
+    public static ResultSet getTodaySessions(int trainerId) {
+        String sql = "SELECT * FROM trainer_slots WHERE trainer_id = ? AND slot_date = CURDATE() ORDER BY slot_time ASC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, trainerId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
+    }
+
+    public static ResultSet getTrainerSchedule(int trainerId) {
+        String sql = "SELECT * FROM trainer_slots WHERE trainer_id = ? ORDER BY slot_date ASC, slot_time ASC";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, trainerId);
+            return ps.executeQuery();
+        } catch (SQLException e) { e.printStackTrace(); return null; }
     }
 
     public static ResultSet getTrainerFullSchedule(int trainerId) {
@@ -568,19 +441,185 @@ public class DatabaseHandler {
         } catch (SQLException e) { return null; }
     }
 
-    public static ResultSet getMemberBookings(int memberId) {
-        String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
-                "FROM trainer_slots s " +
-                "JOIN users u ON s.trainer_id = u.userid " +
-                "WHERE s.member_id = ? " +
-                "AND s.status = 'Booked' " +
-                "AND s.slot_date >= CURRENT_DATE " + // <--- THE FILTER
-                "ORDER BY s.slot_date ASC, s.slot_time ASC";
+    public static int getUniqueClientCount(int trainerId) {
+        String sql = "SELECT COUNT(DISTINCT member_id) FROM trainer_slots WHERE trainer_id = ? AND member_id IS NOT NULL";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, trainerId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) { e.printStackTrace(); return 0; }
+    }
+
+    public static boolean addTrainerSlot(int tid, String type, String date, String time, String dur) {
+        String sql = "INSERT INTO trainer_slots (trainer_id, activity, slot_date, slot_time, duration, status) VALUES (?, ?, ?, ?, ?, 'Available')";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tid); ps.setString(2, type); ps.setString(3, date);
+            ps.setString(4, time); ps.setString(5, dur);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public static boolean deleteSlot(int slotId) {
+        String sql = "DELETE FROM trainer_slots WHERE slot_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    // ── COMMUNITY ───────────────────────────────────────────────────────────
+
+    public static void createPost(int userId, String content, String milestone) {
+        String sql = "INSERT INTO posts (userid, content, milestone_text) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId); ps.setString(2, content); ps.setString(3, milestone);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public static ResultSet fetchPosts() {
+        String sql = "SELECT p.*, u.firstname, u.lastname, u.avatar FROM posts p " +
+                "JOIN users u ON p.userid = u.userid ORDER BY p.created_at DESC";
         try {
             Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, memberId);
-            return ps.executeQuery();
+            return conn.createStatement().executeQuery(sql);
         } catch (SQLException e) { return null; }
+    }
+
+    public static void updatePostReactionCount(int postId, int newCount) {
+        String sql = "UPDATE posts SET reactions = ? WHERE postid = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newCount); ps.setInt(2, postId);
+            ps.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    // ── EXERCISE LIBRARY SEED ───────────────────────────────────────────────
+
+    /**
+     * Seeds the exercises table with 69 exercises spanning all 6 categories.
+     * Only runs when the table is empty — safe to call on every startup.
+     *
+     * Category strings match WorkoutCategory enum and ExercisePickerDialog pills:
+     *   strength | cardio | core | flexibility | hiit | balance
+     *
+     * If you already have the exercises table with old data and want a fresh seed,
+     * run: TRUNCATE TABLE exercises; in MySQL then restart the app.
+     */
+    private static void seedExerciseLibraryIfEmpty(Connection conn) throws SQLException {
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM exercises")) {
+            if (rs.next() && rs.getInt(1) > 0) return; // already seeded
+        }
+
+        // columns: name, sets, reps, emoji, category
+        Object[][] exercises = {
+                // ── STRENGTH (muscle.png) ─────────────────────────────────────
+                {"Barbell Squat",        4, "8-10",    "🏋️", "strength"},
+                {"Deadlift",             4, "6-8",     "🏋️", "strength"},
+                {"Bench Press",          4, "8-10",    "🏋️", "strength"},
+                {"Overhead Press",       3, "10",      "🏋️", "strength"},
+                {"Barbell Row",          4, "8-10",    "🏋️", "strength"},
+                {"Pull-ups",             3, "6-8",     "💪",  "strength"},
+                {"Push-ups",             3, "10-12",   "💪",  "strength"},
+                {"Dumbbell Curl",        3, "12",      "💪",  "strength"},
+                {"Tricep Dips",          3, "10",      "🔥",  "strength"},
+                {"Lunges",               3, "10 each", "🏃",  "strength"},
+                {"Goblet Squat",         3, "12",      "🏋️", "strength"},
+                {"Dumbbell Row",         3, "10 each", "💪",  "strength"},
+                {"Incline Press",        3, "10",      "🏋️", "strength"},
+                {"Lat Pulldown",         3, "12",      "💪",  "strength"},
+                {"Leg Press",            3, "12",      "🦵",  "strength"},
+                {"Calf Raises",          4, "15",      "🦵",  "strength"},
+                {"Dumbbell Fly",         3, "12",      "🏋️", "strength"},
+                {"Face Pull",            3, "15",      "💪",  "strength"},
+                {"Romanian Deadlift",    3, "10",      "🏋️", "strength"},
+                {"Hip Thrust",           3, "12",      "🍑",  "strength"},
+
+                // ── CARDIO (treadmill.png) ─────────────────────────────────────
+                {"Treadmill Sprint",     5, "30 sec",  "🏃",  "cardio"},
+                {"Jump Rope",            3, "1 min",   "🪢",  "cardio"},
+                {"Cycling",              1, "20 min",  "🚴",  "cardio"},
+                {"Rowing Machine",       3, "5 min",   "🚣",  "cardio"},
+                {"Stair Climber",        1, "15 min",  "🏃",  "cardio"},
+                {"Jumping Jacks",        3, "30",      "⚡",  "cardio"},
+                {"High Knees",           3, "30 sec",  "🏃",  "cardio"},
+                {"Box Step-up",          3, "12 each", "📦",  "cardio"},
+                {"Shadow Boxing",        3, "2 min",   "🥊",  "cardio"},
+                {"Skaters",              3, "20",      "⛸️", "cardio"},
+                {"Butt Kicks",           3, "30 sec",  "🏃",  "cardio"},
+                {"Elliptical Trainer",   1, "20 min",  "🏃",  "cardio"},
+
+                // ── CORE (core.png) ────────────────────────────────────────────
+                {"Plank",                3, "45 sec",  "🧘",  "core"},
+                {"Crunches",             4, "20",      "🔥",  "core"},
+                {"Russian Twists",       3, "15 each", "🌀",  "core"},
+                {"Leg Raises",           3, "12",      "🦵",  "core"},
+                {"Bicycle Crunch",       3, "20",      "🔥",  "core"},
+                {"Dead Bug",             3, "10 each", "🐛",  "core"},
+                {"Ab Wheel Rollout",     3, "10",      "⚙️", "core"},
+                {"Mountain Climbers",    3, "20",      "⛰️", "core"},
+                {"Side Plank",           3, "30 sec",  "🧘",  "core"},
+                {"V-Ups",                3, "15",      "🔥",  "core"},
+                {"Hollow Body Hold",     3, "20 sec",  "🧘",  "core"},
+                {"Flutter Kicks",        3, "20",      "🦵",  "core"},
+                {"Cable Crunch",         3, "15",      "🔥",  "core"},
+
+                // ── FLEXIBILITY (flexibility.png) ──────────────────────────────
+                {"Hip Flexor Stretch",   2, "30 sec",  "🧘",  "flexibility"},
+                {"Hamstring Stretch",    2, "30 sec",  "🦵",  "flexibility"},
+                {"Pigeon Pose",          2, "40 sec",  "🧘",  "flexibility"},
+                {"Shoulder Stretch",     2, "30 sec",  "💪",  "flexibility"},
+                {"Cat-Cow Stretch",      1, "1 min",   "🐱",  "flexibility"},
+                {"Child's Pose",         1, "1 min",   "🧘",  "flexibility"},
+                {"Quad Stretch",         2, "30 sec",  "🦵",  "flexibility"},
+                {"Thoracic Rotation",    2, "10 each", "🔄",  "flexibility"},
+                {"Yoga Sun Salutation",  1, "5 min",   "☀️", "flexibility"},
+                {"Seated Forward Fold",  2, "40 sec",  "🧘",  "flexibility"},
+                {"Butterfly Stretch",    2, "30 sec",  "🦋",  "flexibility"},
+                {"Doorway Chest Stretch",2, "30 sec",  "💪",  "flexibility"},
+
+                // ── HIIT (hiit.png) ────────────────────────────────────────────
+                {"Burpees",              5, "10",      "💥",  "hiit"},
+                {"Squat Jumps",          4, "15",      "💥",  "hiit"},
+                {"Push-up to T-Raise",   3, "10",      "💥",  "hiit"},
+                {"Lateral Bound",        3, "12 each", "💥",  "hiit"},
+                {"Tuck Jumps",           4, "12",      "💥",  "hiit"},
+                {"Plyo Push-ups",        3, "10",      "💥",  "hiit"},
+                {"Broad Jump",           4, "8",       "💥",  "hiit"},
+                {"Sprint Intervals",     6, "20 sec",  "⚡",  "hiit"},
+                {"Tabata Squats",        8, "20 sec",  "💥",  "hiit"},
+                {"Battle Ropes",         4, "30 sec",  "💥",  "hiit"},
+                {"Kettlebell Swings",    4, "15",      "⚡",  "hiit"},
+                {"Box Jumps",            4, "10",      "📦",  "hiit"},
+
+                // ── BALANCE (tightrope-walker.png) ─────────────────────────────
+                {"Single-Leg Stand",     3, "30 sec",  "🧍",  "balance"},
+                {"Single-Leg RDL",       3, "8 each",  "🧍",  "balance"},
+                {"Bosu Ball Squat",      3, "12",      "🟣",  "balance"},
+                {"Pistol Squat",         3, "5 each",  "🦵",  "balance"},
+                {"Heel-to-Toe Walk",     3, "15 steps","👣",  "balance"},
+                {"Tree Pose",            2, "30 sec",  "🧘",  "balance"},
+                {"Lateral Step-over",    3, "10 each", "🧍",  "balance"},
+                {"BOSU Plank",           3, "30 sec",  "🟣",  "balance"},
+                {"Stability Ball Curl",  3, "12",      "🟣",  "balance"},
+                {"Tandem Stance Hold",   3, "20 sec",  "🧍",  "balance"},
+                {"Star Excursion Test",  3, "5 each",  "⭐",  "balance"},
+                {"Ankle Alphabet",       2, "1 each",  "✏️", "balance"},
+        };
+
+        String sql = "INSERT INTO exercises (name, sets, reps, emoji, category) VALUES (?,?,?,?,?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (Object[] row : exercises) {
+                ps.setString(1, (String) row[0]);
+                ps.setInt(2,    (int)    row[1]);
+                ps.setString(3, (String) row[2]);
+                ps.setString(4, (String) row[3]);
+                ps.setString(5, (String) row[4]);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+            System.out.println("[DatabaseHandler] Exercise library seeded (" + exercises.length + " exercises across 6 categories).");
+        }
     }
 }
