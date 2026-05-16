@@ -94,8 +94,8 @@ public class WorkoutDAO {
         if (exercises == null || exercises.isEmpty()) return;
 
         String sql =
-            "INSERT INTO workout_exercises (workout_id, name, sets, reps, emoji, category, sort_order)"
-          + " VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO workout_exercises (workout_id, name, sets, reps, category, sort_order)"
+          + " VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             for (int i = 0; i < exercises.size(); i++) {
                 Exercise ex = exercises.get(i);
@@ -103,9 +103,8 @@ public class WorkoutDAO {
                 ps.setString(2, ex.getName());
                 ps.setInt(3, ex.getSets());
                 ps.setString(4, ex.getReps());
-                ps.setString(5, ex.getEmoji());
-                ps.setString(6, ex.getCategory() != null ? ex.getCategory() : "strength");
-                ps.setInt(7, i);
+                ps.setString(5, ex.getCategory() != null ? ex.getCategory() : "strength");
+                ps.setInt(6, i);
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -178,7 +177,6 @@ public class WorkoutDAO {
                                 ers.getString("name"),
                                 ers.getInt("sets"),
                                 ers.getString("reps"),
-                                ers.getString("emoji"),
                                 ers.getString("category")
                             ));
                         }

@@ -189,14 +189,7 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         }
     }
 
-    /**
-     * Builds one exercise card.
-     *
-     * ── Image fix ────────────────────────────────────────────────────────
-     *  Old: emoji label on light-blue background — text was nearly invisible.
-     *  New: category image (muscle/treadmill/core/…) in a clean icon pane.
-     *       Name and detail text use explicit dark colors so they are always readable.
-     */
+
     private VBox buildExerciseCard(Exercise exercise) {
         VBox card = new VBox(8);
         card.setPrefWidth(195);

@@ -234,26 +234,14 @@ public class CustomWorkoutCreatorController {
 
     private static List<Exercise> buildFallbackLibrary() {
         return List.of(
-            new Exercise(1,  "Push-ups",          3, "10-12",   "💪", "strength"),
-            new Exercise(2,  "Squats",            3, "15",      "🦵", "strength"),
-            new Exercise(3,  "Plank",             3, "30 sec",  "🧘", "core"),
-            new Exercise(4,  "Lunges",            3, "10 each", "🏃", "strength"),
-            new Exercise(5,  "Burpees",           4, "10",      "💥", "cardio"),
-            new Exercise(6,  "Mountain Climbers", 3, "20",      "⛰️", "cardio"),
-            new Exercise(7,  "Dumbbell Press",    4, "8-10",    "🏋️", "strength"),
-            new Exercise(8,  "Pull-ups",          3, "6-8",     "💪", "strength"),
-            new Exercise(9,  "Bicep Curls",       3, "12",      "💪", "strength"),
-            new Exercise(10, "Tricep Dips",       3, "10",      "🔥", "strength"),
-            new Exercise(11, "Crunches",          4, "20",      "🔥", "core"),
-            new Exercise(12, "Russian Twists",    3, "15 each", "🌀", "core"),
-            new Exercise(13, "Leg Raises",        3, "12",      "🦵", "core"),
-            new Exercise(14, "Jumping Jacks",     3, "30",      "⚡", "cardio"),
-            new Exercise(15, "Jump Rope",         3, "1 min",   "🪢", "cardio"),
-            new Exercise(16, "Yoga Stretches",    1, "10 min",  "🧘", "flexibility"),
-            new Exercise(17, "Hamstring Stretch", 2, "30 sec",  "🦵", "flexibility"),
-            new Exercise(18, "Deadlifts",         4, "6-8",     "🏋️", "strength"),
-            new Exercise(19, "Kettlebell Swings", 4, "15",      "⚡", "cardio"),
-            new Exercise(20, "Box Jumps",         3, "10",      "📦", "cardio")
+            new Exercise(1,  "Push-ups",          3, "10-12",    "strength"),
+            new Exercise(2,  "Squats",            3, "15",      "strength"),
+            new Exercise(3,  "Plank",             3, "30 sec",   "core"),
+            new Exercise(4,  "Lunges",            3, "10 each",  "strength"),
+            new Exercise(5,  "Burpees",           4, "10",       "cardio"),
+            new Exercise(6,  "Mountain Climbers", 3, "20",       "cardio"),
+            new Exercise(7,  "Dumbbell Press",    4, "8-10",     "strength"),
+            new Exercise(8,  "Pull-ups",          3, "6-8",     "strength")
         );
     }
 

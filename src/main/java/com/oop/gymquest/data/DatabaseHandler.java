@@ -8,14 +8,7 @@ import java.util.List;
 /**
  * DatabaseHandler
  * Handles JDBC operations, database initialization, and data retrieval.
- * Consolidates all dashboard, community, and user management logic.
- *
- * ── Merge note ─────────────────────────────────────────────────────────────
- *  All methods from the latest commit are preserved unchanged.
- *  The only modification is seedExerciseLibraryIfEmpty(), which now seeds
- *  69 exercises across all 6 categories (strength / cardio / core /
- *  flexibility / hiit / balance) instead of the previous 3-exercise stub.
- *  This ensures the Exercise Picker dialog shows a full, categorized library.
+ * All emoji columns and references have been removed per requirements.
  */
 public class DatabaseHandler {
     private static final String URL      = "jdbc:mysql://localhost:3306/";
@@ -42,7 +35,7 @@ public class DatabaseHandler {
 
                 stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
 
-                // ── Users & Roles ──
+                // Users & Roles
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +
                         "email VARCHAR(255) UNIQUE, " +
@@ -66,7 +59,7 @@ public class DatabaseHandler {
                 stmt.execute("CREATE TABLE IF NOT EXISTS members (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainers (userid INT PRIMARY KEY, FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
-                // ── Trainer slots ──
+                // Trainer slots
                 stmt.execute("CREATE TABLE IF NOT EXISTS trainer_slots (" +
                         "slot_id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "trainer_id INT, " +
@@ -80,7 +73,6 @@ public class DatabaseHandler {
                         "FOREIGN KEY (trainer_id) REFERENCES users(userid) ON DELETE CASCADE, " +
                         "FOREIGN KEY (member_id) REFERENCES users(userid) ON DELETE SET NULL)");
 
-                // ── Community ──
                 stmt.execute("CREATE TABLE IF NOT EXISTS posts (" +
                         "postid INT PRIMARY KEY AUTO_INCREMENT, " +
                         "userid INT, " +
@@ -90,7 +82,6 @@ public class DatabaseHandler {
                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                         "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE)");
 
-                // ── Workouts (Required by WorkoutDAO) ──
                 stmt.execute("CREATE TABLE IF NOT EXISTS workouts (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "title VARCHAR(255), " +
@@ -101,21 +92,21 @@ public class DatabaseHandler {
                         "locked TINYINT(1) DEFAULT 0, " +
                         "is_custom TINYINT(1) DEFAULT 1)");
 
+                // REMOVED EMOJI COLUMN
                 stmt.execute("CREATE TABLE IF NOT EXISTS exercises (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "name VARCHAR(255) NOT NULL, " +
                         "sets INT DEFAULT 3, " +
                         "reps VARCHAR(50) DEFAULT '10', " +
-                        "emoji VARCHAR(20) DEFAULT '💪', " +
                         "category VARCHAR(50) DEFAULT 'strength')");
 
+                // REMOVED EMOJI COLUMN
                 stmt.execute("CREATE TABLE IF NOT EXISTS workout_exercises (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "workout_id INT NOT NULL, " +
                         "name VARCHAR(255) NOT NULL, " +
                         "sets INT DEFAULT 3, " +
                         "reps VARCHAR(50) DEFAULT '10', " +
-                        "emoji VARCHAR(20) DEFAULT '💪', " +
                         "category VARCHAR(50) DEFAULT 'strength', " +
                         "sort_order INT DEFAULT 0, " +
                         "FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE)");
@@ -124,12 +115,10 @@ public class DatabaseHandler {
 
                 seedExerciseLibraryIfEmpty(conn);
                 registerUser("admin", "1234", "System", "Admin", "admin");
-                System.out.println("✅ Database Ready: All tables and functions restored.");
+                System.out.println("[DatabaseHandler] Database Ready: All tables and functions restored.");
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
-
-    // ── AUTH & USER MANAGEMENT ──────────────────────────────────────────────
 
     public static User authenticate(String email, String pass) {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_active = 1";
@@ -281,8 +270,6 @@ public class DatabaseHandler {
         return list;
     }
 
-    // ── DASHBOARD STATISTICS ────────────────────────────────────────────────
-
     public static int getCountByType(String type) {
         String sql = "SELECT COUNT(*) FROM users WHERE type = ? AND is_active = 1";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -298,8 +285,6 @@ public class DatabaseHandler {
             return rs.next() ? rs.getInt(1) : 0;
         } catch (SQLException e) { return 0; }
     }
-
-    // ── SESSIONS & BOOKING ──────────────────────────────────────────────────
 
     public static ResultSet getTop3ActiveSessions(int memberId) {
         String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
@@ -356,20 +341,14 @@ public class DatabaseHandler {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, date);
             return ps.executeQuery();
-        } catch (SQLException e) {
-            System.err.println("Error fetching slots for date: " + date);
-            e.printStackTrace();
-            return null;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return null; }
     }
 
     public static ResultSet getMemberBookings(int memberId) {
         String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
                 "FROM trainer_slots s " +
                 "JOIN users u ON s.trainer_id = u.userid " +
-                "WHERE s.member_id = ? " +
-                "AND s.status = 'Booked' " +
-                "AND s.slot_date >= CURRENT_DATE " +
+                "WHERE s.member_id = ? AND s.status = 'Booked' AND s.slot_date >= CURRENT_DATE " +
                 "ORDER BY s.slot_date ASC, s.slot_time ASC";
         try {
             Connection conn = getConnection();
@@ -393,8 +372,6 @@ public class DatabaseHandler {
             return ps.executeQuery();
         } catch (SQLException e) { e.printStackTrace(); return null; }
     }
-
-    // ── TRAINER MANAGEMENT ──────────────────────────────────────────────────
 
     public static List<String> fetchTrainersNames() {
         List<String> names = new ArrayList<>();
@@ -467,8 +444,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    // ── COMMUNITY ───────────────────────────────────────────────────────────
-
     public static void createPost(int userId, String content, String milestone) {
         String sql = "INSERT INTO posts (userid, content, milestone_text) VALUES (?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -494,132 +469,78 @@ public class DatabaseHandler {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // ── EXERCISE LIBRARY SEED ───────────────────────────────────────────────
-
-    /**
-     * Seeds the exercises table with 69 exercises spanning all 6 categories.
-     * Only runs when the table is empty — safe to call on every startup.
-     *
-     * Category strings match WorkoutCategory enum and ExercisePickerDialog pills:
-     *   strength | cardio | core | flexibility | hiit | balance
-     *
-     * If you already have the exercises table with old data and want a fresh seed,
-     * run: TRUNCATE TABLE exercises; in MySQL then restart the app.
-     */
     private static void seedExerciseLibraryIfEmpty(Connection conn) throws SQLException {
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM exercises")) {
-            if (rs.next() && rs.getInt(1) > 0) return; // already seeded
+            if (rs.next() && rs.getInt(1) > 0) return;
         }
 
-        // columns: name, sets, reps, emoji, category
         Object[][] exercises = {
-                // ── STRENGTH (muscle.png) ─────────────────────────────────────
-                {"Barbell Squat",        4, "8-10",    "🏋️", "strength"},
-                {"Deadlift",             4, "6-8",     "🏋️", "strength"},
-                {"Bench Press",          4, "8-10",    "🏋️", "strength"},
-                {"Overhead Press",       3, "10",      "🏋️", "strength"},
-                {"Barbell Row",          4, "8-10",    "🏋️", "strength"},
-                {"Pull-ups",             3, "6-8",     "💪",  "strength"},
-                {"Push-ups",             3, "10-12",   "💪",  "strength"},
-                {"Dumbbell Curl",        3, "12",      "💪",  "strength"},
-                {"Tricep Dips",          3, "10",      "🔥",  "strength"},
-                {"Lunges",               3, "10 each", "🏃",  "strength"},
-                {"Goblet Squat",         3, "12",      "🏋️", "strength"},
-                {"Dumbbell Row",         3, "10 each", "💪",  "strength"},
-                {"Incline Press",        3, "10",      "🏋️", "strength"},
-                {"Lat Pulldown",         3, "12",      "💪",  "strength"},
-                {"Leg Press",            3, "12",      "🦵",  "strength"},
-                {"Calf Raises",          4, "15",      "🦵",  "strength"},
-                {"Dumbbell Fly",         3, "12",      "🏋️", "strength"},
-                {"Face Pull",            3, "15",      "💪",  "strength"},
-                {"Romanian Deadlift",    3, "10",      "🏋️", "strength"},
-                {"Hip Thrust",           3, "12",      "🍑",  "strength"},
+                // STRENGTH
+                {"Bench Press",          4, "8-10",    "strength"},
+                {"Overhead Press",       3, "10",      "strength"},
+                {"Barbell Row",          4, "8-10",    "strength"},
+                {"Pull-ups",             3, "6-8",     "strength"},
+                {"Push-ups",             3, "10-12",   "strength"},
+                {"Dumbbell Curl",        3, "12",      "strength"},
+                {"Tricep Dips",          3, "10",      "strength"},
+                {"Lunges",               3, "10 each", "strength"},
 
-                // ── CARDIO (treadmill.png) ─────────────────────────────────────
-                {"Treadmill Sprint",     5, "30 sec",  "🏃",  "cardio"},
-                {"Jump Rope",            3, "1 min",   "🪢",  "cardio"},
-                {"Cycling",              1, "20 min",  "🚴",  "cardio"},
-                {"Rowing Machine",       3, "5 min",   "🚣",  "cardio"},
-                {"Stair Climber",        1, "15 min",  "🏃",  "cardio"},
-                {"Jumping Jacks",        3, "30",      "⚡",  "cardio"},
-                {"High Knees",           3, "30 sec",  "🏃",  "cardio"},
-                {"Box Step-up",          3, "12 each", "📦",  "cardio"},
-                {"Shadow Boxing",        3, "2 min",   "🥊",  "cardio"},
-                {"Skaters",              3, "20",      "⛸️", "cardio"},
-                {"Butt Kicks",           3, "30 sec",  "🏃",  "cardio"},
-                {"Elliptical Trainer",   1, "20 min",  "🏃",  "cardio"},
+                // CARDIO
+                {"Treadmill Sprint",     5, "30 sec",  "cardio"},
+                {"Jump Rope",            3, "1 min",   "cardio"},
+                {"Cycling",              1, "20 min",  "cardio"},
+                {"Stair Climber",        1, "15 min",  "cardio"},
+                {"Jumping Jacks",        3, "30",      "cardio"},
+                {"High Knees",           3, "30 sec",  "cardio"},
 
-                // ── CORE (core.png) ────────────────────────────────────────────
-                {"Plank",                3, "45 sec",  "🧘",  "core"},
-                {"Crunches",             4, "20",      "🔥",  "core"},
-                {"Russian Twists",       3, "15 each", "🌀",  "core"},
-                {"Leg Raises",           3, "12",      "🦵",  "core"},
-                {"Bicycle Crunch",       3, "20",      "🔥",  "core"},
-                {"Dead Bug",             3, "10 each", "🐛",  "core"},
-                {"Ab Wheel Rollout",     3, "10",      "⚙️", "core"},
-                {"Mountain Climbers",    3, "20",      "⛰️", "core"},
-                {"Side Plank",           3, "30 sec",  "🧘",  "core"},
-                {"V-Ups",                3, "15",      "🔥",  "core"},
-                {"Hollow Body Hold",     3, "20 sec",  "🧘",  "core"},
-                {"Flutter Kicks",        3, "20",      "🦵",  "core"},
-                {"Cable Crunch",         3, "15",      "🔥",  "core"},
+                // CORE
+                {"Plank",                3, "45 sec",  "core"},
+                {"Crunches",             4, "20",      "core"},
+                {"Russian Twists",       3, "15 each", "core"},
+                {"Leg Raises",           3, "12",      "core"},
+                {"Bicycle Crunch",       3, "20",      "core"},
+                {"Mountain Climbers",    3, "20",      "core"},
+                {"Side Plank",           3, "30 sec",  "core"},
 
-                // ── FLEXIBILITY (flexibility.png) ──────────────────────────────
-                {"Hip Flexor Stretch",   2, "30 sec",  "🧘",  "flexibility"},
-                {"Hamstring Stretch",    2, "30 sec",  "🦵",  "flexibility"},
-                {"Pigeon Pose",          2, "40 sec",  "🧘",  "flexibility"},
-                {"Shoulder Stretch",     2, "30 sec",  "💪",  "flexibility"},
-                {"Cat-Cow Stretch",      1, "1 min",   "🐱",  "flexibility"},
-                {"Child's Pose",         1, "1 min",   "🧘",  "flexibility"},
-                {"Quad Stretch",         2, "30 sec",  "🦵",  "flexibility"},
-                {"Thoracic Rotation",    2, "10 each", "🔄",  "flexibility"},
-                {"Yoga Sun Salutation",  1, "5 min",   "☀️", "flexibility"},
-                {"Seated Forward Fold",  2, "40 sec",  "🧘",  "flexibility"},
-                {"Butterfly Stretch",    2, "30 sec",  "🦋",  "flexibility"},
-                {"Doorway Chest Stretch",2, "30 sec",  "💪",  "flexibility"},
+                // FLEXIBILITY
+                {"Hip Flexor Stretch",   2, "30 sec",  "flexibility"},
+                {"Hamstring Stretch",    2, "30 sec",  "flexibility"},
+                {"Shoulder Stretch",     2, "30 sec",  "flexibility"},
+                {"Cat-Cow Stretch",      1, "1 min",   "flexibility"},
+                {"Child's Pose",         1, "1 min",   "flexibility"},
+                {"Quad Stretch",         2, "30 sec",  "flexibility"},
 
-                // ── HIIT (hiit.png) ────────────────────────────────────────────
-                {"Burpees",              5, "10",      "💥",  "hiit"},
-                {"Squat Jumps",          4, "15",      "💥",  "hiit"},
-                {"Push-up to T-Raise",   3, "10",      "💥",  "hiit"},
-                {"Lateral Bound",        3, "12 each", "💥",  "hiit"},
-                {"Tuck Jumps",           4, "12",      "💥",  "hiit"},
-                {"Plyo Push-ups",        3, "10",      "💥",  "hiit"},
-                {"Broad Jump",           4, "8",       "💥",  "hiit"},
-                {"Sprint Intervals",     6, "20 sec",  "⚡",  "hiit"},
-                {"Tabata Squats",        8, "20 sec",  "💥",  "hiit"},
-                {"Battle Ropes",         4, "30 sec",  "💥",  "hiit"},
-                {"Kettlebell Swings",    4, "15",      "⚡",  "hiit"},
-                {"Box Jumps",            4, "10",      "📦",  "hiit"},
+                // HIIT
+                {"Burpees",              5, "10",      "hiit"},
+                {"Squat Jumps",          4, "15",      "hiit"},
+                {"Push-up to T-Raise",   3, "10",      "hiit"},
+                {"Lateral Bound",        3, "12 each", "hiit"},
+                {"Tuck Jumps",           4, "12",      "hiit"},
+                {"Plyo Push-ups",        3, "10",      "hiit"},
+                {"Broad Jump",           4, "8",       "hiit"},
 
-                // ── BALANCE (tightrope-walker.png) ─────────────────────────────
-                {"Single-Leg Stand",     3, "30 sec",  "🧍",  "balance"},
-                {"Single-Leg RDL",       3, "8 each",  "🧍",  "balance"},
-                {"Bosu Ball Squat",      3, "12",      "🟣",  "balance"},
-                {"Pistol Squat",         3, "5 each",  "🦵",  "balance"},
-                {"Heel-to-Toe Walk",     3, "15 steps","👣",  "balance"},
-                {"Tree Pose",            2, "30 sec",  "🧘",  "balance"},
-                {"Lateral Step-over",    3, "10 each", "🧍",  "balance"},
-                {"BOSU Plank",           3, "30 sec",  "🟣",  "balance"},
-                {"Stability Ball Curl",  3, "12",      "🟣",  "balance"},
-                {"Tandem Stance Hold",   3, "20 sec",  "🧍",  "balance"},
-                {"Star Excursion Test",  3, "5 each",  "⭐",  "balance"},
-                {"Ankle Alphabet",       2, "1 each",  "✏️", "balance"},
+                // BALANCE
+                {"Single-Leg Stand",     3, "30 sec",  "balance"},
+                {"Single-Leg RDL",       3, "8 each",  "balance"},
+                {"Bosu Ball Squat",      3, "12",      "balance"},
+                {"Pistol Squat",         3, "5 each",  "balance"},
+                {"Heel-to-Toe Walk",     3, "15 steps","balance"},
+                {"Tree Pose",            2, "30 sec",  "balance"},
+                {"Lateral Step-over",    3, "10 each", "balance"},
         };
 
-        String sql = "INSERT INTO exercises (name, sets, reps, emoji, category) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO exercises (name, sets, reps, category) VALUES (?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (Object[] row : exercises) {
                 ps.setString(1, (String) row[0]);
                 ps.setInt(2,    (int)    row[1]);
                 ps.setString(3, (String) row[2]);
                 ps.setString(4, (String) row[3]);
-                ps.setString(5, (String) row[4]);
                 ps.addBatch();
             }
             ps.executeBatch();
-            System.out.println("[DatabaseHandler] Exercise library seeded (" + exercises.length + " exercises across 6 categories).");
+            System.out.println("[DatabaseHandler] Exercise library seeded successfully (No emojis).");
         }
     }
 }

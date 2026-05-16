@@ -15,7 +15,7 @@ public class ExerciseDAO {
             while (rs.next()) {
                 list.add(new Exercise(rs.getInt("id"), rs.getString("name"),
                         rs.getInt("sets"), rs.getString("reps"),
-                        rs.getString("emoji"), rs.getString("category")));
+                         rs.getString("category")));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;

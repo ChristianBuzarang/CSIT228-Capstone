@@ -25,7 +25,10 @@ public class ExercisePickerDialogController {
         exerciseGrid.getChildren().clear();
         for (Exercise ex : library) {
             if (!ex.getName().toLowerCase().contains(query.toLowerCase())) continue;
-            VBox card = new VBox(5, new Label(ex.getEmoji()), new Label(ex.getName()), new Label(ex.getSets() + "x" + ex.getReps()));
+
+            // Removed new Label(ex.getEmoji()) to comply with your professor's rules
+            VBox card = new VBox(5, new Label(ex.getName()), new Label(ex.getSets() + "x" + ex.getReps()));
+
             card.setPrefSize(210, 160); card.setPadding(new Insets(20));
             card.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 15; -fx-border-color: #bae6fd; -fx-border-width: 2; -fx-cursor: hand;");
             card.setOnMouseClicked(e -> {
