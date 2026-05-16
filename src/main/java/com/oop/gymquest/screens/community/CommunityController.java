@@ -1,5 +1,6 @@
 package com.oop.gymquest.screens.community;
 
+import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
 import com.oop.gymquest.data.PostDAO;
 import com.oop.gymquest.data.workoutdata.Post;
@@ -33,9 +34,13 @@ public class CommunityController {
 
     public void refreshFeed() {
         postContainer.getChildren().clear();
-        ResultSet rs = DatabaseHandler.fetchPosts();
+
+        // Pass current user ID to evaluate if the post is liked by them
+        int currentUserId = MainApp.instance.currentUser.getUserId();
+        ResultSet rs = DatabaseHandler.fetchPosts(currentUserId);
         try {
             while (rs != null && rs.next()) {
+                boolean isLiked = rs.getInt("is_liked") > 0;
                 Post p = new Post(
                         rs.getInt("postid"),
                         rs.getString("firstname") + " " + rs.getString("lastname"),
@@ -44,7 +49,7 @@ public class CommunityController {
                         Post.PostType.GOAL,
                         "Just now",
                         rs.getInt("reactions"),
-                        false
+                        isLiked // Load appropriate state
                 );
                 postContainer.getChildren().add(createPostCard(p, rs.getString("avatar")));
             }
@@ -131,30 +136,47 @@ public class CommunityController {
             milestone.getChildren().add(mLabel);
         }
 
-        final boolean[] isLiked = { false };
+        final boolean[] isLiked = { post.isLiked() }; // Load true state from DB
         final int[] count = { post.getReactions() };
         Button likeBtn = new Button(String.valueOf(count[0]));
-        likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #64748b; -fx-font-weight: bold;");
 
-        ImageView heart = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-empty.png")));
+        ImageView heart = new ImageView();
         heart.setFitHeight(18); heart.setFitWidth(18);
         likeBtn.setGraphic(heart);
 
+        // Load initial styling
+        if (isLiked[0]) {
+            likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
+            heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-liked.png")));
+        } else {
+            likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #64748b; -fx-font-weight: bold;");
+            heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-empty.png")));
+        }
+
         likeBtn.setOnAction(e -> {
-            if (!isLiked[0]) {
+            int currentUserId = MainApp.instance.currentUser.getUserId();
+
+            // Send query to database to toggle state
+            boolean newLikedState = DatabaseHandler.togglePostLike(currentUserId, post.getId());
+
+            // Visually reflect increments and decrements
+            if (newLikedState && !isLiked[0]) {
                 count[0]++;
-                isLiked[0] = true;
-                likeBtn.setText(String.valueOf(count[0]));
+            } else if (!newLikedState && isLiked[0]) {
+                count[0]--;
+            }
+
+            isLiked[0] = newLikedState;
+            likeBtn.setText(String.valueOf(count[0]));
+
+            // Adjust styles
+            if (isLiked[0]) {
                 likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
                 heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-liked.png")));
             } else {
-                count[0]--;
-                isLiked[0] = false;
-                likeBtn.setText(String.valueOf(count[0]));
                 likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #64748b; -fx-font-weight: bold;");
                 heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-empty.png")));
             }
-            DatabaseHandler.updatePostReactionCount(post.getId(), count[0]);
         });
 
         card.getChildren().addAll(topRow, contentLabel);

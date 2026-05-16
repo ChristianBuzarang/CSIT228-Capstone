@@ -17,15 +17,11 @@ import javafx.stage.StageStyle;
 import java.sql.ResultSet;
 
 public class ManageScheduleController {
-    @FXML
-    private Label countLabel;
-    @FXML
-    private VBox emptyPlaceholder;
-    @FXML
-    private VBox scheduleList;
+    @FXML private Label countLabel;
+    @FXML private VBox emptyPlaceholder;
+    @FXML private VBox scheduleList;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         refreshView();
     }
 
@@ -33,7 +29,7 @@ public class ManageScheduleController {
         scheduleList.getChildren().clear();
         int tid = MainApp.instance.currentUser.getUserId();
         int count = 0;
-        try (ResultSet rs = DatabaseHandler.getTrainerSchedule(tid)) {
+        try (ResultSet rs = DatabaseHandler.getTrainerFullSchedule(tid)) {
             while (rs != null && rs.next()) {
                 count++;
                 addCard(
@@ -62,7 +58,7 @@ public class ManageScheduleController {
         row.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);");
 
         StackPane iconBox = new StackPane();
-        iconBox.setPrefSize(50, 50); // Equal width and height
+        iconBox.setPrefSize(50, 50);
         iconBox.setMinSize(50, 50);
         iconBox.setMaxSize(50, 50);
         iconBox.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 25;");
@@ -85,7 +81,7 @@ public class ManageScheduleController {
         Label memberInfo = new Label();
         if (status.equalsIgnoreCase("Booked")) {
             memberInfo.setText("👤 Booked by: " + (bookedByName != null ? bookedByName : "Unknown"));
-            memberInfo.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;"); // Green for booked
+            memberInfo.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;");
         } else {
             memberInfo.setText("👥 Open for booking (1/1)");
             memberInfo.setStyle("-fx-text-fill: #3b82f6;");

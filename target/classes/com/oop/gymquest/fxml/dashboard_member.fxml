@@ -1,66 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
 
-<HBox spacing="30" style="-fx-background-color: #f8fafc;" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.MemberDashboardController">
-    <VBox spacing="25" HBox.hgrow="ALWAYS">
+<VBox spacing="30" style="-fx-background-color: #f8fafc;"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.MemberDashboardController">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <!-- TOP ROW: Welcome Card + Streak Card -->
+    <!-- Setting a prefHeight here ensures both top cards are the same height -->
+    <HBox spacing="30" alignment="TOP_CENTER">
         <!-- Welcome Card -->
-        <HBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);">
-            <VBox spacing="12" HBox.hgrow="ALWAYS">
-                <Label text="Welcome back, Champion! 🎯" style="-fx-font-size: 28; -fx-font-weight: 800; -fx-text-fill: #1e293b;"/>
-                <Label text="Ready to crush your goals today?" style="-fx-text-fill: #64748b; -fx-font-size: 15;"/>
-                <HBox spacing="20" style="-fx-padding: 25 0 0 0;">
-                    <VBox prefWidth="200" spacing="8" style="-fx-background-color: #eff6ff; -fx-padding: 20; -fx-background-radius: 20;">
-                        <Label text="Workouts Done" style="-fx-text-fill: #3b82f6; -fx-font-weight: bold;"/><Label fx:id="totalWorkoutsLabel" text="0" style="-fx-font-size: 32; -fx-font-weight: 900; -fx-text-fill: #1e3a8a;"/>
-                    </VBox>
-                    <VBox prefWidth="200" spacing="8" style="-fx-background-color: #fefce8; -fx-padding: 20; -fx-background-radius: 20;">
-                        <Label text="This Week" style="-fx-text-fill: #eab308; -fx-font-weight: bold;"/><Label fx:id="weeklyWorkoutsLabel" text="0" style="-fx-font-size: 32; -fx-font-weight: 900; -fx-text-fill: #854d0e;"/>
-                    </VBox>
-                </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="20" HBox.hgrow="ALWAYS" prefHeight="220"
+              style="-fx-background-color: white; -fx-background-radius: 24; -fx-padding: 35;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 20, 0, 0, 8);">
+
+            <VBox spacing="15" HBox.hgrow="ALWAYS">
+                <VBox spacing="5">
+                    <Label text="Welcome back, Champion! 🎯"
+                           style="-fx-font-size: 28; -fx-font-weight: 800; -fx-text-fill: #1e293b;"/>
+                    <Label text="Ready to crush your goals today?"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 16;"/>
+                </VBox>
             </VBox>
-            <ImageView fitHeight="130" preserveRatio="true"><Image url="@../images/muscle.png"/></ImageView>
+
+            <ImageView fitHeight="140" preserveRatio="true">
+                <Image url="@../images/muscle.png"/>
+            </ImageView>
         </HBox>
 
-        <!-- SECTION 1: UPCOMING SESSIONS (TOP 3) -->
-        <VBox spacing="15">
-            <Label text="Upcoming Sessions (Top 3)" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
-            <VBox fx:id="activeSessionsContainer" spacing="12">
-                <!-- Dynamic Active Cards Injected Here -->
+        <!-- Streak Card (Blue Section) -->
+        <VBox spacing="20" alignment="CENTER" prefWidth="380" minWidth="380" prefHeight="220"
+              style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb);
+                     -fx-background-radius: 28; -fx-padding: 30;
+                     -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 20, 0, 0, 10);">
+
+            <ImageView fitHeight="50" fitWidth="50" preserveRatio="true">
+                <Image url="@../images/muscle.png"/>
+            </ImageView>
+            <VBox spacing="5" alignment="CENTER">
+                <Label text="Keep it up!"
+                       style="-fx-font-weight: 800; -fx-font-size: 24; -fx-text-fill: white;"/>
+                <Label text="Complete one more workout to maintain your streak."
+                       wrapText="true" textAlignment="CENTER"
+                       style="-fx-font-size: 14; -fx-text-fill: rgba(255,255,255,0.9);"/>
+            </VBox>
+        </VBox>
+    </HBox>
+
+    <!-- BOTTOM ROW: Upcoming Sessions + Recent Activity -->
+    <!-- Using an HBox here guarantees the headers "Upcoming Sessions" and "Recent Activity" line up perfectly -->
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+
+        <!-- Left: Upcoming Sessions -->
+        <VBox spacing="15" HBox.hgrow="ALWAYS">
+            <Label text="Upcoming Sessions"
+                   style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <VBox fx:id="activeSessionsContainer" spacing="15">
+                <!-- Dynamic Cards -->
             </VBox>
         </VBox>
 
-        <!-- SECTION 2: RECENT HISTORY -->
-        <VBox spacing="15">
+        <!-- Right: Recent Activity -->
+        <VBox spacing="15" prefWidth="380" minWidth="380">
             <HBox alignment="CENTER_LEFT">
-                <Label text="Recent Activity" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                <Label text="Recent Activity"
+                       style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
                 <Region HBox.hgrow="ALWAYS" />
-                <Hyperlink text="See All Sessions" onAction="#handleSeeAll" style="-fx-text-fill: #3b82f6; -fx-font-weight: bold;"/>
+                <Hyperlink text="See All" onAction="#handleSeeAll"
+                           style="-fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-underline: false;"/>
             </HBox>
-            <VBox fx:id="historySessionsContainer" spacing="12">
-                <!-- Dynamic History Cards Injected Here -->
+            <VBox fx:id="historySessionsContainer" spacing="15">
+                <!-- Dynamic Cards -->
             </VBox>
         </VBox>
-    </VBox>
+    </HBox>
 
-    <!-- RIGHT SIDEBAR -->
-    <VBox spacing="25" prefWidth="350">
-        <VBox spacing="30" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);">
-            <Label text="Quick Stats" style="-fx-font-weight: 800; -fx-font-size: 22; -fx-text-fill: #1e293b;"/>
-            <VBox spacing="15">
-                <HBox alignment="CENTER_LEFT"><Label text="Weekly Goal" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS" /><Label text="4/5 days" style="-fx-text-fill: #3b82f6; -fx-font-weight: bold;"/></HBox>
-                <StackPane alignment="CENTER_LEFT" prefHeight="10" style="-fx-background-color: #f1f5f9; -fx-background-radius: 20;"><StackPane maxWidth="220" style="-fx-background-color: #3b82f6; -fx-background-radius: 20;" /></StackPane>
-            </VBox>
-            <VBox spacing="15">
-                <HBox alignment="CENTER_LEFT"><Label text="Total Minutes" style="-fx-text-fill: #64748b;"/><Region HBox.hgrow="ALWAYS" /><Label text="145 min" style="-fx-text-fill: #d97706; -fx-font-weight: bold;"/></HBox>
-                <StackPane alignment="CENTER_LEFT" prefHeight="10" style="-fx-background-color: #f1f5f9; -fx-background-radius: 20;"><StackPane maxWidth="180" style="-fx-background-color: #d97706; -fx-background-radius: 20;" /></StackPane>
-            </VBox>
-        </VBox>
-
-        <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #3b82f6; -fx-background-radius: 30; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 15, 0, 0, 8);">
-            <ImageView fitHeight="50" fitWidth="50"><Image url="@../images/muscle.png"/></ImageView>
-            <Label text="Keep it up!" style="-fx-font-weight: 800; -fx-font-size: 24; -fx-text-fill: white;"/>
-            <Label text="You're on fire! Complete one more workout to maintain your streak." wrapText="true" textAlignment="CENTER" style="-fx-font-size: 14; -fx-text-fill: white;"/>
-        </VBox>
-    </VBox>
-</HBox>
+</VBox>

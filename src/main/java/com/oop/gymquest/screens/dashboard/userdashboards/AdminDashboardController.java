@@ -3,6 +3,7 @@ package com.oop.gymquest.screens.dashboard.userdashboards;
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
 import com.oop.gymquest.data.userdata.User;
+import com.oop.gymquest.screens.utils.CustomDialog; // Imported CustomDialog
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class AdminDashboardController {
-    @FXML private Label totalMembersLabel, activeMembersLabel, totalTrainersLabel, activeTrainersLabel;
+    @FXML private Label totalMembersLabel, totalTrainersLabel;
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, Void> actionsCol;
     @FXML private Button btnToggleMembers, btnToggleTrainers, btnToggleAdmins, btnToggleArchive;
@@ -81,27 +82,39 @@ public class AdminDashboardController {
 
     private void handleToggleStatus(User selected, boolean activate) {
         if (selected == null) return;
+
+        // Use custom error dialog
         if (!activate && selected.getUserId() == MainApp.instance.currentUser.getUserId()) {
-            new Alert(Alert.AlertType.ERROR, "Security Guard: You cannot archive your own account.", ButtonType.OK).showAndWait();
+            CustomDialog.showError("Action Denied", "Security Guard: You cannot archive your own account.");
             return;
         }
-        String verb = activate ? "Restore" : "Archive";
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, verb + " " + selected.getFullName() + "?", ButtonType.YES, ButtonType.NO);
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                boolean success;
-                if (activate) {
-                    success = DatabaseHandler.restoreUser(selected.getUserId());
-                } else {
-                    success = DatabaseHandler.archiveUser(selected.getUserId());
-                }
 
-                if (success) {
-                    refreshUserTable();
-                    refreshStats();
-                }
+        String verb = activate ? "Restore" : "Archive";
+        String message = activate ?
+                "Are you sure you want to restore " + selected.getFullName() + "?" :
+                "Are you sure you want to archive " + selected.getFullName() + "? They will no longer be able to access the system.";
+
+        // Use custom confirmation dialog
+        boolean confirmed = CustomDialog.showConfirmation(
+                verb + " User",
+                message,
+                verb,
+                !activate // If NOT activating (i.e., archiving), make button Red. If activating, make button Blue.
+        );
+
+        if (confirmed) {
+            boolean success;
+            if (activate) {
+                success = DatabaseHandler.restoreUser(selected.getUserId());
+            } else {
+                success = DatabaseHandler.archiveUser(selected.getUserId());
             }
-        });
+
+            if (success) {
+                refreshUserTable();
+                refreshStats();
+            }
+        }
     }
 
     private void setupSearchLogic() {
@@ -129,9 +142,7 @@ public class AdminDashboardController {
 
     private void refreshStats() {
         totalMembersLabel.setText(String.valueOf(DatabaseHandler.getCountByType("member")));
-        activeMembersLabel.setText(String.valueOf(DatabaseHandler.getActiveMemberCount()));
         totalTrainersLabel.setText(String.valueOf(DatabaseHandler.getCountByType("trainer")));
-        activeTrainersLabel.setText(String.valueOf(DatabaseHandler.getCountByType("trainer")));
     }
 
     @FXML public void handleCreateAdmin() {
@@ -149,18 +160,24 @@ public class AdminDashboardController {
 
     private void handleDeleteUser(User selected) {
         if (selected == null) return;
+
         if (selected.getUserId() == MainApp.instance.currentUser.getUserId()) {
-            new Alert(Alert.AlertType.ERROR, "You cannot archive your own account.", ButtonType.OK).showAndWait();
+            CustomDialog.showError("Action Denied", "You cannot archive your own account.");
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Archive " + selected.getFullName() + "?", ButtonType.YES, ButtonType.NO);
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                if (DatabaseHandler.archiveUser(selected.getUserId())) {
-                    refreshUserTable(); refreshStats();
-                }
+
+        boolean confirmed = CustomDialog.showConfirmation(
+                "Archive User",
+                "Are you sure you want to archive " + selected.getFullName() + "?",
+                "Archive",
+                true // true = Red Button
+        );
+
+        if (confirmed) {
+            if (DatabaseHandler.archiveUser(selected.getUserId())) {
+                refreshUserTable(); refreshStats();
             }
-        });
+        }
     }
 
     private void handleEditUser(User selected) {

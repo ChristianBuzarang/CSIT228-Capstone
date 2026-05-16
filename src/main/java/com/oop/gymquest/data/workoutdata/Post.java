@@ -10,9 +10,9 @@ public class Post {
     private PostType type;
     private String timeAgo;
     private int reactions;
-    private boolean hasReacted;
+    private boolean isLiked;
 
-    public Post(int id, String userName, String content, String milestone, PostType type, String timeAgo, int reactions, boolean hasReacted) {
+    public Post(int id, String userName, String content, String milestone, PostType type, String timeAgo, int reactions, boolean isLiked) {
         this.id = id;
         this.userName = userName;
         this.content = content;
@@ -20,7 +20,7 @@ public class Post {
         this.type = type;
         this.timeAgo = timeAgo;
         this.reactions = reactions;
-        this.hasReacted = hasReacted;
+        this.isLiked = isLiked;
     }
 
     public int getId() { return id; }
@@ -30,5 +30,5 @@ public class Post {
     public PostType getType() { return type; }
     public String getTimeAgo() { return timeAgo; }
     public int getReactions() { return reactions; }
-    public boolean isHasReacted() { return hasReacted; }
+    public boolean isLiked() { return isLiked; }
 }

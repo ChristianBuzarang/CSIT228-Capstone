@@ -45,14 +45,6 @@ public class WorkoutsViewController {
         searchField.textProperty().addListener((obs, o, n) -> applyFilter());
     }
 
-    // ── Image loading ──────────────────────────────────────────────────────
-
-    /**
-     * Loads all six category images and the lock image once per JVM session.
-     * The static flag prevents reloading when the FXML is re-navigated to.
-     *
-     * Path convention: /com/oop/gymquest/images/<filename>.png
-     */
     private void loadAllImages() {
         if (imagesLoaded) return;
 
@@ -63,7 +55,6 @@ public class WorkoutsViewController {
         CATEGORY_IMAGES.put(WorkoutCategory.HIIT,        img("hiit.png",             40));
         CATEGORY_IMAGES.put(WorkoutCategory.BALANCE,     img("tightrope-walker.png", 40));
 
-        // Exercise images — same mapping by lowercase category string
         EXERCISE_IMAGES.put("strength",    img("muscle.png",           28));
         EXERCISE_IMAGES.put("cardio",      img("treadmill.png",        28));
         EXERCISE_IMAGES.put("core",        img("core.png",             28));
@@ -71,51 +62,34 @@ public class WorkoutsViewController {
         EXERCISE_IMAGES.put("hiit",        img("hiit.png",             28));
         EXERCISE_IMAGES.put("balance",     img("tightrope-walker.png", 28));
 
-        lockImage = img("lock.png", 32);   // optional — falls back gracefully if absent
+        lockImage = img("lock.png", 32);
 
         imagesLoaded = true;
     }
 
-    /** Loads a single image from the images resource folder. Returns null on failure. */
     private Image img(String filename, int size) {
         try {
             var url = getClass().getResource("/com/oop/gymquest/images/" + filename);
             if (url != null) return new Image(url.toExternalForm(), size, size, true, true);
-            System.err.println("[Images] Not found: " + filename);
         } catch (Exception e) {
             System.err.println("[Images] Could not load " + filename + ": " + e.getMessage());
         }
         return null;
     }
 
-    // ── Public static image accessors (used by ExercisePickerDialog, CustomWorkoutCreatorController) ─
-
-    /**
-     * Returns the category image for a {@link WorkoutCategory}.
-     * Returns {@code null} if images haven't been loaded yet or the file was missing.
-     */
     public static Image getCategoryImage(WorkoutCategory cat) {
         return cat != null ? CATEGORY_IMAGES.get(cat) : null;
     }
 
-    /**
-     * Returns the image for an exercise based on its category string
-     * (e.g. "strength", "cardio", "core", "flexibility").
-     * Falls back to the strength image, then null.
-     */
     public static Image getExerciseImage(String category) {
         if (category == null) return EXERCISE_IMAGES.get("strength");
         Image img = EXERCISE_IMAGES.get(category.toLowerCase());
         return img != null ? img : EXERCISE_IMAGES.get("strength");
     }
 
-    // ── Live catalog ───────────────────────────────────────────────────────
-
     private List<Workout> liveWorkouts() {
         return WorkoutDAO.getAllWorkouts();
     }
-
-    // ── Filter ─────────────────────────────────────────────────────────────
 
     private void applyFilter() {
         final String kw = searchField.getText() == null ? ""

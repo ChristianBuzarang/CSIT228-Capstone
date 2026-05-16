@@ -18,7 +18,6 @@ import java.util.Locale;
 
 public class MemberDashboardController {
     @FXML private VBox activeSessionsContainer, historySessionsContainer;
-    @FXML private Label totalWorkoutsLabel, weeklyWorkoutsLabel;
 
     @FXML
     public void initialize() {
@@ -28,25 +27,28 @@ public class MemberDashboardController {
     public void refreshDashboard() {
         int uid = MainApp.instance.currentUser.getUserId();
 
-        // 1. Load Stats
-        totalWorkoutsLabel.setText(String.valueOf(DatabaseHandler.getActiveMemberCount()));
-
-        // 2. Load Top 3 Active (Future/Today)
         activeSessionsContainer.getChildren().clear();
         try (ResultSet rs = DatabaseHandler.getTop3ActiveSessions(uid)) {
+            int count = 0;
             while (rs != null && rs.next()) {
                 activeSessionsContainer.getChildren().add(buildSessionCard(rs, true));
+                count++;
             }
-            if (activeSessionsContainer.getChildren().isEmpty()) showEmptyMsg(activeSessionsContainer);
+            if (count == 0) {
+                showEmptyPlaceholder(activeSessionsContainer, "No Upcoming Sessions", "Book a session to start your journey!");
+            }
         } catch (Exception e) { e.printStackTrace(); }
 
-        // 3. Load Top 3 History
         historySessionsContainer.getChildren().clear();
         try (ResultSet rs = DatabaseHandler.getTop3HistorySessions(uid)) {
+            int count = 0;
             while (rs != null && rs.next()) {
                 historySessionsContainer.getChildren().add(buildSessionCard(rs, false));
+                count++;
             }
-            if (historySessionsContainer.getChildren().isEmpty()) showEmptyMsg(historySessionsContainer);
+            if (count == 0) {
+                showEmptyPlaceholder(historySessionsContainer, "No Recent Activity", "Your completed sessions will appear here.");
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
@@ -57,30 +59,40 @@ public class MemberDashboardController {
         String time = rs.getString("slot_time");
 
         VBox card = new VBox(5);
-        card.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #f1f5f9; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: white; " +
+                "-fx-padding: 18; " +
+                "-fx-background-radius: 18; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4);");
 
         HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
 
-        // Icon
         StackPane iconBox = new StackPane();
-        iconBox.setStyle("-fx-background-color: #eff6ff; -fx-background-radius: 10; -fx-padding: 10;");
-        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
-        icon.setFitHeight(20); icon.setFitWidth(20);
-        iconBox.getChildren().add(icon);
+        iconBox.setStyle("-fx-background-color: #f1f5f9; -fx-background-radius: 12; -fx-padding: 12;");
 
-        VBox info = new VBox(2);
+        try {
+            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+            icon.setFitHeight(22);
+            icon.setFitWidth(22);
+            iconBox.getChildren().add(icon);
+        } catch (Exception e) {
+            iconBox.getChildren().add(new Label("📅"));
+        }
+
+        VBox info = new VBox(3);
         Label title = new Label(activity + " with " + trainer);
-        title.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b;");
+        title.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 14;");
+
         Label meta = new Label(date + " • " + time);
-        meta.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12;");
+        meta.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13;");
         info.getChildren().addAll(title, meta);
 
         row.getChildren().addAll(iconBox, info);
-        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         row.getChildren().add(spacer);
 
-        // Status Badge Logic
         if (checkStatus) {
             Label badge = calculateStatus(date, time);
             row.getChildren().add(badge);
@@ -111,16 +123,29 @@ public class MemberDashboardController {
         return badge;
     }
 
-    private void showEmptyMsg(VBox container) {
-        Label lbl = new Label("No recent sessions found.");
-        lbl.setStyle("-fx-text-fill: #94a3b8; -fx-padding: 10;");
-        container.getChildren().add(lbl);
+    private void showEmptyPlaceholder(VBox container, String title, String subtitle) {
+        VBox ph = new VBox(15);
+        ph.setAlignment(Pos.CENTER);
+        ph.setPadding(new Insets(40, 0, 40, 0));
+        ph.setOpacity(0.4);
+        ph.setStyle("-fx-background-color: transparent;");
+
+        try {
+            ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+            iv.setFitHeight(60); iv.setFitWidth(60);
+            ph.getChildren().add(iv);
+        } catch (Exception e) { /* fallback if image missing */ }
+
+        Label t = new Label(title);
+        t.setStyle("-fx-font-weight: bold; -fx-font-size: 18; -fx-text-fill: #1e293b;");
+        Label s = new Label(subtitle);
+        s.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13;");
+
+        ph.getChildren().addAll(t, s);
+        container.getChildren().add(ph);
     }
 
     @FXML private void handleSeeAll() {
         DashboardController.instance.loadView("sessions.fxml");
     }
-
-
-
 }

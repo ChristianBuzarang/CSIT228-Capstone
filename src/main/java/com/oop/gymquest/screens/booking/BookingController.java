@@ -6,14 +6,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -75,14 +71,11 @@ public class BookingController implements Initializable {
 
     private void showTrainers() {
         trainerPanel.getChildren().clear();
-
         Label availHeader = new Label("Available on " + selectedDate.format(DateTimeFormatter.ofPattern("MMMM d")));
         availHeader.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1e293b;");
         trainerPanel.getChildren().add(availHeader);
 
-        // Fetch real slots from the database
         try (ResultSet rs = DatabaseHandler.getAvailableSlots(selectedDate.toString())) {
-            // We use a Map to group slots by Trainer Name so one trainer has one card with many time buttons
             Map<String, VBox> trainerCards = new HashMap<>();
 
             while (rs != null && rs.next()) {
@@ -98,31 +91,30 @@ public class BookingController implements Initializable {
                     trainerPanel.getChildren().add(card);
                 }
 
-                // Add the specific time slot button to the card's FlowPane
                 FlowPane slotsPane = (FlowPane) trainerCards.get(coachName).getChildren().get(1);
                 Button slotBtn = createTimeSlotButton(slotId, coachName, time);
                 slotsPane.getChildren().add(slotBtn);
             }
 
             if (trainerCards.isEmpty()) {
-                Label noSlots = new Label("No trainers have posted availability for this date yet.");
-                noSlots.setStyle("-fx-text-fill: #64748b; -fx-padding: 20;");
-                trainerPanel.getChildren().add(noSlots);
+                VBox emptyPh = new VBox(15);
+                emptyPh.setAlignment(Pos.CENTER);
+                emptyPh.setPrefHeight(350); // Slightly shorter to account for header
+                emptyPh.setStyle("-fx-background-color: white; -fx-background-radius: 20;");
+
+                ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+                iv.setFitHeight(60); iv.setFitWidth(60);
+
+                Label t = new Label("No Schedules Found");
+                t.setStyle("-fx-font-weight: bold; -fx-font-size: 20; -fx-text-fill: #1e293b;");
+
+                Label s = new Label("No trainers have posted a schedule for this date yet.");
+                s.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14;");
+
+                emptyPh.getChildren().addAll(iv, t, s);
+                trainerPanel.getChildren().add(emptyPh);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Separator sep = new Separator();
-        sep.setPadding(new Insets(20, 0, 10, 0));
-        trainerPanel.getChildren().add(sep);
-
-        Label myBookingsHeader = new Label("Your Scheduled Sessions");
-        myBookingsHeader.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #3b82f6;");
-        trainerPanel.getChildren().add(myBookingsHeader);
-
-        loadMemberOwnedBookings();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private VBox createHighFidelityTrainerCard(String name, String avatar, String specialization) {
@@ -185,56 +177,23 @@ public class BookingController implements Initializable {
 
     private void showPlaceholder() {
         trainerPanel.getChildren().clear();
-        VBox ph = new VBox(15);
+
+        VBox ph = new VBox(18);
         ph.setAlignment(Pos.CENTER);
         ph.setPrefHeight(400);
-        ph.setStyle("-fx-background-color: white; -fx-background-radius: 20;");
+        ph.setOpacity(0.4);
+        ph.setStyle("-fx-background-color: transparent;");
 
         ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
-        iv.setFitHeight(60); iv.setFitWidth(60);
+        iv.setFitHeight(80);
+        iv.setFitWidth(80);
+
         Label t = new Label("Select a Date");
-        t.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
+        t.setStyle("-fx-font-weight: bold; -fx-font-size: 22; -fx-text-fill: #94a3b8;");
         Label s = new Label("Choose a day to view available trainer slots");
+        s.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 15;");
         ph.getChildren().addAll(iv, t, s);
         trainerPanel.getChildren().add(ph);
-    }
-
-    private void loadMemberOwnedBookings() {
-        int currentMemberId = MainApp.instance.currentUser.getUserId();
-
-        try (ResultSet rs = DatabaseHandler.getMemberBookings(currentMemberId)) {
-            boolean found = false;
-            while (rs != null && rs.next()) {
-                found = true;
-                VBox bookedCard = createConfirmedBookingCard(
-                        rs.getString("firstname") + " " + rs.getString("lastname"),
-                        rs.getString("slot_time"),
-                        rs.getString("slot_date"),
-                        rs.getString("activity")
-                );
-                trainerPanel.getChildren().add(bookedCard);
-            }
-
-            if (!found) {
-                Label none = new Label("You have no sessions booked yet.");
-                none.setStyle("-fx-text-fill: #94a3b8; -fx-italic: true;");
-                trainerPanel.getChildren().add(none);
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    private VBox createConfirmedBookingCard(String coach, String time, String date, String activity) {
-        VBox card = new VBox(5);
-        card.setStyle("-fx-background-color: #f0fdf4; -fx-border-color: #bbf7d0; -fx-border-width: 1; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 15;");
-
-        Label title = new Label("✅ Confirmed: " + activity);
-        title.setStyle("-fx-font-weight: bold; -fx-text-fill: #166534;");
-
-        Label details = new Label("With " + coach + " at " + time + " on " + date);
-        details.setStyle("-fx-text-fill: #15803d; -fx-font-size: 12;");
-
-        card.getChildren().addAll(title, details);
-        return card;
     }
 
     @FXML private void onPrevMonth() { currentYM = currentYM.minusMonths(1); selectedDate = null; refreshCalendar(); showPlaceholder(); }
