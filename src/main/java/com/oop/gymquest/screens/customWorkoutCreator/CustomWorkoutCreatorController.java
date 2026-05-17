@@ -59,7 +59,8 @@ public class CustomWorkoutCreatorController {
             return;
         }
 
-        int newId = WorkoutDAO.getAllWorkouts().size() + 100;
+        int currentUserId = MainApp.instance.currentUser.getUserId();
+        int newId = WorkoutDAO.getAllWorkouts(currentUserId).size() + 100;
 
         Workout newWorkout = new Workout(
                 newId, title, Workout.Difficulty.BEGINNER, estimateDuration(selectedExercises),
@@ -67,7 +68,7 @@ public class CustomWorkoutCreatorController {
                 "Custom routine: " + title + ".", null
         );
 
-        WorkoutDAO.createCustomWorkout(newWorkout);
+        WorkoutDAO.createCustomWorkout(newWorkout, currentUserId);
 
         Alert info = new Alert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts! 🎉", ButtonType.OK);
         info.setHeaderText("Workout Saved!");

@@ -87,10 +87,6 @@ public class DatabaseHandler {
                         "FOREIGN KEY (postid) REFERENCES posts(postid) ON DELETE CASCADE)");
 
                 // ── Workouts ──────────────────────────────────────────────────
-                // CHANGE 1: added created_by column.
-                //   NULL / 0 → system workout visible to everyone.
-                //   > 0      → custom workout; only visible to that user
-                //              (or shared via slot_workouts to trainer + client).
                 stmt.execute("CREATE TABLE IF NOT EXISTS workouts (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "title VARCHAR(255), " +
@@ -122,10 +118,6 @@ public class DatabaseHandler {
                         "sort_order INT DEFAULT 0, " +
                         "FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE)");
 
-                // CHANGE 2: slot_workouts junction table.
-                // Links a custom workout to a trainer slot for the trainer-client
-                // share rule. WorkoutDAO enforces who may INSERT and SELECT here.
-                // Both FK sides cascade-delete so no orphan rows are ever left.
                 stmt.execute("CREATE TABLE IF NOT EXISTS slot_workouts (" +
                         "slot_id INT NOT NULL, " +
                         "workout_id INT NOT NULL, " +
@@ -136,11 +128,6 @@ public class DatabaseHandler {
 
                 stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
 
-                // CHANGE 3: safe migration for existing databases.
-                // If the workouts table was created before this version (no
-                // created_by column), the ALTER below adds it exactly once.
-                // On every subsequent startup the duplicate-column exception is
-                // swallowed so startup is never blocked.
                 try {
                     stmt.execute(
                         "ALTER TABLE workouts " +
@@ -158,8 +145,6 @@ public class DatabaseHandler {
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
-
-    // ── AUTH & USER MANAGEMENT ──
 
     public static User authenticate(String email, String pass) {
         String sql = "SELECT * FROM users WHERE email = ? AND password = ? AND is_active = 1";

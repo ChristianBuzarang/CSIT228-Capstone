@@ -62,7 +62,11 @@ public class WorkoutsViewController {
         final String kw = searchField.getText() == null ? "" : searchField.getText().toLowerCase();
         final boolean hasKw = !kw.isBlank();
 
-        List<Workout> filtered = WorkoutDAO.getAllWorkouts().stream()
+        // 🟢 FIX: We get the current user's ID
+        int currentUserId = MainApp.instance.currentUser.getUserId();
+
+        // 🟢 FIX: We pass the ID to the DAO so it ONLY returns system workouts + THIS user's custom workouts!
+        List<Workout> filtered = WorkoutDAO.getAllWorkouts(currentUserId).stream()
                 .filter(w -> !hasKw || w.getTitle().toLowerCase().contains(kw) ||
                         (w.getDescription() != null && w.getDescription().toLowerCase().contains(kw)))
                 .toList();

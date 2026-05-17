@@ -9,35 +9,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 public class WorkoutDAO {
-
-    // ── In-memory cache ────────────────────────────────────────────────────
-    // Holds EVERY workout from the DB (system + all custom).
-    // Visibility filtering is applied at read time in getAllWorkouts(userId).
     private static final List<Workout> runtimeCache = new ArrayList<>();
     private static boolean cacheInitialized = false;
-
-    // ── Public API ─────────────────────────────────────────────────────────
-
 
     public static List<Workout> getAllWorkouts(int userId) {
         if (!cacheInitialized) initializeCache();
 
         return runtimeCache.stream()
-            .filter(w -> !w.isCustom() || w.getCreatedBy() == userId)
-            .toList();
+                .filter(w -> !w.isCustom() || w.getCreatedBy() == userId)
+                .toList();
     }
-
 
     @Deprecated
     public static List<Workout> getAllWorkouts() {
         if (!cacheInitialized) initializeCache();
         return Collections.unmodifiableList(runtimeCache);
     }
-
-    // ── Create ─────────────────────────────────────────────────────────────
-
 
     public static boolean createCustomWorkout(Workout workout, int userId) {
         if (!cacheInitialized) initializeCache();
@@ -48,9 +36,9 @@ public class WorkoutDAO {
         boolean dbSuccess = false;
 
         String workoutSql =
-            "INSERT INTO workouts "
-          + "(title, difficulty, duration, category, description, is_custom, locked, created_by) "
-          + "VALUES (?, ?, ?, ?, ?, 1, 0, ?)";
+                "INSERT INTO workouts "
+                        + "(title, difficulty, duration, category, description, is_custom, locked, created_by) "
+                        + "VALUES (?, ?, ?, ?, ?, 1, 0, ?)";
 
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(workoutSql, Statement.RETURN_GENERATED_KEYS)) {
@@ -60,7 +48,12 @@ public class WorkoutDAO {
             ps.setString(3, workout.getDuration());
             ps.setString(4, workout.getCategory().name());
             ps.setString(5, workout.getDescription());
-            ps.setInt   (6, userId);
+
+            if (userId > 0) {
+                ps.setInt(6, userId);
+            } else {
+                ps.setNull(6, java.sql.Types.INTEGER);
+            }
 
             dbSuccess = ps.executeUpdate() > 0;
 
@@ -72,32 +65,23 @@ public class WorkoutDAO {
             }
 
         } catch (Exception e) {
-            System.err.println("[WorkoutDAO] DB write failed (in-memory only): " + e.getMessage());
+            System.err.println("[WorkoutDAO] DB write failed: " + e.getMessage());
         }
 
         runtimeCache.add(workout);
         return dbSuccess;
     }
 
-    /**
-     * Legacy overload without userId — marks workout as unowned (createdBy = 0).
-     *
-     * @deprecated Use {@link #createCustomWorkout(Workout, int)} so ownership
-     *             is recorded and visibility filtering works correctly.
-     */
     @Deprecated
     public static boolean createCustomWorkout(Workout workout) {
         return createCustomWorkout(workout, 0);
     }
 
-    // ── Slot attachment ────────────────────────────────────────────────────
-
-
     public static boolean attachWorkoutToSlot(int workoutId, int slotId, int requesterId) {
         // Guard: requester must be the booked member for this slot
         if (!isBookedMember(slotId, requesterId)) {
             System.err.println("[WorkoutDAO] attachWorkoutToSlot denied: user "
-                + requesterId + " is not the booked member for slot " + slotId);
+                    + requesterId + " is not the booked member for slot " + slotId);
             return false;
         }
 
@@ -139,11 +123,11 @@ public class WorkoutDAO {
         List<Workout> result = new ArrayList<>();
 
         String sql =
-            "SELECT w.id, w.title, w.difficulty, w.duration, w.category, "
-          + "       w.description, w.locked, w.is_custom, w.created_by "
-          + "FROM workouts w "
-          + "JOIN slot_workouts sw ON sw.workout_id = w.id "
-          + "WHERE sw.slot_id = ?";
+                "SELECT w.id, w.title, w.difficulty, w.duration, w.category, "
+                        + "       w.description, w.locked, w.is_custom, w.created_by "
+                        + "FROM workouts w "
+                        + "JOIN slot_workouts sw ON sw.workout_id = w.id "
+                        + "WHERE sw.slot_id = ?";
 
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -160,9 +144,6 @@ public class WorkoutDAO {
         return Collections.unmodifiableList(result);
     }
 
-    // ── Remove ─────────────────────────────────────────────────────────────
-
-
     public static boolean removeWorkout(int workoutId) {
         boolean removed = runtimeCache.removeIf(w -> w.getId() == workoutId);
         if (!removed) {
@@ -176,20 +157,15 @@ public class WorkoutDAO {
             ps.setInt(1, workoutId);
             ps.executeUpdate();
         } catch (Exception e) {
-            System.err.println("[WorkoutDAO] DB delete failed (removed from cache): " + e.getMessage());
+            System.err.println("[WorkoutDAO] DB delete failed: " + e.getMessage());
         }
         return true;
     }
-
-    // ── Cache invalidation ─────────────────────────────────────────────────
-
 
     public static synchronized void invalidateCache() {
         runtimeCache.clear();
         cacheInitialized = false;
     }
-
-    // ── Cache initialization ───────────────────────────────────────────────
 
     private static synchronized void initializeCache() {
         if (cacheInitialized) return;
@@ -197,16 +173,16 @@ public class WorkoutDAO {
             loadFromDatabase();
         } catch (Exception e) {
             System.err.println("[WorkoutDAO] DB unavailable, starting with empty catalog: "
-                + e.getMessage());
+                    + e.getMessage());
         }
         cacheInitialized = true;
     }
 
     private static void loadFromDatabase() throws SQLException {
         String workoutSql =
-            "SELECT id, title, difficulty, duration, category, description, "
-          + "       locked, is_custom, created_by "
-          + "FROM workouts ORDER BY id";
+                "SELECT id, title, difficulty, duration, category, description, "
+                        + "       locked, is_custom, created_by "
+                        + "FROM workouts ORDER BY id";
 
         try (Connection c = MySQLConnection.getConnection();
              Statement st = c.createStatement();
@@ -218,39 +194,33 @@ public class WorkoutDAO {
         }
     }
 
-    // ── Row mapping ────────────────────────────────────────────────────────
-
-
     private static Workout mapWorkoutRow(Connection c, ResultSet rs) throws SQLException {
         int wid = rs.getInt("id");
-
         List<Exercise> exercises = loadExercisesForWorkout(c, wid);
-
         WorkoutCategory    cat  = parseCategory  (rs.getString("category"));
         Workout.Difficulty diff = parseDifficulty(rs.getString("difficulty"));
 
         Workout w = new Workout(
-            wid,
-            rs.getString("title"),
-            diff,
-            rs.getString("duration"),
-            rs.getBoolean("locked"),
-            exercises,
-            cat,
-            rs.getString("description"),
-            null
+                wid,
+                rs.getString("title"),
+                diff,
+                rs.getString("duration"),
+                rs.getBoolean("locked"),
+                exercises,
+                cat,
+                rs.getString("description"),
+                null
         );
         w.setCustom   (rs.getBoolean("is_custom"));
-        w.setCreatedBy(rs.getInt    ("created_by"));   // 0 for system workouts
-
+        w.setCreatedBy(rs.getInt    ("created_by"));
         return w;
     }
 
     private static List<Exercise> loadExercisesForWorkout(Connection c, int workoutId)
             throws SQLException {
         String sql =
-            "SELECT id, name, sets, reps, emoji, category "
-          + "FROM workout_exercises WHERE workout_id = ? ORDER BY sort_order";
+                "SELECT id, name, sets, reps, emoji, category "
+                        + "FROM workout_exercises WHERE workout_id = ? ORDER BY sort_order";
 
         List<Exercise> exercises = new ArrayList<>();
         try (PreparedStatement ps = c.prepareStatement(sql)) {
@@ -258,21 +228,18 @@ public class WorkoutDAO {
             try (ResultSet ers = ps.executeQuery()) {
                 while (ers.next()) {
                     exercises.add(new Exercise(
-                        ers.getInt   ("id"),
-                        ers.getString("name"),
-                        ers.getInt   ("sets"),
-                        ers.getString("reps"),
-                        ers.getString("emoji"),
-                        ers.getString("category")
+                            ers.getInt   ("id"),
+                            ers.getString("name"),
+                            ers.getInt   ("sets"),
+                            ers.getString("reps"),
+                            ers.getString("emoji"),
+                            ers.getString("category")
                     ));
                 }
             }
         }
         return exercises;
     }
-
-    // ── Slot access guards ─────────────────────────────────────────────────
-
 
     private static boolean isBookedMember(int slotId, int userId) {
         String sql = "SELECT 1 FROM trainer_slots WHERE slot_id = ? AND member_id = ?";
@@ -281,8 +248,8 @@ public class WorkoutDAO {
 
     private static boolean canAccessSlot(int slotId, int userId) {
         String sql =
-            "SELECT 1 FROM trainer_slots "
-          + "WHERE slot_id = ? AND (member_id = ? OR trainer_id = ?)";
+                "SELECT 1 FROM trainer_slots "
+                        + "WHERE slot_id = ? AND (member_id = ? OR trainer_id = ?)";
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, slotId);
@@ -311,16 +278,12 @@ public class WorkoutDAO {
         }
     }
 
-    // ── Exercise persistence ───────────────────────────────────────────────
-
-    private static void saveWorkoutExercises(Connection c, int workoutId,
-                                             List<Exercise> exercises) throws SQLException {
+    private static void saveWorkoutExercises(Connection c, int workoutId, List<Exercise> exercises) throws SQLException {
         if (exercises == null || exercises.isEmpty()) return;
-
         String sql =
-            "INSERT INTO workout_exercises "
-          + "(workout_id, name, sets, reps, emoji, category, sort_order) "
-          + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "INSERT INTO workout_exercises "
+                        + "(workout_id, name, sets, reps, emoji, category, sort_order) "
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             for (int i = 0; i < exercises.size(); i++) {
@@ -337,8 +300,6 @@ public class WorkoutDAO {
             ps.executeBatch();
         }
     }
-
-    // ── Parse helpers ──────────────────────────────────────────────────────
 
     private static WorkoutCategory parseCategory(String raw) {
         if (raw == null) return WorkoutCategory.STRENGTH;
