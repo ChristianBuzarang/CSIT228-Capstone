@@ -5,4 +5,9 @@ public class Trainer extends User {
     }
     @Override
     public String getType() { return "trainer"; }
+
+    @Override
+    public void userInfo(){
+        System.out.println(getType().toUpperCase() + " - " + getFirstName() + " " + getLastName() + " ");
+    }
 }

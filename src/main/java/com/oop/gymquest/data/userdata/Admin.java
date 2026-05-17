@@ -6,4 +6,9 @@ public class Admin extends User {
     }
     @Override
     public String getType() { return "admin"; }
+
+    @Override
+    public void userInfo(){
+        System.out.println(getType().toUpperCase() + " - " + getFirstName() + " " + getLastName() + " ");
+    }
 }

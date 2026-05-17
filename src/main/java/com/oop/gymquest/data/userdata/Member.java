@@ -6,4 +6,9 @@ public class Member extends User {
     }
     @Override
     public String getType() { return "member"; }
+
+    @Override
+    public void userInfo(){
+        System.out.println(getType().toUpperCase() + " - " + getFirstName() + " " + getLastName() + " ");
+    }
 }

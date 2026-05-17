@@ -37,4 +37,6 @@ public abstract class User implements Serializable {
     public void setLastName(String lastname) { this.lastname = lastname; }
     public void setAvatar(String avatar) { this.avatar = avatar; }
     public void setActive(boolean active) { isActive = active; }
+
+    public abstract void userInfo();
 }

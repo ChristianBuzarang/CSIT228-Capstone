@@ -46,6 +46,9 @@ public class LoginController {
 
         User user = DatabaseHandler.authenticate(username, password);
         if (user != null) {
+
+            user.userInfo(); // abstract method
+
             MainApp.instance.currentUser = user;
             MainApp.instance.saveSession(user);
             MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
