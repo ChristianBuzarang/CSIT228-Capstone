@@ -61,13 +61,12 @@ public class WorkoutsViewController {
         final String kw = searchField.getText() == null ? "" : searchField.getText().toLowerCase();
         final boolean hasKw = !kw.isBlank();
         int currentUserId = MainApp.instance.currentUser.getUserId();
-
-        List<Workout> filtered = WorkoutDAO.getAllWorkouts(currentUserId).stream()
-                .filter(w -> !hasKw || w.getTitle().toLowerCase().contains(kw) ||
-                        (w.getDescription() != null && w.getDescription().toLowerCase().contains(kw)))
-                .sorted((w1, w2) -> Integer.compare(w2.getId(), w1.getId()))
-                .toList();
-
+        List<Workout> allWorkouts = WorkoutDAO.getAllWorkouts(currentUserId);
+        List<Workout> filtered = WorkoutDAO.filterList(allWorkouts, w ->
+                !hasKw || w.getTitle().toLowerCase().contains(kw) ||
+                        (w.getDescription() != null && w.getDescription().toLowerCase().contains(kw))
+        );
+        filtered.sort((w1, w2) -> Integer.compare(w2.getId(), w1.getId()));
         renderCards(filtered);
     }
 

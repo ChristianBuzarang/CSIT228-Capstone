@@ -10,15 +10,35 @@ public class MySQLConnection {
     public static final String USERNAME = "root";
     public static final String PASSWORD = "";
 
-    public static Connection getConnection() {
-        Connection c = null;
+    private static MySQLConnection instance;
+
+    private MySQLConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static synchronized MySQLConnection getInstance() {
+        if (instance == null) {
+            instance = new MySQLConnection();
+            System.out.println("MySQLConnection Singleton Initialized.");
+        }
+        return instance;
+    }
+
+    public Connection getDbConnection() {
+        Connection c = null;
+        try {
             c = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("Connected to database successfully!");
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return c;
+    }
+
+    public static Connection getConnection() {
+        return getInstance().getDbConnection();
     }
 }

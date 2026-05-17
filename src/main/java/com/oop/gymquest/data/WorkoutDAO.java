@@ -203,4 +203,15 @@ public class WorkoutDAO {
         try { return Workout.Difficulty.valueOf(raw.toUpperCase()); }
         catch (IllegalArgumentException e) { return Workout.Difficulty.BEGINNER; }
     }
+
+    // GENERIC FUNCTION: Can take a List of ANY type <T> and filter it using a Predicate
+    public static <T> List<T> filterList(List<T> list, java.util.function.Predicate<T> condition) {
+        List<T> filteredList = new ArrayList<>();
+        for (T item : list) {
+            if (condition.test(item)) {
+                filteredList.add(item);
+            }
+        }
+        return filteredList;
+    }
 }

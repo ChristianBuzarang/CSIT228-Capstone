@@ -17,20 +17,20 @@ import java.util.List;
 public class ExercisePickerDialog extends Dialog<Exercise> {
 
     private static final Object[][] STATIC_EXERCISES = {
-            {"Bench Press",          4, "8-10",    "🏋️", "strength"},
+            {"Bench Press",          4, "8",    "🏋️", "strength"},
             {"Overhead Press",       3, "10",      "🏋️", "strength"},
-            {"Barbell Row",          4, "8-10",    "🏋️", "strength"},
-            {"Pull-ups",             3, "6-8",     "💪", "strength"},
-            {"Push-ups",             3, "10-12",   "💪", "strength"},
+            {"Barbell Row",          4, "8",    "🏋️", "strength"},
+            {"Pull-ups",             3, "8",     "💪", "strength"},
+            {"Push-ups",             3, "15",   "💪", "strength"},
             {"Dumbbell Curl",        3, "12",      "💪", "strength"},
             {"Tricep Dips",          3, "10",      "🔥", "strength"},
-            {"Lunges",               3, "10 each", "🏃", "strength"},
+            {"Lunges",               3, "10", "🏃", "strength"},
             {"Treadmill Sprint",     5, "30 sec",  "🏃", "cardio"},
-            {"Jump Rope",            3, "1 min",   "🪢", "cardio"},
+            {"Jump Rope",            3, "60 sec",   "🪢", "cardio"},
             {"Cycling",              1, "20 min",  "🚴", "cardio"},
             {"Plank",                3, "45 sec",  "🧘", "core"},
             {"Crunches",             4, "20",      "🔥", "core"},
-            {"Russian Twists",       3, "15 each", "🌀", "core"},
+            {"Russian Twists",       3, "15", "🌀", "core"},
             {"Leg Raises",           3, "12",      "🦵", "core"},
             {"Bicycle Crunch",       3, "20",      "🔥", "core"},
             {"Mountain Climbers",    3, "20",      "⛰️", "core"},
@@ -38,23 +38,23 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             {"Hip Flexor Stretch",   2, "30 sec",  "🧘", "flexibility"},
             {"Hamstring Stretch",    2, "30 sec",  "🦵", "flexibility"},
             {"Shoulder Stretch",     2, "30 sec",  "💪", "flexibility"},
-            {"Cat-Cow Stretch",      1, "1 min",   "🐱", "flexibility"},
-            {"Child's Pose",         1, "1 min",   "🧘", "flexibility"},
+            {"Cat-Cow Stretch",      1, "60 sec",   "🐱", "flexibility"},
+            {"Child's Pose",         1, "60 sec",   "🧘", "flexibility"},
             {"Quad Stretch",         2, "30 sec",  "🦵", "flexibility"},
             {"Burpees",              5, "10",      "💥", "hiit"},
             {"Squat Jumps",          4, "15",      "💥", "hiit"},
             {"Push-up to T-Raise",   3, "10",      "💥", "hiit"},
-            {"Lateral Bound",        3, "12 each", "💥", "hiit"},
+            {"Lateral Bound",        3, "12", "💥", "hiit"},
             {"Tuck Jumps",           4, "12",      "💥", "hiit"},
             {"Plyo Push-ups",        3, "10",      "💥", "hiit"},
             {"Broad Jump",           4, "8",       "💥", "hiit"},
             {"Single-Leg Stand",     3, "30 sec",  "🧍", "balance"},
-            {"Single-Leg RDL",       3, "8 each",  "🧍", "balance"},
+            {"Single-Leg RDL",       3, "8",  "🧍", "balance"},
             {"Bosu Ball Squat",      3, "12",      "🟣", "balance"},
-            {"Pistol Squat",         3, "5 each",  "🦵", "balance"},
-            {"Heel-to-Toe Walk",     3, "15 steps","👣", "balance"},
+            {"Pistol Squat",         3, "5",  "🦵", "balance"},
+            {"Heel-to-Toe Walk",     3, "15","👣", "balance"},
             {"Tree Pose",            2, "30 sec",  "🧘", "balance"},
-            {"Lateral Step-over",    3, "10 each", "🧍", "balance"}
+            {"Lateral Step-over",    3, "10", "🧍", "balance"}
     };
 
     private static final String NAVY    = "#1e3a5f";
@@ -71,7 +71,7 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     private String          activeCategory = null;
 
     private final Label            selectedNameLbl = new Label("Select an exercise to add...");
-    private final Spinner<Integer> setsSpinner     = new Spinner<>(1, 20, 0);
+    private final Spinner<Integer> setsSpinner     = new Spinner<>(1, 20, 3);
     private final TextField        repsField       = new TextField();
     private Button                 addBtnRef;
 
@@ -308,9 +308,9 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
 
             selectedNameLbl.setText(exercise.getName());
             setsSpinner.setDisable(false);
-            setsSpinner.getValueFactory().setValue(0);
+            setsSpinner.getValueFactory().setValue(exercise.getSets());
             repsField.setDisable(false);
-            repsField.setText("1");
+            repsField.setText(exercise.getReps());
 
             addBtnRef.setDisable(false);
             addBtnRef.setStyle("-fx-background-color: " + catColor + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 24; -fx-cursor: hand;");

@@ -20,11 +20,13 @@
             <HBox spacing="15" alignment="CENTER_LEFT">
                 <Button fx:id="editProfileBtn" text="Edit Profile" onAction="#handleEditProfile"
                         style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10;
-                -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
-
+                        -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
                 <Button fx:id="changeNameBtn" text="Change Name" onAction="#handleChangeName"
                         style="-fx-background-color: #eff6ff; -fx-text-fill: #3b82f6; -fx-background-radius: 10;
-                -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                        -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                <Button fx:id="exportDataBtn" text="Export Data" onAction="#handleExportData"
+                        style="-fx-background-color: #f0fdf4; -fx-text-fill: #16a34a; -fx-background-radius: 10;
+                        -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
             </HBox>
         </VBox>
     </HBox>

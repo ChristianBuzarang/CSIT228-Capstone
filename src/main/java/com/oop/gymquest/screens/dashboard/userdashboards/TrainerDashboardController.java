@@ -11,7 +11,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.sql.ResultSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TrainerDashboardController {
