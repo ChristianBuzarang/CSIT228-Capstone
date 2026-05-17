@@ -88,7 +88,13 @@ public class WorkoutsViewController {
     }
 
     private List<Workout> liveWorkouts() {
-        return WorkoutDAO.getAllWorkouts();
+        // Pass the logged-in user's id so WorkoutDAO returns only:
+        //   • All system workouts (createdBy == 0), and
+        //   • Custom workouts this specific user created.
+        int userId = (MainApp.instance.currentUser != null)
+                     ? MainApp.instance.currentUser.getUserId()
+                     : 0;
+        return WorkoutDAO.getAllWorkouts(userId);
     }
 
     private void applyFilter() {
@@ -272,7 +278,12 @@ public class WorkoutsViewController {
         HBox topRow = new HBox(iconPane);
         topRow.setAlignment(Pos.CENTER_LEFT);
 
-        if (workout.isCustom()) {
+        // Only the user who created this workout may delete it.
+        int currentUserId = (MainApp.instance.currentUser != null)
+                            ? MainApp.instance.currentUser.getUserId() : -1;
+        boolean isOwner = workout.isCustom() && workout.getCreatedBy() == currentUserId;
+
+        if (isOwner) {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -472,13 +483,6 @@ public class WorkoutsViewController {
         dialog.showAndWait();
     }
 
-    /**
-     * Builds a small square icon pane for an exercise using the category image.
-     * Used in both the detail dialog and the custom workout creator exercise rows.
-     *
-     * @param category lowercase category string (e.g. "strength", "cardio")
-     * @param imageSize pixel size for the image inside the icon pane
-     */
     public static StackPane buildExerciseIcon(String category, int imageSize) {
         StackPane pane = new StackPane();
         pane.setPrefSize(imageSize + 14, imageSize + 14);

@@ -86,7 +86,11 @@ public class DatabaseHandler {
                         "FOREIGN KEY (userid) REFERENCES users(userid) ON DELETE CASCADE, " +
                         "FOREIGN KEY (postid) REFERENCES posts(postid) ON DELETE CASCADE)");
 
-                // ── Workouts (Required by WorkoutDAO) ──
+                // ── Workouts ──────────────────────────────────────────────────
+                // CHANGE 1: added created_by column.
+                //   NULL / 0 → system workout visible to everyone.
+                //   > 0      → custom workout; only visible to that user
+                //              (or shared via slot_workouts to trainer + client).
                 stmt.execute("CREATE TABLE IF NOT EXISTS workouts (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "title VARCHAR(255), " +
@@ -95,14 +99,16 @@ public class DatabaseHandler {
                         "category VARCHAR(50), " +
                         "description TEXT, " +
                         "locked TINYINT(1) DEFAULT 0, " +
-                        "is_custom TINYINT(1) DEFAULT 1)");
+                        "is_custom TINYINT(1) DEFAULT 1, " +
+                        "created_by INT DEFAULT NULL, " +
+                        "FOREIGN KEY (created_by) REFERENCES users(userid) ON DELETE SET NULL)");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS exercises (" +
                         "id INT PRIMARY KEY AUTO_INCREMENT, " +
                         "name VARCHAR(255) NOT NULL, " +
                         "sets INT DEFAULT 3, " +
                         "reps VARCHAR(50) DEFAULT '10', " +
-                        "emoji VARCHAR(20) DEFAULT '💪', " +
+                        "emoji VARCHAR(20) DEFAULT '', " +
                         "category VARCHAR(50) DEFAULT 'strength')");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS workout_exercises (" +
@@ -111,12 +117,41 @@ public class DatabaseHandler {
                         "name VARCHAR(255) NOT NULL, " +
                         "sets INT DEFAULT 3, " +
                         "reps VARCHAR(50) DEFAULT '10', " +
-                        "emoji VARCHAR(20) DEFAULT '💪', " +
+                        "emoji VARCHAR(20) DEFAULT '', " +
                         "category VARCHAR(50) DEFAULT 'strength', " +
                         "sort_order INT DEFAULT 0, " +
                         "FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE)");
 
+                // CHANGE 2: slot_workouts junction table.
+                // Links a custom workout to a trainer slot for the trainer-client
+                // share rule. WorkoutDAO enforces who may INSERT and SELECT here.
+                // Both FK sides cascade-delete so no orphan rows are ever left.
+                stmt.execute("CREATE TABLE IF NOT EXISTS slot_workouts (" +
+                        "slot_id INT NOT NULL, " +
+                        "workout_id INT NOT NULL, " +
+                        "attached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                        "PRIMARY KEY (slot_id, workout_id), " +
+                        "FOREIGN KEY (slot_id) REFERENCES trainer_slots(slot_id) ON DELETE CASCADE, " +
+                        "FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE)");
+
                 stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+                // CHANGE 3: safe migration for existing databases.
+                // If the workouts table was created before this version (no
+                // created_by column), the ALTER below adds it exactly once.
+                // On every subsequent startup the duplicate-column exception is
+                // swallowed so startup is never blocked.
+                try {
+                    stmt.execute(
+                        "ALTER TABLE workouts " +
+                        "ADD COLUMN created_by INT DEFAULT NULL, " +
+                        "ADD CONSTRAINT fk_workout_creator " +
+                        "FOREIGN KEY (created_by) REFERENCES users(userid) ON DELETE SET NULL"
+                    );
+                    System.out.println("[DatabaseHandler] Migration: added created_by to workouts.");
+                } catch (SQLException ignored) {
+                    // Column / constraint already exists — safe to ignore.
+                }
 
                 seedExerciseLibraryIfEmpty(conn);
                 registerUser("admin", "1234", "System", "Admin", "admin");
@@ -364,19 +399,14 @@ public class DatabaseHandler {
         }
     }
 
-
     public static boolean updateUser(int userId, String email, String fname, String lname, String type) {
         String updateUsersTable = "UPDATE users SET email = ?, firstname = ?, lastname = ?, type = ? WHERE userid = ?";
-
-        // SQL to manage role-specific table entries during a role change
         String deleteOldRole = "DELETE FROM %s WHERE userid = ?";
         String insertNewRole = "INSERT IGNORE INTO %s (userid) VALUES (?)";
 
         try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false); // Start transaction
-
+            conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(updateUsersTable)) {
-                // 1. Get current role to check for changes
                 String currentType = "";
                 try (PreparedStatement checkPs = conn.prepareStatement("SELECT type FROM users WHERE userid = ?")) {
                     checkPs.setInt(1, userId);
@@ -384,7 +414,6 @@ public class DatabaseHandler {
                     if (rs.next()) currentType = rs.getString("type").toLowerCase();
                 }
 
-                // 2. Update the main users table
                 ps.setString(1, email);
                 ps.setString(2, fname);
                 ps.setString(3, lname);
@@ -393,9 +422,7 @@ public class DatabaseHandler {
 
                 int rowsAffected = ps.executeUpdate();
 
-                // 3. If type changed, sync role-specific tables
                 if (rowsAffected > 0 && !currentType.equals(type.toLowerCase())) {
-                    // Remove from old role table (e.g., members)
                     String oldTable = getTableNameFromRole(currentType);
                     if (oldTable != null) {
                         try (PreparedStatement delPs = conn.prepareStatement(String.format(deleteOldRole, oldTable))) {
@@ -403,8 +430,6 @@ public class DatabaseHandler {
                             delPs.executeUpdate();
                         }
                     }
-
-                    // Add to new role table (e.g., trainers)
                     String newTable = getTableNameFromRole(type.toLowerCase());
                     if (newTable != null) {
                         try (PreparedStatement insPs = conn.prepareStatement(String.format(insertNewRole, newTable))) {
@@ -414,7 +439,7 @@ public class DatabaseHandler {
                     }
                 }
 
-                conn.commit(); // Finalize all changes
+                conn.commit();
                 return rowsAffected > 0;
 
             } catch (SQLException e) {
@@ -428,9 +453,6 @@ public class DatabaseHandler {
         }
     }
 
-    /**
-     * Helper to map user types to their respective database table names.
-     */
     private static String getTableNameFromRole(String type) {
         return switch (type.toLowerCase()) {
             case "admin" -> "admins";
@@ -465,7 +487,6 @@ public class DatabaseHandler {
         }
     }
 
-
     public static ResultSet getMemberSessionsToday(int memberId) {
         String sql = "SELECT s.*, u.firstname, u.lastname, " +
                 "TIME_FORMAT(s.slot_time, '%h:%i %p') as formatted_time " +
@@ -474,7 +495,6 @@ public class DatabaseHandler {
                 "WHERE s.member_id = ? AND s.slot_date = CURDATE() " +
                 "ORDER BY s.slot_time ASC";
         try {
-            // Note: Connection remains open so the ResultSet can be read by the caller.
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, memberId);
@@ -484,7 +504,6 @@ public class DatabaseHandler {
             return null;
         }
     }
-
 
     public static int getUniqueClientCount(int trainerId) {
         String sql = "SELECT COUNT(DISTINCT member_id) FROM trainer_slots " +
@@ -505,18 +524,14 @@ public class DatabaseHandler {
     public static boolean addTrainerSlot(int tid, String type, String date, String time, String dur) {
         String sql = "INSERT INTO trainer_slots (trainer_id, activity, slot_date, slot_time, duration, status) " +
                 "VALUES (?, ?, ?, ?, ?, 'Available')";
-
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, tid);
             ps.setString(2, type);
             ps.setString(3, date);
             ps.setString(4, time);
             ps.setString(5, dur);
-
             return ps.executeUpdate() > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -639,7 +654,7 @@ public class DatabaseHandler {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching total trainer slots: " + e.getMessage());
+            System.err.println("Error fetching total trainer slots: " + e.getMessage());
             e.printStackTrace();
         }
         return 0;

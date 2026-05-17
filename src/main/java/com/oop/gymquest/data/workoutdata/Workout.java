@@ -14,11 +14,13 @@ public class Workout {
     private WorkoutCategory  category;
     private String           description;
     private String           imagePath;
-    private boolean          custom = false;
+    private boolean          custom   = false;
+
+    private int              createdBy = 0;
 
     public enum Difficulty { BEGINNER, INTERMEDIATE, ADVANCED }
 
-    // ── Full constructor ──────────────────────────────────────────────────
+    // ── Full constructor ───────────────────────────────────────────────────
 
     public Workout(int id, String title, Difficulty difficulty, String duration,
                    boolean locked, List<Exercise> exercises,
@@ -54,17 +56,20 @@ public class Workout {
     public String          getImagePath()   { return imagePath; }
     public boolean         isCustom()       { return custom; }
 
+
+    public int             getCreatedBy()   { return createdBy; }
+
     // ── Setters ───────────────────────────────────────────────────────────
 
-    /**
-     * Allows WorkoutDAO to back-fill the auto-generated database id after an
-     * INSERT, so that subsequent removeWorkout() calls match the correct row.
-     */
+
     public void setId(int id)                      { this.id = id; }
 
     public void setCustom(boolean custom)          { this.custom = custom; }
     public void setDescription(String description) { this.description = description; }
     public void setImagePath(String imagePath)     { this.imagePath = imagePath; }
+
+
+    public void setCreatedBy(int createdBy)        { this.createdBy = createdBy; }
 
     public void setCategory(WorkoutCategory category) {
         if (category == null) throw new IllegalArgumentException("Category must not be null.");
@@ -83,7 +88,8 @@ public class Workout {
 
     @Override
     public String toString() {
-        return String.format("Workout{id=%d, title='%s', category=%s, difficulty=%s, custom=%b}",
-                id, title, category, difficulty, custom);
+        return String.format(
+            "Workout{id=%d, title='%s', category=%s, difficulty=%s, custom=%b, createdBy=%d}",
+            id, title, category, difficulty, custom, createdBy);
     }
 }

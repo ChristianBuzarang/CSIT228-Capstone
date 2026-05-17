@@ -9,52 +9,49 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * WorkoutDAO
- *
- * ── Bug fixes in this version ──────────────────────────────────────────────
- *  FIX 1 — createCustomWorkout() now also INSERTs each Exercise into the
- *           workout_exercises table.  Previously only the workout header row
- *           was saved, so exercises were lost on app restart.
- *
- *  FIX 2 — loadFromDatabase() reads workout_exercises to rehydrate exercises.
- *           The query now works because DatabaseHandler.init() creates both
- *           the workouts and workout_exercises tables.
- *
- *  FIX 3 — removeWorkout() uses a single DELETE on workouts; the workout_exercises
- *           rows are removed automatically via ON DELETE CASCADE.
- */
+
 public class WorkoutDAO {
 
     // ── In-memory cache ────────────────────────────────────────────────────
+    // Holds EVERY workout from the DB (system + all custom).
+    // Visibility filtering is applied at read time in getAllWorkouts(userId).
     private static final List<Workout> runtimeCache = new ArrayList<>();
     private static boolean cacheInitialized = false;
 
     // ── Public API ─────────────────────────────────────────────────────────
 
+
+    public static List<Workout> getAllWorkouts(int userId) {
+        if (!cacheInitialized) initializeCache();
+
+        return runtimeCache.stream()
+            .filter(w -> !w.isCustom() || w.getCreatedBy() == userId)
+            .toList();
+    }
+
+
+    @Deprecated
     public static List<Workout> getAllWorkouts() {
         if (!cacheInitialized) initializeCache();
         return Collections.unmodifiableList(runtimeCache);
     }
 
-    /**
-     * Saves a custom workout (header + all exercises) to the DB and appends
-     * it to the runtime cache.
-     *
-     * FIX: exercises are now persisted to workout_exercises so they survive
-     * an app restart.
-     */
-    public static boolean createCustomWorkout(Workout workout) {
+    // ── Create ─────────────────────────────────────────────────────────────
+
+
+    public static boolean createCustomWorkout(Workout workout, int userId) {
         if (!cacheInitialized) initializeCache();
 
         workout.setCustom(true);
+        workout.setCreatedBy(userId);
 
         boolean dbSuccess = false;
 
-        // ── 1. Insert workout header ───────────────────────────────────────
         String workoutSql =
-            "INSERT INTO workouts (title, difficulty, duration, category, description, is_custom, locked)"
-          + " VALUES (?, ?, ?, ?, ?, 1, 0)";
+            "INSERT INTO workouts "
+          + "(title, difficulty, duration, category, description, is_custom, locked, created_by) "
+          + "VALUES (?, ?, ?, ?, ?, 1, 0, ?)";
+
         try (Connection c = MySQLConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(workoutSql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -63,17 +60,14 @@ public class WorkoutDAO {
             ps.setString(3, workout.getDuration());
             ps.setString(4, workout.getCategory().name());
             ps.setString(5, workout.getDescription());
+            ps.setInt   (6, userId);
+
             dbSuccess = ps.executeUpdate() > 0;
 
             if (dbSuccess) {
-                // Back-fill the auto-generated DB id so removeWorkout() matches correctly
                 try (ResultSet keys = ps.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        workout.setId(keys.getInt(1));
-                    }
+                    if (keys.next()) workout.setId(keys.getInt(1));
                 }
-
-                // ── 2. Insert each exercise ────────────────────────────────
                 saveWorkoutExercises(c, workout.getId(), workout.getExercises());
             }
 
@@ -86,39 +80,91 @@ public class WorkoutDAO {
     }
 
     /**
-     * Inserts all exercises for a workout into workout_exercises.
-     * Uses a batch insert for efficiency.
+     * Legacy overload without userId — marks workout as unowned (createdBy = 0).
+     *
+     * @deprecated Use {@link #createCustomWorkout(Workout, int)} so ownership
+     *             is recorded and visibility filtering works correctly.
      */
-    private static void saveWorkoutExercises(Connection c, int workoutId,
-                                             List<Exercise> exercises) throws SQLException {
-        if (exercises == null || exercises.isEmpty()) return;
+    @Deprecated
+    public static boolean createCustomWorkout(Workout workout) {
+        return createCustomWorkout(workout, 0);
+    }
 
-        String sql =
-            "INSERT INTO workout_exercises (workout_id, name, sets, reps, emoji, category, sort_order)"
-          + " VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = c.prepareStatement(sql)) {
-            for (int i = 0; i < exercises.size(); i++) {
-                Exercise ex = exercises.get(i);
-                ps.setInt(1, workoutId);
-                ps.setString(2, ex.getName());
-                ps.setInt(3, ex.getSets());
-                ps.setString(4, ex.getReps());
-                ps.setString(5, ex.getEmoji());
-                ps.setString(6, ex.getCategory() != null ? ex.getCategory() : "strength");
-                ps.setInt(7, i);
-                ps.addBatch();
-            }
-            ps.executeBatch();
+    // ── Slot attachment ────────────────────────────────────────────────────
+
+
+    public static boolean attachWorkoutToSlot(int workoutId, int slotId, int requesterId) {
+        // Guard: requester must be the booked member for this slot
+        if (!isBookedMember(slotId, requesterId)) {
+            System.err.println("[WorkoutDAO] attachWorkoutToSlot denied: user "
+                + requesterId + " is not the booked member for slot " + slotId);
+            return false;
+        }
+
+        String sql = "INSERT IGNORE INTO slot_workouts (slot_id, workout_id) VALUES (?, ?)";
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            ps.setInt(2, workoutId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] attachWorkoutToSlot DB error: " + e.getMessage());
+            return false;
         }
     }
 
-    /**
-     * Removes a workout by id.
-     * ON DELETE CASCADE on workout_exercises removes the exercise rows automatically.
-     */
+    public static boolean detachWorkoutFromSlot(int workoutId, int slotId, int requesterId) {
+        if (!canAccessSlot(slotId, requesterId)) {
+            System.err.println("[WorkoutDAO] detachWorkoutFromSlot denied for user " + requesterId);
+            return false;
+        }
+        String sql = "DELETE FROM slot_workouts WHERE slot_id = ? AND workout_id = ?";
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            ps.setInt(2, workoutId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] detachWorkoutFromSlot DB error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static List<Workout> getWorkoutsForSlot(int slotId, int requesterId) {
+        if (!canAccessSlot(slotId, requesterId)) {
+            System.err.println("[WorkoutDAO] getWorkoutsForSlot denied for user " + requesterId);
+            return Collections.emptyList();
+        }
+
+        List<Workout> result = new ArrayList<>();
+
+        String sql =
+            "SELECT w.id, w.title, w.difficulty, w.duration, w.category, "
+          + "       w.description, w.locked, w.is_custom, w.created_by "
+          + "FROM workouts w "
+          + "JOIN slot_workouts sw ON sw.workout_id = w.id "
+          + "WHERE sw.slot_id = ?";
+
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(mapWorkoutRow(c, rs));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] getWorkoutsForSlot DB error: " + e.getMessage());
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
+    // ── Remove ─────────────────────────────────────────────────────────────
+
+
     public static boolean removeWorkout(int workoutId) {
         boolean removed = runtimeCache.removeIf(w -> w.getId() == workoutId);
-
         if (!removed) {
             System.err.println("[WorkoutDAO] removeWorkout: id " + workoutId + " not found in cache.");
             return false;
@@ -132,8 +178,15 @@ public class WorkoutDAO {
         } catch (Exception e) {
             System.err.println("[WorkoutDAO] DB delete failed (removed from cache): " + e.getMessage());
         }
-
         return true;
+    }
+
+    // ── Cache invalidation ─────────────────────────────────────────────────
+
+
+    public static synchronized void invalidateCache() {
+        runtimeCache.clear();
+        cacheInitialized = false;
     }
 
     // ── Cache initialization ───────────────────────────────────────────────
@@ -143,65 +196,145 @@ public class WorkoutDAO {
         try {
             loadFromDatabase();
         } catch (Exception e) {
-            System.err.println("[WorkoutDAO] DB unavailable, starting with empty catalog: " + e.getMessage());
+            System.err.println("[WorkoutDAO] DB unavailable, starting with empty catalog: "
+                + e.getMessage());
         }
         cacheInitialized = true;
     }
 
-    /**
-     * Loads all workouts and their exercises from the DB.
-     * FIX: now reads from workout_exercises (was silently skipping due to missing table).
-     */
     private static void loadFromDatabase() throws SQLException {
         String workoutSql =
-            "SELECT id, title, difficulty, duration, category, description, locked, is_custom"
-          + " FROM workouts ORDER BY id";
-        String exerciseSql =
-            "SELECT id, name, sets, reps, emoji, category"
-          + " FROM workout_exercises WHERE workout_id = ? ORDER BY sort_order";
+            "SELECT id, title, difficulty, duration, category, description, "
+          + "       locked, is_custom, created_by "
+          + "FROM workouts ORDER BY id";
 
         try (Connection c = MySQLConnection.getConnection();
              Statement st = c.createStatement();
              ResultSet rs = st.executeQuery(workoutSql)) {
 
             while (rs.next()) {
-                int wid = rs.getInt("id");
-
-                // Load exercises for this workout
-                List<Exercise> exercises = new ArrayList<>();
-                try (PreparedStatement eps = c.prepareStatement(exerciseSql)) {
-                    eps.setInt(1, wid);
-                    try (ResultSet ers = eps.executeQuery()) {
-                        while (ers.next()) {
-                            exercises.add(new Exercise(
-                                ers.getInt("id"),
-                                ers.getString("name"),
-                                ers.getInt("sets"),
-                                ers.getString("reps"),
-                                ers.getString("emoji"),
-                                ers.getString("category")
-                            ));
-                        }
-                    }
-                }
-
-                WorkoutCategory cat  = parseCategory(rs.getString("category"));
-                Workout.Difficulty diff = parseDifficulty(rs.getString("difficulty"));
-
-                Workout w = new Workout(
-                    wid,
-                    rs.getString("title"),
-                    diff,
-                    rs.getString("duration"),
-                    rs.getBoolean("locked"),
-                    exercises,
-                    cat,
-                    rs.getString("description"),
-                    null
-                );
-                w.setCustom(rs.getBoolean("is_custom"));
-                runtimeCache.add(w);
+                runtimeCache.add(mapWorkoutRow(c, rs));
             }
+        }
+    }
+
+    // ── Row mapping ────────────────────────────────────────────────────────
+
+
+    private static Workout mapWorkoutRow(Connection c, ResultSet rs) throws SQLException {
+        int wid = rs.getInt("id");
+
+        List<Exercise> exercises = loadExercisesForWorkout(c, wid);
+
+        WorkoutCategory    cat  = parseCategory  (rs.getString("category"));
+        Workout.Difficulty diff = parseDifficulty(rs.getString("difficulty"));
+
+        Workout w = new Workout(
+            wid,
+            rs.getString("title"),
+            diff,
+            rs.getString("duration"),
+            rs.getBoolean("locked"),
+            exercises,
+            cat,
+            rs.getString("description"),
+            null
+        );
+        w.setCustom   (rs.getBoolean("is_custom"));
+        w.setCreatedBy(rs.getInt    ("created_by"));   // 0 for system workouts
+
+        return w;
+    }
+
+    private static List<Exercise> loadExercisesForWorkout(Connection c, int workoutId)
+            throws SQLException {
+        String sql =
+            "SELECT id, name, sets, reps, emoji, category "
+          + "FROM workout_exercises WHERE workout_id = ? ORDER BY sort_order";
+
+        List<Exercise> exercises = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, workoutId);
+            try (ResultSet ers = ps.executeQuery()) {
+                while (ers.next()) {
+                    exercises.add(new Exercise(
+                        ers.getInt   ("id"),
+                        ers.getString("name"),
+                        ers.getInt   ("sets"),
+                        ers.getString("reps"),
+                        ers.getString("emoji"),
+                        ers.getString("category")
+                    ));
+                }
+            }
+        }
+        return exercises;
+    }
+
+    // ── Slot access guards ─────────────────────────────────────────────────
+
+
+    private static boolean isBookedMember(int slotId, int userId) {
+        String sql = "SELECT 1 FROM trainer_slots WHERE slot_id = ? AND member_id = ?";
+        return slotAccessCheck(sql, slotId, userId);
+    }
+
+    private static boolean canAccessSlot(int slotId, int userId) {
+        String sql =
+            "SELECT 1 FROM trainer_slots "
+          + "WHERE slot_id = ? AND (member_id = ? OR trainer_id = ?)";
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            ps.setInt(2, userId);
+            ps.setInt(3, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] canAccessSlot error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static boolean slotAccessCheck(String sql, int slotId, int userId) {
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, slotId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            System.err.println("[WorkoutDAO] slotAccessCheck error: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ── Exercise persistence ───────────────────────────────────────────────
+
+    private static void saveWorkoutExercises(Connection c, int workoutId,
+                                             List<Exercise> exercises) throws SQLException {
+        if (exercises == null || exercises.isEmpty()) return;
+
+        String sql =
+            "INSERT INTO workout_exercises "
+          + "(workout_id, name, sets, reps, emoji, category, sort_order) "
+          + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            for (int i = 0; i < exercises.size(); i++) {
+                Exercise ex = exercises.get(i);
+                ps.setInt   (1, workoutId);
+                ps.setString(2, ex.getName());
+                ps.setInt   (3, ex.getSets());
+                ps.setString(4, ex.getReps());
+                ps.setString(5, ex.getEmoji());
+                ps.setString(6, ex.getCategory() != null ? ex.getCategory() : "strength");
+                ps.setInt   (7, i);
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
     }
 

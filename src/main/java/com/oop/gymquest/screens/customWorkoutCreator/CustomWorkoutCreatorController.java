@@ -19,15 +19,7 @@ import javafx.util.StringConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CustomWorkoutCreatorController
- *
- * ── Changes in this version ────────────────────────────────────────────────
- *  FIX — Exercise rows in updateExerciseList() now use the category image
- *        (via WorkoutsViewController.buildExerciseIcon()) instead of an emoji
- *        label.  This matches the visual language of the workouts list and
- *        exercise picker dialog.
- */
+
 public class CustomWorkoutCreatorController {
 
     @FXML private TextField                 nameField;
@@ -117,10 +109,24 @@ public class CustomWorkoutCreatorController {
             return;
         }
 
-        int newId = WorkoutDAO.getAllWorkouts().size() + 100;
+        // Resolve the currently logged-in user's id.
+        // Falls back to 0 (unowned) if somehow called without a session — the
+        // workout will still save but won't appear for any specific user.
+        int userId = 0;
+        if (MainApp.instance.currentUser != null) {
+            userId = MainApp.instance.currentUser.getUserId();
+        } else {
+            System.err.println("[CustomWorkoutCreator] WARNING: currentUser is null — "
+                + "workout will be saved without an owner.");
+        }
+
+        // Use a temporary negative id; WorkoutDAO.createCustomWorkout() replaces
+        // it with the DB-generated id via setId() after the INSERT.
+        int tempId = -(System.nanoTime() % 100_000 > 0
+                       ? (int)(System.nanoTime() % 100_000) : 1);
 
         Workout newWorkout = new Workout(
-            newId,
+            tempId,
             title,
             Workout.Difficulty.BEGINNER,
             estimateDuration(selectedExercises),
@@ -131,14 +137,14 @@ public class CustomWorkoutCreatorController {
             null
         );
 
-        // createCustomWorkout now also saves exercises to workout_exercises table
-        WorkoutDAO.createCustomWorkout(newWorkout);
+        // ── KEY CHANGE: pass userId so created_by is written to the DB ────
+        WorkoutDAO.createCustomWorkout(newWorkout, userId);
 
         Alert info = new Alert(Alert.AlertType.INFORMATION);
         info.setTitle("Workout Saved!");
         info.setHeaderText(null);
-        info.setContentText("\"" + title + "\" has been added to your " +
-            WorkoutsViewController.getCategoryLabel(selectedCategory) + " workouts! 🎉");
+        info.setContentText("\"" + title + "\" has been added to your "
+            + WorkoutsViewController.getCategoryLabel(selectedCategory) + " workouts! 🎉");
         info.showAndWait();
 
         handleBack();
@@ -146,13 +152,6 @@ public class CustomWorkoutCreatorController {
 
     // ── Exercise list rendering ────────────────────────────────────────────
 
-    /**
-     * Renders the list of selected exercises.
-     *
-     * FIX: emoji Label replaced by {@link WorkoutsViewController#buildExerciseIcon}
-     *      so the creator screen is visually consistent with the workouts list
-     *      and exercise picker.
-     */
     private void updateExerciseList() {
         exerciseListBox.getChildren().clear();
 
@@ -162,9 +161,9 @@ public class CustomWorkoutCreatorController {
             placeholder.setMinHeight(100);
             placeholder.setPadding(new Insets(20));
             placeholder.setStyle(
-                "-fx-border-color: #bae6fd; -fx-border-width: 2;" +
-                "-fx-border-style: dashed; -fx-border-radius: 14;" +
-                "-fx-background-radius: 14;"
+                "-fx-border-color: #bae6fd; -fx-border-width: 2;"
+              + "-fx-border-style: dashed; -fx-border-radius: 14;"
+              + "-fx-background-radius: 14;"
             );
             Label hint = new Label("Click \"+ Add Exercise\" to build your custom routine");
             hint.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
@@ -181,8 +180,8 @@ public class CustomWorkoutCreatorController {
             row.setAlignment(Pos.CENTER_LEFT);
             row.setPadding(new Insets(12));
             row.setStyle(
-                "-fx-background-color: #f0f8ff; -fx-background-radius: 12;" +
-                "-fx-border-color: #bae6fd; -fx-border-width: 2; -fx-border-radius: 12;"
+                "-fx-background-color: #f0f8ff; -fx-background-radius: 12;"
+              + "-fx-border-color: #bae6fd; -fx-border-width: 2; -fx-border-radius: 12;"
             );
 
             // Step number circle
@@ -192,11 +191,11 @@ public class CustomWorkoutCreatorController {
             numCircle.setPrefSize(30, 30);
             numCircle.setMinSize(30, 30);
             numCircle.setStyle(
-                "-fx-background-color: white; -fx-background-radius: 15;" +
-                "-fx-border-color: #bae6fd; -fx-border-width: 2;"
+                "-fx-background-color: white; -fx-background-radius: 15;"
+              + "-fx-border-color: #bae6fd; -fx-border-width: 2;"
             );
 
-            // Category image icon (replaces emoji)
+            // Category image icon (replaces raw emoji label)
             StackPane exIcon = WorkoutsViewController.buildExerciseIcon(ex.getCategory(), 20);
 
             // Name + sets/reps
@@ -234,26 +233,26 @@ public class CustomWorkoutCreatorController {
 
     private static List<Exercise> buildFallbackLibrary() {
         return List.of(
-            new Exercise(1,  "Push-ups",          3, "10-12",   "💪", "strength"),
-            new Exercise(2,  "Squats",            3, "15",      "🦵", "strength"),
-            new Exercise(3,  "Plank",             3, "30 sec",  "🧘", "core"),
-            new Exercise(4,  "Lunges",            3, "10 each", "🏃", "strength"),
-            new Exercise(5,  "Burpees",           4, "10",      "💥", "cardio"),
-            new Exercise(6,  "Mountain Climbers", 3, "20",      "⛰️", "cardio"),
-            new Exercise(7,  "Dumbbell Press",    4, "8-10",    "🏋️", "strength"),
-            new Exercise(8,  "Pull-ups",          3, "6-8",     "💪", "strength"),
-            new Exercise(9,  "Bicep Curls",       3, "12",      "💪", "strength"),
-            new Exercise(10, "Tricep Dips",       3, "10",      "🔥", "strength"),
-            new Exercise(11, "Crunches",          4, "20",      "🔥", "core"),
-            new Exercise(12, "Russian Twists",    3, "15 each", "🌀", "core"),
-            new Exercise(13, "Leg Raises",        3, "12",      "🦵", "core"),
-            new Exercise(14, "Jumping Jacks",     3, "30",      "⚡", "cardio"),
-            new Exercise(15, "Jump Rope",         3, "1 min",   "🪢", "cardio"),
-            new Exercise(16, "Yoga Stretches",    1, "10 min",  "🧘", "flexibility"),
-            new Exercise(17, "Hamstring Stretch", 2, "30 sec",  "🦵", "flexibility"),
-            new Exercise(18, "Deadlifts",         4, "6-8",     "🏋️", "strength"),
-            new Exercise(19, "Kettlebell Swings", 4, "15",      "⚡", "cardio"),
-            new Exercise(20, "Box Jumps",         3, "10",      "📦", "cardio")
+                new Exercise(1,  "Push-ups",          3, "10-12",   "", "strength"),
+                new Exercise(2,  "Squats",            3, "15",      "", "strength"),
+                new Exercise(3,  "Plank",             3, "30 sec",  "", "core"),
+                new Exercise(4,  "Lunges",            3, "10 each", "", "strength"),
+                new Exercise(5,  "Burpees",           4, "10",      "", "cardio"),
+                new Exercise(6,  "Mountain Climbers", 3, "20",      "", "cardio"),
+                new Exercise(7,  "Dumbbell Press",    4, "8-10",    "", "strength"),
+                new Exercise(8,  "Pull-ups",          3, "6-8",     "", "strength"),
+                new Exercise(9,  "Bicep Curls",       3, "12",      "", "strength"),
+                new Exercise(10, "Tricep Dips",       3, "10",      "", "strength"),
+                new Exercise(11, "Crunches",          4, "20",      "", "core"),
+                new Exercise(12, "Russian Twists",    3, "15 each", "", "core"),
+                new Exercise(13, "Leg Raises",        3, "12",      "", "core"),
+                new Exercise(14, "Jumping Jacks",     3, "30",      "", "cardio"),
+                new Exercise(15, "Jump Rope",         3, "1 min",   "", "cardio"),
+                new Exercise(16, "Yoga Stretches",    1, "10 min",  "", "flexibility"),
+                new Exercise(17, "Hamstring Stretch", 2, "30 sec",  "", "flexibility"),
+                new Exercise(18, "Deadlifts",         4, "6-8",     "", "strength"),
+                new Exercise(19, "Kettlebell Swings", 4, "15",      "", "cardio"),
+                new Exercise(20, "Box Jumps",         3, "10",      "", "cardio")
         );
     }
 
