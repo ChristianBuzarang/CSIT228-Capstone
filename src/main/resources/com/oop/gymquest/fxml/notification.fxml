@@ -16,6 +16,6 @@
 
     <Separator style="-fx-opacity: 0.3;"/>
 
-    <Button text="Mark all as read" maxWidth="Infinity"
-            style="-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-padding: 12; -fx-cursor: hand; -fx-font-weight: bold;"/>
+    <Button text="Mark all as read" maxWidth="Infinity" onMouseClicked="#handleMarkAllAsRead" style="-fx-background-color: transparent;
+        -fx-text-fill: #3b82f6; -fx-padding: 12; -fx-cursor: hand; -fx-font-weight: bold;"/>
 </VBox>

@@ -3,17 +3,11 @@ package com.oop.gymquest.screens.manageSchedule;
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import java.sql.ResultSet;
 
 public class ManageScheduleController {
@@ -61,12 +55,18 @@ public class ManageScheduleController {
         iconBox.setPrefSize(50, 50);
         iconBox.setMinSize(50, 50);
         iconBox.setMaxSize(50, 50);
-        iconBox.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 25;");
+        // Changed to a soft blue so the calendar icon is visible
+        iconBox.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 25;");
 
-        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
-        icon.setFitHeight(22);
-        icon.setFitWidth(22);
-        iconBox.getChildren().add(icon);
+        try {
+            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
+            icon.setFitHeight(22);
+            icon.setFitWidth(22);
+            iconBox.getChildren().add(icon);
+        } catch (Exception e) {
+            Label fallback = new Label("📅");
+            iconBox.getChildren().add(fallback);
+        }
 
         VBox content = new VBox(8);
         Label title = new Label(act);
@@ -83,7 +83,7 @@ public class ManageScheduleController {
             memberInfo.setText("👤 Booked by: " + (bookedByName != null ? bookedByName : "Unknown"));
             memberInfo.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;");
         } else {
-            memberInfo.setText("👥 Open for booking (1/1)");
+            memberInfo.setText("👥 Open for booking");
             memberInfo.setStyle("-fx-text-fill: #3b82f6;");
         }
 
@@ -99,15 +99,18 @@ public class ManageScheduleController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button delBtn = new Button();
-        ImageView trash = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/check.png")));
-        trash.setFitHeight(18);
-        trash.setFitWidth(18);
-        delBtn.setGraphic(trash);
+        try {
+            ImageView trash = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/check.png")));
+            trash.setFitHeight(18);
+            trash.setFitWidth(18);
+            delBtn.setGraphic(trash);
+        } catch (Exception e) {
+            delBtn.setText("❌");
+        }
+
         delBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         delBtn.setOnAction(e -> {
-            if (DatabaseHandler.deleteSlot(id)) {
-                refreshView();
-            }
+            if (DatabaseHandler.deleteSlot(id)) refreshView();
         });
 
         row.getChildren().addAll(iconBox, content, spacer, delBtn);
@@ -116,19 +119,6 @@ public class ManageScheduleController {
 
     @FXML
     private void handleAddSchedule() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/add_schedule_dialog.fxml"));
-            Parent root = loader.load();
-            AddScheduleDialogController controller = loader.getController();
-            controller.setParent(this);
-            Stage stage = new Stage(StageStyle.TRANSPARENT);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            Scene scene = new Scene(root);
-            scene.setFill(null);
-            stage.setScene(scene);
-            stage.showAndWait();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new AddScheduleDialog(this).show();
     }
 }

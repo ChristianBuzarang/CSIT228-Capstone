@@ -3,6 +3,7 @@ package com.oop.gymquest.screens.notifications;
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
 import com.oop.gymquest.data.userdata.User;
+import com.oop.gymquest.screens.dashboard.DashboardController;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import javafx.fxml.FXMLLoader;
@@ -16,20 +17,26 @@ public class NotificationController {
 
     @FXML
     public void initialize() {
-        notificationList.getChildren().clear();
-        User currentUser = MainApp.instance.currentUser;
-        if (currentUser != null) loadLiveSessionNotifications(currentUser.getUserId());
+        loadNotifications();
     }
 
-    private void loadLiveSessionNotifications(int userId) {
-        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(userId)) {
+    private void loadNotifications() {
+        notificationList.getChildren().clear();
+        User currentUser = MainApp.instance.currentUser;
+        if (currentUser == null) return;
+
+        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(currentUser.getUserId())) {
             boolean found = false;
             while (rs != null && rs.next()) {
                 found = true;
                 String coach = rs.getString("firstname") + " " + rs.getString("lastname");
                 String activity = rs.getString("activity");
                 String date = rs.getString("slot_date");
-                String time = rs.getString("slot_time");
+
+                String time = rs.getString("formatted_time") != null
+                        ? rs.getString("formatted_time")
+                        : rs.getString("slot_time");
+
                 String message = "Confirmed: " + activity + " with " + coach;
                 String timestamp = date + " at " + time;
                 addNotificationItem("📅", message, timestamp);
@@ -39,6 +46,17 @@ public class NotificationController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleMarkAllAsRead() {
+        notificationList.getChildren().clear();
+
+        addNotificationItem("✅", "You're all caught up! No new notifications.", "Just now");
+
+        if (DashboardController.instance != null) {
+            DashboardController.instance.resetNotificationBell();
         }
     }
 

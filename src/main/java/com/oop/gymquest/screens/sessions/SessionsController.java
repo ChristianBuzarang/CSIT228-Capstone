@@ -21,15 +21,22 @@ public class SessionsController {
         allSessionsContainer.getChildren().clear();
         int userId = MainApp.instance.currentUser.getUserId();
 
-        String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
-                "JOIN users u ON s.trainer_id = u.userid " +
-                "WHERE s.member_id = " + userId + " " +
-                "ORDER BY s.slot_date DESC, s.slot_time DESC";
+        try (ResultSet rs = DatabaseHandler.getAllHistorySessions(userId)) {
+            boolean hasEntries = false;
 
-        try (ResultSet rs = DatabaseHandler.getConnection().createStatement().executeQuery(sql)) {
-            while (rs.next()) {
-                allSessionsContainer.getChildren().add(buildSessionRow(rs));
+            if (rs != null) {
+                while (rs.next()) {
+                    hasEntries = true;
+                    allSessionsContainer.getChildren().add(buildSessionRow(rs));
+                }
             }
+
+            if (!hasEntries) {
+                Label empty = new Label("No recent activity found. Book a session to get started!");
+                empty.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14; -fx-padding: 20;");
+                allSessionsContainer.getChildren().add(empty);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,24 +49,18 @@ public class SessionsController {
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);");
 
         VBox info = new VBox(5);
-        Label title = new Label(rs.getString("activity") + " with " + rs.getString("firstname"));
+        Label title = new Label(rs.getString("activity") + " with " + rs.getString("firstname") + " " + rs.getString("lastname"));
         title.setStyle("-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #1e293b;");
 
-        Label date = new Label("Date: " + rs.getString("slot_date") + " | Time: " + rs.getString("slot_time"));
-        date.setStyle("-fx-text-fill: #64748b;");
+        Label date = new Label("Date: " + rs.getString("slot_date") + "  •  Time: " + rs.getString("slot_time"));
+        date.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13;");
         info.getChildren().addAll(title, date);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Status Badge
-        String status = rs.getString("status");
-        Label badge = new Label(status.toUpperCase());
-        String badgeStyle = status.equalsIgnoreCase("Booked")
-                ? "-fx-background-color: #f0fdf4; -fx-text-fill: #10b981;"
-                : "-fx-background-color: #f1f5f9; -fx-text-fill: #64748b;";
-
-        badge.setStyle(badgeStyle + "-fx-padding: 5 12; -fx-background-radius: 10; -fx-font-size: 11; -fx-font-weight: bold;");
+        Label badge = new Label("COMPLETED");
+        badge.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; -fx-padding: 6 14; -fx-background-radius: 10; -fx-font-size: 11; -fx-font-weight: bold;");
 
         row.getChildren().addAll(info, spacer, badge);
         return row;
@@ -67,6 +68,8 @@ public class SessionsController {
 
     @FXML
     private void handleBack() {
-        DashboardController.instance.handleNavDashboard();
+        if (DashboardController.instance != null) {
+            DashboardController.instance.handleNavDashboard();
+        }
     }
 }

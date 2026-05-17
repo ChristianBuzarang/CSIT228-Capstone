@@ -266,8 +266,8 @@ public class DatabaseHandler {
         String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
                 "JOIN users u ON s.trainer_id = u.userid " +
                 "WHERE s.member_id = ? AND s.status = 'Booked' " +
-                "AND (s.slot_date > CURDATE() OR (s.slot_date = CURDATE() AND s.slot_time >= CURTIME())) " +
-                "ORDER BY s.slot_date ASC, s.slot_time ASC LIMIT 3";
+                "AND (s.slot_date > CURDATE() OR (s.slot_date = CURDATE() AND ADDTIME(s.slot_time, '01:00:00') >= CURTIME())) " +
+                "ORDER BY s.slot_date ASC, s.slot_time ASC";
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -280,8 +280,22 @@ public class DatabaseHandler {
         String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
                 "JOIN users u ON s.trainer_id = u.userid " +
                 "WHERE s.member_id = ? AND s.status = 'Booked' " +
-                "AND (s.slot_date < CURDATE() OR (s.slot_date = CURDATE() AND s.slot_time < CURTIME())) " +
+                "AND (s.slot_date < CURDATE() OR (s.slot_date = CURDATE() AND ADDTIME(s.slot_time, '01:00:00') < CURTIME())) " +
                 "ORDER BY s.slot_date DESC, s.slot_time DESC LIMIT 3";
+        try {
+            Connection conn = getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, memberId);
+            return ps.executeQuery();
+        } catch (SQLException e) { return null; }
+    }
+
+    public static ResultSet getAllHistorySessions(int memberId) {
+        String sql = "SELECT s.*, u.firstname, u.lastname FROM trainer_slots s " +
+                "JOIN users u ON s.trainer_id = u.userid " +
+                "WHERE s.member_id = ? AND s.status = 'Booked' " +
+                "AND (s.slot_date < CURDATE() OR (s.slot_date = CURDATE() AND ADDTIME(s.slot_time, '01:00:00') < CURTIME())) " +
+                "ORDER BY s.slot_date DESC, s.slot_time DESC";
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -314,7 +328,7 @@ public class DatabaseHandler {
         String sql = "SELECT ts.*, u.avatar FROM trainer_slots ts " +
                 "LEFT JOIN users u ON ts.member_id = u.userid " +
                 "WHERE ts.trainer_id = ? " +
-                "ORDER BY ts.slot_date DESC, ts.slot_time DESC LIMIT 3";
+                "ORDER BY ts.slot_date DESC, ts.slot_time ASC LIMIT 3";
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -619,7 +633,7 @@ public class DatabaseHandler {
                 "FROM trainer_slots s " +
                 "LEFT JOIN users u ON s.member_id = u.userid " +
                 "WHERE s.trainer_id = ? " +
-                "ORDER BY s.status ASC, s.slot_date DESC, s.slot_time DESC";
+                "ORDER BY s.status ASC, s.slot_date DESC, s.slot_time ASC";
         try {
             Connection conn = getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
