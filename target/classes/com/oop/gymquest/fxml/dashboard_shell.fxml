@@ -27,11 +27,14 @@
                         style="-fx-background-color: transparent; -fx-cursor: hand;" focusTraversable="false">
                     <graphic>
                         <StackPane mouseTransparent="true">
-                            <ImageView fitHeight="24" fitWidth="24">
-                                <Image url="@../images/notification.png"/>
+                            <!-- Increased size from 24 to 30 -->
+                            <ImageView fx:id="bellIcon" fitHeight="30" fitWidth="30">
+                                <Image url="@../images/notif_orig.png"/>
                             </ImageView>
+
+                            <!-- Adjusted margin slightly for the bigger bell -->
                             <Label fx:id="notifBadge" text="0" styleClass="notification-badge" StackPane.alignment="TOP_RIGHT">
-                                <StackPane.margin><Insets right="-5" top="-5"/></StackPane.margin>
+                                <StackPane.margin><Insets right="-3" top="-3"/></StackPane.margin>
                             </Label>
                         </StackPane>
                     </graphic>

@@ -9,7 +9,7 @@
       stylesheets="@../styles.css"
       prefWidth="450"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.oop.gymquest.screens.manageSchedule.AddScheduleDialogController">
+      fx:controller="com.oop.gymquest.screens.manageSchedule.AddScheduleDialog">
 
     <HBox alignment="CENTER_LEFT">
         <Label text="Add Schedule"

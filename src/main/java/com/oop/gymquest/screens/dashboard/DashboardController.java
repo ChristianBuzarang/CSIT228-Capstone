@@ -25,8 +25,10 @@ public class DashboardController {
     @FXML private Button btnDashboard, btnWorkouts, btnBooking, btnManageSchedule, btnSchedules, btnCommunity;
     @FXML private Button notificationBell;
     @FXML private ImageView headerAvatarView;
+    @FXML private ImageView bellIcon;
 
     private Popup notificationPopup;
+    private boolean notificationsRead = false;
 
     public static DashboardController instance;
     public DashboardController() { instance = this; }
@@ -111,22 +113,49 @@ public class DashboardController {
 
     public void updateNotificationBadge() {
         if (notifBadge == null) return;
+
+        if (notificationsRead) {
+            resetNotificationBell();
+            return;
+        }
+
         int count = 0;
         User user = MainApp.instance.currentUser;
-        try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(user.getUserId())) {
-            while (rs != null && rs.next()) {
-                count++;
+        if (user != null) {
+            try (ResultSet rs = DatabaseHandler.getMemberSessionsToday(user.getUserId())) {
+                while (rs != null && rs.next()) {
+                    count++;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
         if (count > 0) {
             notifBadge.setText(String.valueOf(count));
             notifBadge.setVisible(true);
             notifBadge.setManaged(true);
+            if (bellIcon != null) {
+                bellIcon.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/notif_alarm.png")));
+            }
         } else {
+            resetNotificationBell();
+        }
+    }
+
+    public void resetNotificationBell() {
+        notificationsRead = true;
+        if (notifBadge != null) {
+            notifBadge.setText("");
             notifBadge.setVisible(false);
             notifBadge.setManaged(false);
+        }
+        if (bellIcon != null) {
+            try {
+                bellIcon.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/notif_orig.png")));
+            } catch (Exception e) {
+                System.err.println("Could not load original bell image.");
+            }
         }
     }
 
@@ -179,7 +208,7 @@ public class DashboardController {
                 Parent root = loader.load();
                 notificationPopup.getContent().add(root);
             } catch (IOException e) {
-                System.err.println("❌ Could not load notification_view.fxml");
+                System.err.println("❌ Could not load notification.fxml");
                 e.printStackTrace();
             }
         }
