@@ -12,6 +12,7 @@ public class MySQLConnection {
 
     private static MySQLConnection instance;
 
+    // Singleton Pattern
     private MySQLConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

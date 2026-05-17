@@ -22,15 +22,13 @@ import java.util.List;
 
 public class ProfileController {
     @FXML private Label nameLabel, roleSubLabel, avatarEmoji, workoutsDoneLabel, streakLabel, sessionsDoneValueLabel, badgesEarnedLabel;
-    @FXML private Button editProfileBtn, changeNameBtn, exportDataBtn;
+    @FXML private Button editProfileBtn, changeNameBtn;
     @FXML private HBox statsRow;
     @FXML private VBox achievementsSection;
     @FXML private FlowPane badgeContainer;
     @FXML private ImageView profileImageView;
 
     public static ProfileController instance;
-    private final Object exportLock = new Object();
-    private final List<String> exportLogs = new ArrayList<>();
 
     @FXML public void initialize() {
         instance = this;
@@ -177,13 +175,5 @@ public class ProfileController {
         card.getChildren().addAll(icon, lblTitle, lblStatus);
 
         return card;
-    }
-
-    @FXML private void handleExportData() {
-        User currentUser = MainApp.instance.currentUser;
-        System.out.println("Starting background export...");
-
-        DataExportTask exportTask = new DataExportTask(currentUser, exportLock, exportLogs);
-        exportTask.start();
     }
 }

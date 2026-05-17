@@ -20,6 +20,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Callback;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdminDashboardController {
@@ -31,6 +32,8 @@ public class AdminDashboardController {
 
     private String currentRoleFilter = "member";
     private FilteredList<User> filteredList;
+    private final Object exportLock = new Object();
+    private final List<String> exportLogs = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -46,19 +49,25 @@ public class AdminDashboardController {
             public TableCell<User, Void> call(final TableColumn<User, Void> param) {
                 return new TableCell<>() {
                     private final Button editBtn = new Button("Update");
+                    private final Button exportBtn = new Button("Export");
                     private final Button actionBtn = new Button();
-                    private final HBox container = new HBox(10, editBtn, actionBtn);
+                    private final HBox container = new HBox(10, editBtn, exportBtn, actionBtn);
                     {
                         container.setAlignment(Pos.CENTER);
                         editBtn.getStyleClass().add("action-btn-update");
+
+                        exportBtn.setStyle("-fx-background-color: #f0fdf4; -fx-text-fill: #16a34a; -fx-font-weight: bold; " +
+                                "-fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 5 10;");
+
                         actionBtn.setFocusTraversable(false);
                         editBtn.setFocusTraversable(false);
+                        exportBtn.setFocusTraversable(false);
                     }
 
                     @Override
                     protected void updateItem(Void item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (empty) {
+                        if (empty || getTableView().getItems().get(getIndex()) == null) {
                             setGraphic(null);
                         } else {
                             User user = getTableView().getItems().get(getIndex());
@@ -72,6 +81,7 @@ public class AdminDashboardController {
                                 actionBtn.setOnAction(e -> handleToggleStatus(user, true));
                             }
                             editBtn.setOnAction(event -> handleEditUser(user));
+                            exportBtn.setOnAction(event -> handleExportIndividual(user));
                             setGraphic(container);
                         }
                     }
@@ -80,36 +90,48 @@ public class AdminDashboardController {
         });
     }
 
+    private void handleExportIndividual(User selected) {
+        if (selected == null) return;
+        System.out.println("Spawning thread for Individual Export...");
+        AdminDataExportTask task = new AdminDataExportTask(List.of(selected), false, exportLock, exportLogs);
+        task.start();
+    }
+
+    @FXML private void handleExportSummary() {
+        System.out.println("Fetching ALL active accounts for Group Summary Export...");
+        List<User> allUsers = new ArrayList<>();
+        allUsers.addAll(DatabaseHandler.fetchUsersByStatus("member", true));
+        allUsers.addAll(DatabaseHandler.fetchUsersByStatus("trainer", true));
+        allUsers.addAll(DatabaseHandler.fetchUsersByStatus("admin", true));
+        if (allUsers.isEmpty()) {
+            CustomDialog.showError("Export Error", "No active users found in the database.");
+            return;
+        }
+        AdminDataExportTask task = new AdminDataExportTask(allUsers, true, exportLock, exportLogs);
+        task.start();
+    }
+
     private void handleToggleStatus(User selected, boolean activate) {
         if (selected == null) return;
-
-        // Use custom error dialog
         if (!activate && selected.getUserId() == MainApp.instance.currentUser.getUserId()) {
             CustomDialog.showError("Action Denied", "Security Guard: You cannot archive your own account.");
             return;
         }
-
         String verb = activate ? "Restore" : "Archive";
         String message = activate ?
                 "Are you sure you want to restore " + selected.getFullName() + "?" :
                 "Are you sure you want to archive " + selected.getFullName() + "? They will no longer be able to access the system.";
 
-        // Use custom confirmation dialog
         boolean confirmed = CustomDialog.showConfirmation(
                 verb + " User",
                 message,
                 verb,
-                !activate // If NOT activating (i.e., archiving), make button Red. If activating, make button Blue.
+                !activate
         );
-
         if (confirmed) {
             boolean success;
-            if (activate) {
-                success = DatabaseHandler.restoreUser(selected.getUserId());
-            } else {
-                success = DatabaseHandler.archiveUser(selected.getUserId());
-            }
-
+            if (activate) success = DatabaseHandler.restoreUser(selected.getUserId());
+            else success = DatabaseHandler.archiveUser(selected.getUserId());
             if (success) {
                 refreshUserTable();
                 refreshStats();
@@ -156,28 +178,6 @@ public class AdminDashboardController {
             modalStage.setScene(scene); modalStage.showAndWait();
             refreshUserTable(); refreshStats();
         } catch (IOException e) { e.printStackTrace(); }
-    }
-
-    private void handleDeleteUser(User selected) {
-        if (selected == null) return;
-
-        if (selected.getUserId() == MainApp.instance.currentUser.getUserId()) {
-            CustomDialog.showError("Action Denied", "You cannot archive your own account.");
-            return;
-        }
-
-        boolean confirmed = CustomDialog.showConfirmation(
-                "Archive User",
-                "Are you sure you want to archive " + selected.getFullName() + "?",
-                "Archive",
-                true // true = Red Button
-        );
-
-        if (confirmed) {
-            if (DatabaseHandler.archiveUser(selected.getUserId())) {
-                refreshUserTable(); refreshStats();
-            }
-        }
     }
 
     private void handleEditUser(User selected) {
