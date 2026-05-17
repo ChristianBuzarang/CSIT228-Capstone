@@ -6,7 +6,7 @@ public class Exercise {
     private int sets;
     private String reps;
     private String emoji;
-    private String category; // strength, cardio, core, flexibility
+    private String category;
 
     public Exercise(int id, String name, int sets, String reps, String emoji) {
         this.id = id;

@@ -10,8 +10,7 @@ public class RegisterAdminController {
     @FXML private PasswordField passField;
     @FXML private Label statusLabel;
 
-    @FXML
-    private void handleCreateAdmin() {
+    @FXML private void handleCreateAdmin() {
         String fname = firstnameField.getText().trim();
         String lname = lastnameField.getText().trim();
         String email = emailField.getText().trim();
@@ -31,14 +30,8 @@ public class RegisterAdminController {
         }
     }
 
-    @FXML
-    private void handleCancel() {
+    @FXML private void handleCancel() {
         Stage stage = (Stage) statusLabel.getScene().getWindow();
         stage.close();
-    }
-
-    private void showMessage(String text, String color) {
-        statusLabel.setText(text);
-        statusLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-weight: bold;");
     }
 }

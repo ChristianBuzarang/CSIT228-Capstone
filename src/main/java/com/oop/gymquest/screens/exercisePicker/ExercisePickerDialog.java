@@ -16,7 +16,6 @@ import java.util.List;
 
 public class ExercisePickerDialog extends Dialog<Exercise> {
 
-    // ── The 38 Static Exercises ─────────────────────────────────────────────
     private static final Object[][] STATIC_EXERCISES = {
             {"Bench Press",          4, "8-10",    "🏋️", "strength"},
             {"Overhead Press",       3, "10",      "🏋️", "strength"},
@@ -71,13 +70,10 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     private final FlowPane  grid          = new FlowPane(14, 14);
     private String          activeCategory = null;
 
-    // Edit Panel Elements
     private final Label            selectedNameLbl = new Label("Select an exercise to add...");
-    private final Spinner<Integer> setsSpinner     = new Spinner<>(1, 20, 3);
+    private final Spinner<Integer> setsSpinner     = new Spinner<>(1, 20, 0);
     private final TextField        repsField       = new TextField();
     private Button                 addBtnRef;
-
-    // ── Constructor ───────────────────────────────────────────────────────
 
     public ExercisePickerDialog(List<Exercise> library) {
         setTitle("Exercise Library");
@@ -95,45 +91,20 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             ));
         }
 
-        applyHighFidelityCSS(); // Injects CSS for scrollbar and spinner
+        applyHighFidelityCSS();
         buildContent();
         buildButtons();
         setupResultConverter();
     }
 
-    // ── CSS Injection (High Fidelity Sub-components) ──────────────────────
-
     private void applyHighFidelityCSS() {
-        String css = """
-            /* Hide default scrollbar arrows and style the track/thumb cleanly */
-            .modern-scroll { -fx-background-color: transparent; -fx-background: transparent; }
-            .modern-scroll > .viewport { -fx-background-color: transparent; }
-            .modern-scroll .scroll-bar:vertical { -fx-background-color: transparent; -fx-pref-width: 8px; }
-            .modern-scroll .scroll-bar:vertical .track { -fx-background-color: transparent; -fx-border-color: transparent; }
-            .modern-scroll .scroll-bar:vertical .thumb { -fx-background-color: #cbd5e1; -fx-background-radius: 4px; }
-            .modern-scroll .scroll-bar:vertical .thumb:hover { -fx-background-color: #94a3b8; }
-            .modern-scroll .scroll-bar:vertical .increment-button,
-            .modern-scroll .scroll-bar:vertical .decrement-button { -fx-pref-height: 0; -fx-padding: 0; }
-            .modern-scroll .scroll-bar:vertical .increment-arrow,
-            .modern-scroll .scroll-bar:vertical .decrement-arrow { -fx-shape: " "; -fx-padding: 0; }
-            
-            /* Round the spinner, blend the buttons, update arrow color */
-            .modern-spinner { -fx-background-color: white; -fx-border-color: #cbd5e1; -fx-border-radius: 8px; -fx-background-radius: 8px; }
-            .modern-spinner .text-field { -fx-background-color: transparent; -fx-alignment: center; -fx-text-fill: #1e3a5f; -fx-font-weight: bold; -fx-font-size: 13px; }
-            .modern-spinner .increment-arrow-button { -fx-background-color: #f1f5f9; -fx-background-radius: 0 7px 0 0; -fx-padding: 5px 8px; }
-            .modern-spinner .decrement-arrow-button { -fx-background-color: #f1f5f9; -fx-background-radius: 0 0 7px 0; -fx-padding: 5px 8px; }
-            .modern-spinner .increment-arrow-button:hover,
-            .modern-spinner .decrement-arrow-button:hover { -fx-background-color: #e2e8f0; -fx-cursor: hand; }
-            .modern-spinner .increment-arrow,
-            .modern-spinner .decrement-arrow { -fx-background-color: #64748b; }
-        """;
-
-        // Convert to Base64 URI so it applies without needing a physical .css file
-        String b64 = Base64.getEncoder().encodeToString(css.getBytes(StandardCharsets.UTF_8));
-        getDialogPane().getStylesheets().add("data:text/css;base64," + b64);
+        try {
+            String cssUrl = getClass().getResource("/com/oop/gymquest/styles.css").toExternalForm();
+            getDialogPane().getStylesheets().add(cssUrl);
+        } catch (NullPointerException e) {
+            System.err.println("❌ Could not load styles.css for the Exercise dialog. Please check the path.");
+        }
     }
-
-    // ── UI construction ────────────────────────────────────────────────────
 
     private void buildContent() {
         VBox root = new VBox(16);
@@ -158,9 +129,8 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         ScrollPane scroll = new ScrollPane(grid);
         scroll.setFitToWidth(true);
         scroll.setPrefHeight(380);
-        scroll.getStyleClass().add("modern-scroll"); // Applies CSS
+        scroll.getStyleClass().add("modern-scroll");
 
-        // Bottom Editor Panel
         HBox editPanel = new HBox(15);
         editPanel.setAlignment(Pos.CENTER_LEFT);
         editPanel.setPadding(new Insets(15));
@@ -176,7 +146,7 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         Label setsLbl = new Label("Sets:");
         setsLbl.setStyle("-fx-font-weight: bold; -fx-text-fill: " + SLATE + ";");
         setsSpinner.setPrefWidth(85);
-        setsSpinner.getStyleClass().add("modern-spinner"); // Applies CSS
+        setsSpinner.getStyleClass().add("modern-spinner");
         setsSpinner.setDisable(true);
 
         Label repsLbl = new Label("Reps / Time:");
@@ -231,8 +201,6 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             return null;
         });
     }
-
-    // ── Filters & Grid ─────────────────────────────────────────────────────
 
     private void buildFilterPills() {
         filterRow.getChildren().clear();
@@ -340,9 +308,9 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
 
             selectedNameLbl.setText(exercise.getName());
             setsSpinner.setDisable(false);
-            setsSpinner.getValueFactory().setValue(exercise.getSets());
+            setsSpinner.getValueFactory().setValue(0);
             repsField.setDisable(false);
-            repsField.setText(exercise.getReps());
+            repsField.setText("1");
 
             addBtnRef.setDisable(false);
             addBtnRef.setStyle("-fx-background-color: " + catColor + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 24; -fx-cursor: hand;");

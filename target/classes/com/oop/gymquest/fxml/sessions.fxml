@@ -4,7 +4,6 @@
 <?import javafx.geometry.Insets?>
 
 <VBox spacing="20" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.oop.gymquest.screens.sessions.SessionsController" style="-fx-background-color: #f8fafc; -fx-padding: 20;">
-    <!-- Header with Back Button -->
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Button onAction="#handleBack" text="← Back to Dashboard"
                 style="-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14;"/>

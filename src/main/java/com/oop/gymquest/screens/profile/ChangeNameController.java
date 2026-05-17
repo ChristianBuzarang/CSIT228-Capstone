@@ -10,14 +10,12 @@ import javafx.stage.Stage;
 public class ChangeNameController {
     @FXML private TextField firstNameField, lastNameField;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         firstNameField.setText(MainApp.instance.currentUser.getFirstName());
         lastNameField.setText(MainApp.instance.currentUser.getLastName());
     }
 
-    @FXML
-    private void handleSave() {
+    @FXML private void handleSave() {
         String fn = firstNameField.getText().trim();
         String ln = lastNameField.getText().trim();
         if (DatabaseHandler.updateUserName(MainApp.instance.currentUser.getUserId(), fn, ln)) {

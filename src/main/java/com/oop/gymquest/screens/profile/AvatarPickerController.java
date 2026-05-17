@@ -11,8 +11,7 @@ import javafx.stage.Stage;
 public class AvatarPickerController {
     @FXML private GridPane avatarGrid;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         avatarGrid.getChildren().forEach(node -> {
             if (node instanceof Button btn) {
                 String imageName = (String) btn.getUserData();
@@ -26,17 +25,14 @@ public class AvatarPickerController {
         });
     }
 
-    @FXML
-    private void onAvatarSelected(ActionEvent event) {
+    @FXML private void onAvatarSelected(ActionEvent event) {
         Button clicked = (Button) event.getSource();
         String selectedImage = (String) clicked.getUserData();
         ProfileController.instance.updateProfilePicture(selectedImage);
-
         handleCancel();
     }
 
-    @FXML
-    private void handleCancel() {
+    @FXML private void handleCancel() {
         ((Stage) avatarGrid.getScene().getWindow()).close();
     }
 }

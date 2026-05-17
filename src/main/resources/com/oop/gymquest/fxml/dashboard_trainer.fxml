@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
 <ScrollPane fitToWidth="true" styleClass="modern-scroll" stylesheets="@../styles.css"
@@ -9,8 +8,6 @@
             fx:controller="com.oop.gymquest.screens.dashboard.userdashboards.TrainerDashboardController">
 
     <VBox spacing="30" style="-fx-padding: 30; -fx-background-color: #f8fafc;">
-
-        <!-- 1. Welcome Header Card: Now spans full width -->
         <HBox alignment="CENTER_LEFT" prefHeight="120"
               style="-fx-background-color: white; -fx-background-radius: 24; -fx-padding: 30;
                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 20, 0, 0, 8);">
@@ -20,18 +17,13 @@
                 <Label text="Welcome back, Coach! Here's your overview for today."
                        style="-fx-text-fill: #64748b; -fx-font-size: 15;"/>
             </VBox>
-            <!-- Optional: You can add an icon here to match the Member Dashboard -->
             <ImageView fitHeight="80" preserveRatio="true">
                 <Image url="@../images/muscle.png"/>
             </ImageView>
         </HBox>
 
-        <!-- 2. Main Dashboard Grid: Split into two columns -->
         <HBox spacing="30" VBox.vgrow="ALWAYS">
-
-            <!-- LEFT COLUMN: Sessions -->
             <VBox spacing="25" HBox.hgrow="ALWAYS">
-                <!-- Stat Card: Sessions -->
                 <VBox style="-fx-background-color: #fef9c3; -fx-padding: 25; -fx-background-radius: 20;
                              -fx-effect: dropshadow(gaussian, rgba(234,179,8,0.1), 15, 0, 0, 5);">
                     <Label text="📅 Total Sessions" style="-fx-text-fill: #854d0e; -fx-font-weight: bold; -fx-font-size: 14;"/>
@@ -52,9 +44,7 @@
                 </VBox>
             </VBox>
 
-            <!-- RIGHT COLUMN: Clients -->
             <VBox spacing="25" prefWidth="420" minWidth="420">
-                <!-- Stat Card: Clients -->
                 <VBox style="-fx-background-color: #dcf0ff; -fx-padding: 25; -fx-background-radius: 20;
                              -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.1), 15, 0, 0, 5);">
                     <Label text="👤 Total Clients" style="-fx-text-fill: #1e3a8a; -fx-font-weight: bold; -fx-font-size: 14;"/>

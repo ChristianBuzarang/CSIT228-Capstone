@@ -75,7 +75,6 @@ public class CustomDialog {
         return result[0];
     }
 
-    // NEW: Error dialog for validation/security alerts
     public static void showError(String title, String message) {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);

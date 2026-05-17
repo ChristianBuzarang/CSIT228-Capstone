@@ -136,9 +136,7 @@ public class DatabaseHandler {
                         "FOREIGN KEY (created_by) REFERENCES users(userid) ON DELETE SET NULL"
                     );
                     System.out.println("[DatabaseHandler] Migration: added created_by to workouts.");
-                } catch (SQLException ignored) {
-                    // Column / constraint already exists — safe to ignore.
-                }
+                } catch (SQLException ignored) { }
 
                 seedExerciseLibraryIfEmpty(conn);
                 registerUser("admin", "1234", "System", "Admin", "admin");
@@ -238,13 +236,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { return 0; }
     }
 
-    public static int getActiveMemberCount() {
-        String sql = "SELECT COUNT(DISTINCT member_id) FROM trainer_slots WHERE status = 'Booked'";
-        try (Connection conn = getConnection(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
-            return rs.next() ? rs.getInt(1) : 0;
-        } catch (SQLException e) { return 0; }
-    }
-
     // ── SESSIONS & BOOKING ──
 
     public static ResultSet getTop3ActiveSessions(int memberId) {
@@ -299,16 +290,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { return false; }
     }
 
-    public static boolean cancelBooking(int slotId) {
-        String sql = "UPDATE trainer_slots SET status = 'Available', member_id = NULL, booked_by_name = NULL WHERE slot_id = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, slotId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) { return false; }
-    }
-
-    // ── ADDITIONAL HELPER LOGIC ──
-
     public static ResultSet getTodaySessions(int trainerId) {
         String sql = "SELECT ts.*, u.avatar FROM trainer_slots ts " +
                 "LEFT JOIN users u ON ts.member_id = u.userid " +
@@ -333,7 +314,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // UPDATED: Now requires current user ID to accurately grab the state of their likes
     public static ResultSet fetchPosts(int currentUserId) {
         String sql = "SELECT p.*, u.firstname, u.lastname, u.avatar, " +
                 "(SELECT COUNT(*) FROM post_likes pl WHERE pl.postid = p.postid AND pl.userid = ?) AS is_liked " +
@@ -347,7 +327,6 @@ public class DatabaseHandler {
         } catch (SQLException e) { return null; }
     }
 
-    // ADDED: Method to toggle the user like and appropriately adjust the master count
     public static boolean togglePostLike(int userId, int postId) {
         String checkSql = "SELECT * FROM post_likes WHERE userid = ? AND postid = ?";
         boolean isLiked = false;
@@ -564,18 +543,6 @@ public class DatabaseHandler {
         }
     }
 
-    public static void updatePostReactionCount(int postId, int newCount) {
-        String sql = "UPDATE posts SET reactions = ? WHERE postid = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newCount);
-            ps.setInt(2, postId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ResultSet getAvailableSlots(String date) {
         String sql = "SELECT s.*, u.firstname, u.lastname, u.avatar " +
                 "FROM trainer_slots s " +
@@ -592,25 +559,6 @@ public class DatabaseHandler {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static List<ArchivedUser> fetchArchivedUsers() {
-        List<ArchivedUser> list = new ArrayList<>();
-        String sql = "SELECT * FROM users_archive ORDER BY archived_at DESC";
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(new ArchivedUser(
-                        rs.getInt("userid"),
-                        rs.getString("full_name"),
-                        rs.getString("email"),
-                        rs.getString("type"),
-                        rs.getString("status")
-                ));
-            }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return list;
     }
 
     public static ResultSet getTrainerFullSchedule(int trainerId) {

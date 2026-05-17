@@ -15,9 +15,7 @@ public class ManageScheduleController {
     @FXML private VBox emptyPlaceholder;
     @FXML private VBox scheduleList;
 
-    @FXML public void initialize() {
-        refreshView();
-    }
+    @FXML public void initialize() { refreshView(); }
 
     public void refreshView() {
         scheduleList.getChildren().clear();
@@ -36,9 +34,7 @@ public class ManageScheduleController {
                         rs.getString("booked_by_name")
                 );
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         countLabel.setText("Your Schedules (" + count + ")");
         boolean isEmpty = (count == 0);
         emptyPlaceholder.setVisible(isEmpty);
@@ -55,7 +51,6 @@ public class ManageScheduleController {
         iconBox.setPrefSize(50, 50);
         iconBox.setMinSize(50, 50);
         iconBox.setMaxSize(50, 50);
-        // Changed to a soft blue so the calendar icon is visible
         iconBox.setStyle("-fx-background-color: #f0f8ff; -fx-background-radius: 25;");
 
         try {
@@ -117,8 +112,7 @@ public class ManageScheduleController {
         scheduleList.getChildren().add(row);
     }
 
-    @FXML
-    private void handleAddSchedule() {
+    @FXML private void handleAddSchedule() {
         new AddScheduleDialog(this).show();
     }
 }

@@ -9,19 +9,17 @@ public enum WorkoutCategory {
     HIIT        ("HIIT",        "#f97316"),   // orange
     BALANCE     ("Balance",     "#0d9488");   // teal
 
-    // ── Fields ────────────────────────────────────────────────────────────
     private final String label;
-    private final String color;   // CSS hex for badge backgrounds, filter pills, etc.
+    private final String color;
 
-    // ── Constructor ───────────────────────────────────────────────────────
     WorkoutCategory(String label, String color) {
         this.label = label;
         this.color = color;
     }
 
-    // ── Getters ───────────────────────────────────────────────────────────
     public String getLabel() { return label; }
     public String getColor() { return color; }
+
     @Override
     public String toString() { return label; }
 }

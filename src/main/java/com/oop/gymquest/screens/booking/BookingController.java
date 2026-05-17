@@ -99,7 +99,7 @@ public class BookingController implements Initializable {
             if (trainerCards.isEmpty()) {
                 VBox emptyPh = new VBox(15);
                 emptyPh.setAlignment(Pos.CENTER);
-                emptyPh.setPrefHeight(350); // Slightly shorter to account for header
+                emptyPh.setPrefHeight(350);
                 emptyPh.setStyle("-fx-background-color: white; -fx-background-radius: 20;");
 
                 ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
@@ -107,7 +107,6 @@ public class BookingController implements Initializable {
 
                 Label t = new Label("No Schedules Found");
                 t.setStyle("-fx-font-weight: bold; -fx-font-size: 20; -fx-text-fill: #1e293b;");
-
                 Label s = new Label("No trainers have posted a schedule for this date yet.");
                 s.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14;");
 

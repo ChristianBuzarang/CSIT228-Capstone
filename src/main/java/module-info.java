@@ -1,12 +1,10 @@
 module com.oop.gymquest {
-    // Standard JavaFX and SQL requirements
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.graphics;
     requires mysql.connector.j;
     requires java.sql;
 
-    // ALLOW FXML TO ACCESS CONTROLLERS
     opens com.oop.gymquest to javafx.fxml;
     opens com.oop.gymquest.app to javafx.fxml;
     opens com.oop.gymquest.screens.login to javafx.fxml;
@@ -22,14 +20,11 @@ module com.oop.gymquest {
     opens com.oop.gymquest.screens.dashboard.userdashboards to javafx.fxml;
     opens com.oop.gymquest.screens.manageSchedule to javafx.fxml;
     opens com.oop.gymquest.screens.notifications to javafx.fxml;
-
-    // ALLOW JAVAFX TO READ DATA PROPERTIES
     opens com.oop.gymquest.data to javafx.base;
 
-    // EXPORT PACKAGES FOR THE APP TO RUN
     exports com.oop.gymquest;
     exports com.oop.gymquest.app;
-    exports com.oop.gymquest.data; // Added this!
+    exports com.oop.gymquest.data;
     exports com.oop.gymquest.screens.dashboard;
     exports com.oop.gymquest.screens.profile;
     exports com.oop.gymquest.screens.register;

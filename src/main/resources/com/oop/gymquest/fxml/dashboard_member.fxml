@@ -12,10 +12,7 @@
         <Insets top="30" right="30" bottom="30" left="30"/>
     </padding>
 
-    <!-- TOP ROW: Welcome Card + Streak Card -->
-    <!-- Setting a prefHeight here ensures both top cards are the same height -->
     <HBox spacing="30" alignment="TOP_CENTER">
-        <!-- Welcome Card -->
         <HBox alignment="CENTER_LEFT" spacing="20" HBox.hgrow="ALWAYS" prefHeight="220"
               style="-fx-background-color: white; -fx-background-radius: 24; -fx-padding: 35;
                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 20, 0, 0, 8);">
@@ -34,7 +31,6 @@
             </ImageView>
         </HBox>
 
-        <!-- Streak Card (Blue Section) -->
         <VBox spacing="20" alignment="CENTER" prefWidth="380" minWidth="380" prefHeight="220"
               style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb);
                      -fx-background-radius: 28; -fx-padding: 30;
@@ -53,8 +49,7 @@
         </VBox>
     </HBox>
 
-    <!-- BOTTOM ROW: Upcoming Sessions + Recent Activity -->
-    <!-- Using an HBox here guarantees the headers "Upcoming Sessions" and "Recent Activity" line up perfectly -->
+    <!-- Upcoming Sessions + Recent Activity -->
     <HBox spacing="30" VBox.vgrow="ALWAYS">
 
         <!-- Left: Upcoming Sessions -->

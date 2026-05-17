@@ -25,8 +25,7 @@ public class WorkoutsViewController {
     private static Image lockImage;
     private static boolean imagesLoaded = false;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         loadAllImages();
         applyFilter();
         searchField.textProperty().addListener((obs, o, n) -> applyFilter());
@@ -48,7 +47,7 @@ public class WorkoutsViewController {
         try {
             var url = getClass().getResource("/com/oop/gymquest/images/" + filename);
             if (url != null) return new Image(url.toExternalForm(), size, size, true, true);
-        } catch (Exception e) {}
+        } catch (Exception e) { e.printStackTrace(); }
         return null;
     }
 

@@ -2,7 +2,6 @@ package com.oop.gymquest.screens.community;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
-import com.oop.gymquest.data.PostDAO;
 import com.oop.gymquest.data.workoutdata.Post;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,8 +25,6 @@ import java.sql.SQLException;
 public class CommunityController {
     @FXML private VBox postContainer;
 
-    private final PostDAO postDAO = new PostDAO();
-
     @FXML public void initialize() {
         refreshFeed();
     }
@@ -35,7 +32,6 @@ public class CommunityController {
     public void refreshFeed() {
         postContainer.getChildren().clear();
 
-        // Pass current user ID to evaluate if the post is liked by them
         int currentUserId = MainApp.instance.currentUser.getUserId();
         ResultSet rs = DatabaseHandler.fetchPosts(currentUserId);
         try {
@@ -49,7 +45,7 @@ public class CommunityController {
                         Post.PostType.GOAL,
                         "Just now",
                         rs.getInt("reactions"),
-                        isLiked // Load appropriate state
+                        isLiked
                 );
                 postContainer.getChildren().add(createPostCard(p, rs.getString("avatar")));
             }
@@ -58,8 +54,7 @@ public class CommunityController {
         }
     }
 
-    @FXML
-    public void handleShareMilestone() {
+    @FXML public void handleShareMilestone() {
         try {
             String fxmlPath = "/com/oop/gymquest/fxml/post.fxml";
             var resource = getClass().getResource(fxmlPath);
@@ -130,13 +125,13 @@ public class CommunityController {
                 muscleIcon.setFitHeight(18);
                 muscleIcon.setFitWidth(18);
                 milestone.getChildren().add(muscleIcon);
-            } catch (Exception e) { /* ignore */ }
+            } catch (Exception e) { }
             Label mLabel = new Label(post.getMilestone());
             mLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #854d0e;");
             milestone.getChildren().add(mLabel);
         }
 
-        final boolean[] isLiked = { post.isLiked() }; // Load true state from DB
+        final boolean[] isLiked = { post.isLiked() };
         final int[] count = { post.getReactions() };
         Button likeBtn = new Button(String.valueOf(count[0]));
 
@@ -144,7 +139,6 @@ public class CommunityController {
         heart.setFitHeight(18); heart.setFitWidth(18);
         likeBtn.setGraphic(heart);
 
-        // Load initial styling
         if (isLiked[0]) {
             likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
             heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-liked.png")));
@@ -155,21 +149,14 @@ public class CommunityController {
 
         likeBtn.setOnAction(e -> {
             int currentUserId = MainApp.instance.currentUser.getUserId();
-
-            // Send query to database to toggle state
             boolean newLikedState = DatabaseHandler.togglePostLike(currentUserId, post.getId());
 
-            // Visually reflect increments and decrements
-            if (newLikedState && !isLiked[0]) {
-                count[0]++;
-            } else if (!newLikedState && isLiked[0]) {
-                count[0]--;
-            }
+            if (newLikedState && !isLiked[0]) count[0]++;
+            else if (!newLikedState && isLiked[0]) count[0]--;
 
             isLiked[0] = newLikedState;
             likeBtn.setText(String.valueOf(count[0]));
 
-            // Adjust styles
             if (isLiked[0]) {
                 likeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #ef4444; -fx-font-weight: bold;");
                 heart.setImage(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/heart-liked.png")));

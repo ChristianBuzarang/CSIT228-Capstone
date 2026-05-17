@@ -27,12 +27,10 @@
                         style="-fx-background-color: transparent; -fx-cursor: hand;" focusTraversable="false">
                     <graphic>
                         <StackPane mouseTransparent="true">
-                            <!-- Increased size from 24 to 30 -->
                             <ImageView fx:id="bellIcon" fitHeight="30" fitWidth="30">
                                 <Image url="@../images/notif_orig.png"/>
                             </ImageView>
 
-                            <!-- Adjusted margin slightly for the bigger bell -->
                             <Label fx:id="notifBadge" text="0" styleClass="notification-badge" StackPane.alignment="TOP_RIGHT">
                                 <StackPane.margin><Insets right="-3" top="-3"/></StackPane.margin>
                             </Label>
@@ -40,7 +38,7 @@
                     </graphic>
                 </Button>
 
-                <!-- High-Fidelity Clickable User Profile Button -->
+                <!-- User Profile Button -->
                 <Button onAction="#handleNavProfile"
                         style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5 10; -fx-background-radius: 15;"
                         focusTraversable="false">
@@ -51,7 +49,6 @@
                                 <Label fx:id="roleLabel" text="MEMBER" style="-fx-text-fill: #64748b; -fx-font-size: 10; -fx-font-weight: bold;"/>
                             </VBox>
 
-                            <!-- Large Circle Avatar -->
                             <StackPane style="-fx-background-color: #3b82f6; -fx-background-radius: 25; -fx-min-width: 42; -fx-min-height: 42; -fx-max-width: 42; -fx-max-height: 42;">
                                 <ImageView fx:id="headerAvatarView" fitHeight="32" fitWidth="32" preserveRatio="true">
                                     <Image url="@../images/user.png"/>

@@ -23,23 +23,18 @@ public class SessionsController {
 
         try (ResultSet rs = DatabaseHandler.getAllHistorySessions(userId)) {
             boolean hasEntries = false;
-
             if (rs != null) {
                 while (rs.next()) {
                     hasEntries = true;
                     allSessionsContainer.getChildren().add(buildSessionRow(rs));
                 }
             }
-
             if (!hasEntries) {
                 Label empty = new Label("No recent activity found. Book a session to get started!");
                 empty.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14; -fx-padding: 20;");
                 allSessionsContainer.getChildren().add(empty);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private HBox buildSessionRow(ResultSet rs) throws Exception {
@@ -66,10 +61,7 @@ public class SessionsController {
         return row;
     }
 
-    @FXML
-    private void handleBack() {
-        if (DashboardController.instance != null) {
-            DashboardController.instance.handleNavDashboard();
-        }
+    @FXML private void handleBack() {
+        if (DashboardController.instance != null) DashboardController.instance.handleNavDashboard();
     }
 }

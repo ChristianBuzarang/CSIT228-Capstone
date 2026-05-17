@@ -2,7 +2,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<!-- Ensure fx:controller points to the NEW class created in Step 1 -->
 <HBox spacing="15" alignment="CENTER_LEFT" prefWidth="340"
       fx:controller="com.oop.gymquest.screens.notifications.NotificationItemController"
       style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 12;"

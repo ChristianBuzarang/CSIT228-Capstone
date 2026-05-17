@@ -6,11 +6,9 @@ import java.sql.SQLException;
 
 public class MySQLConnection {
 
-    // --- CHANGE THESE TO MATCH YOUR XAMPP SETUP ---
     public static final String URL      = "jdbc:mysql://localhost:3306/dbgymquest";
     public static final String USERNAME = "root";
-    public static final String PASSWORD = "";          // leave blank if no password -- jc@020814
-    // -----------------------------------------------
+    public static final String PASSWORD = "";
 
     public static Connection getConnection() {
         Connection c = null;

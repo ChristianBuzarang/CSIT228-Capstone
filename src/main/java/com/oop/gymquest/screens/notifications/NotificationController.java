@@ -15,10 +15,7 @@ import java.sql.SQLException;
 public class NotificationController {
     @FXML private VBox notificationList;
 
-    @FXML
-    public void initialize() {
-        loadNotifications();
-    }
+    @FXML public void initialize() { loadNotifications(); }
 
     private void loadNotifications() {
         notificationList.getChildren().clear();
@@ -49,15 +46,12 @@ public class NotificationController {
         }
     }
 
-    @FXML
-    private void handleMarkAllAsRead() {
+    @FXML private void handleMarkAllAsRead() {
         notificationList.getChildren().clear();
 
         addNotificationItem("✅", "You're all caught up! No new notifications.", "Just now");
 
-        if (DashboardController.instance != null) {
-            DashboardController.instance.resetNotificationBell();
-        }
+        if (DashboardController.instance != null) DashboardController.instance.resetNotificationBell();
     }
 
     private void addNotificationItem(String icon, String msg, String time) {
@@ -69,8 +63,6 @@ public class NotificationController {
                 itemController.setData(icon, msg, time);
                 notificationList.getChildren().add(node);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }

@@ -19,19 +19,16 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 
 public class ProfileController {
-    @FXML private Label nameLabel, roleSubLabel, avatarEmoji, workoutsDoneLabel;
+    @FXML private Label nameLabel, roleSubLabel, avatarEmoji, workoutsDoneLabel, streakLabel, sessionsDoneValueLabel, badgesEarnedLabel;
     @FXML private Button editProfileBtn, changeNameBtn;
     @FXML private HBox statsRow;
     @FXML private VBox achievementsSection;
     @FXML private FlowPane badgeContainer;
-    @FXML private StackPane avatarContainer;
     @FXML private ImageView profileImageView;
-    @FXML private Label streakLabel, sessionsDoneValueLabel, badgesEarnedLabel;
 
     public static ProfileController instance;
 
-    @FXML
-    public void initialize() {
+    @FXML public void initialize() {
         instance = this;
         User user = MainApp.instance.currentUser;
         if (user == null) return;
@@ -121,9 +118,7 @@ public class ProfileController {
             scene.setFill(null);
             modal.setScene(scene);
             modal.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
     public void updateProfilePicture(String imageName) {
@@ -151,9 +146,7 @@ public class ProfileController {
             scene.setFill(null);
             modal.setScene(scene);
             modal.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
     public void refreshNameLabel() {

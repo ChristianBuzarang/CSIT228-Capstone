@@ -6,17 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Run this ONCE (or call initDatabase() at app startup) to create
- * the users table and seed it with sample data.
- */
 public class DatabaseInit {
 
     public static void initDatabase() {
         try (Connection c = MySQLConnection.getConnection();
              Statement statement = c.createStatement()) {
 
-            // 1. Create table if it doesn't already exist
             String createTable =
                     "CREATE TABLE IF NOT EXISTS users (" +
                             "  userid   INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -27,7 +22,6 @@ public class DatabaseInit {
                             ")";
             statement.execute(createTable);
             System.out.println("Table 'users' ready.");
-            // Added Table Posts
             String createPostsTable =
                     "CREATE TABLE IF NOT EXISTS posts (" +
                             "  postid    INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -37,28 +31,18 @@ public class DatabaseInit {
                             "  milestone VARCHAR(255), " +
                             "  reactions INT DEFAULT 0" +
                             ")";
-            statement.execute(createPostsTable); // Use 'statement', not 'stmt'
+            statement.execute(createPostsTable);
             System.out.println("Table 'posts' ready.");
 
-
-
-
-            // 2. Insert sample users (only if they don't exist yet)
             insertIfAbsent(c, "jdela_cruz", "password123", "Juan", "Dela Cruz");
             insertIfAbsent(c, "asmith",     "pass456",     "Alice", "Smith");
 
             System.out.println("Database initialized.");
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-
-
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    private static void insertIfAbsent(Connection c, String username,
-                                       String password, String firstname, String lastname) throws SQLException {
+    private static void insertIfAbsent(Connection c, String username, String password, String firstname, String lastname) throws SQLException {
         String checkSql  = "SELECT COUNT(*) FROM users WHERE username = ?";
         String insertSql = "INSERT INTO users (username, password, firstname, lastname) VALUES (?, ?, ?, ?)";
 
@@ -78,7 +62,6 @@ public class DatabaseInit {
         }
     }
 
-    // Optional: run this class directly to initialise the DB manually
     public static void main(String[] args) {
         initDatabase();
     }

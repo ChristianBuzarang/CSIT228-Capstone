@@ -9,7 +9,6 @@
         <URL value="@../styles.css" />
     </stylesheets>
 
-    <!-- STATS OVERVIEW ROW -->
     <HBox spacing="15" alignment="CENTER">
         <VBox HBox.hgrow="ALWAYS" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4); -fx-border-color: #3b82f6; -fx-border-width: 0 0 0 5;">
             <Label text="Total Members" style="-fx-text-fill: #64748b; -fx-font-size: 13; -fx-font-weight: bold;"/>

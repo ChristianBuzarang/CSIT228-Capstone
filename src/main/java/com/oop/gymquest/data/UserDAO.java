@@ -10,34 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
-    // Refactor Delete to Archive (Cold Storage)
-    public static boolean archiveUser(int userId) {
-        String insertSql = "INSERT INTO users_archive (userid, email, password, firstname, lastname, type) " +
-                "SELECT userid, email, password, firstname, lastname, type FROM users WHERE userid = ?";
-        String deleteSql = "DELETE FROM users WHERE userid = ?";
-
-        try (Connection c = MySQLConnection.getConnection()) {
-            c.setAutoCommit(false); // Start Transaction
-            try (PreparedStatement psInsert = c.prepareStatement(insertSql);
-                 PreparedStatement psDelete = c.prepareStatement(deleteSql)) {
-
-                // Copy to Archive
-                psInsert.setInt(1, userId);
-                psInsert.executeUpdate();
-
-                // Delete from Active
-                psDelete.setInt(1, userId);
-                psDelete.executeUpdate();
-
-                c.commit();
-                return true;
-            } catch (SQLException e) {
-                c.rollback();
-                return false;
-            }
-        } catch (SQLException e) { return false; }
-    }
-
     public static User mapUser(ResultSet rs) throws SQLException {
         int id = rs.getInt("userid");
         String email = rs.getString("email");
@@ -68,18 +40,6 @@ public class UserDAO {
         return list;
     }
 
-    public static User getByUsername(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        try (Connection c = MySQLConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapUser(rs);
-        } catch (SQLException e) { e.printStackTrace(); }
-        return null;
-    }
-
-    // Existing Create/Update/Delete methods remain essentially the same...
     public static boolean create(String email, String password, String fname, String lname, String type) {
         String sql = "INSERT INTO users (email, password, firstname, lastname, type) VALUES (?, ?, ?, ?, ?)";
         try (Connection c = MySQLConnection.getConnection();
@@ -89,15 +49,6 @@ public class UserDAO {
             ps.setString(3, fname);
             ps.setString(4, lname);
             ps.setString(5, type.toLowerCase());
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) { return false; }
-    }
-
-    public static boolean delete(int userId) {
-        String sql = "DELETE FROM users WHERE userid = ?";
-        try (Connection c = MySQLConnection.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, userId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { return false; }
     }

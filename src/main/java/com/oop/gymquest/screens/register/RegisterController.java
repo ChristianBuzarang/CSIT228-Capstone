@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class RegisterController {
-    public static RegisterController instance; // FIX: Added instance variable
+    public static RegisterController instance;
 
     @FXML private TextField firstnameField, lastnameField, emailField;
     @FXML private PasswordField passField, confirmPassField;
@@ -23,10 +23,9 @@ public class RegisterController {
     private final Image SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/see-password.png"));
     private final Image NOT_SEE_IMG = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/not-see-password.png"));
 
-    public RegisterController() { instance = this; } // FIX: Initialize instance
+    public RegisterController() { instance = this; }
 
     @FXML public void initialize() { selectMember(); }
-
     @FXML private void selectMember() { setType("member", memberBtn); }
     @FXML private void selectTrainer() { setType("trainer", trainerBtn); }
 
@@ -45,8 +44,7 @@ public class RegisterController {
         else { p.setText(t.getText()); p.setVisible(true); t.setVisible(false); i.setImage(SEE_IMG); }
     }
 
-    @FXML
-    public void handleRegister() {
+    @FXML public void handleRegister() {
         String fname = firstnameField.getText(); String lname = lastnameField.getText(); String email = emailField.getText();
         String p1 = isPassVisible ? passFieldVisible.getText() : passField.getText();
         String p2 = isConfirmVisible ? confirmPassFieldVisible.getText() : confirmPassField.getText();

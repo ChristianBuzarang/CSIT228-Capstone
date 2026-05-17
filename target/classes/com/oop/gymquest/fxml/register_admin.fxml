@@ -6,8 +6,6 @@
       style="-fx-background-color: #eff6ff; -fx-background-radius: 40; -fx-padding: 40 50;"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.oop.gymquest.screens.register.RegisterAdminController">
-
-    <!-- Header Title changed to Dark Blue for contrast -->
     <Label text="New Admin Account"
            style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-padding: 0 0 10 0;"/>
 

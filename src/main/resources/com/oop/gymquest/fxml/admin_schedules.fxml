@@ -59,7 +59,6 @@
             <Label fx:id="dateLabel" text="Select a date" styleClass="heading-text" style="-fx-font-size: 20;"/>
         </HBox>
 
-        <!-- Container for ScrollPane to ensure it fills height -->
         <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
             <StackPane fx:id="contentStack" alignment="CENTER">
                 <!-- PLACEHOLDER (Centered via StackPane) -->
