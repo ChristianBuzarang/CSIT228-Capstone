@@ -70,7 +70,7 @@ public class CustomWorkoutCreatorController {
 
         WorkoutDAO.createCustomWorkout(newWorkout, currentUserId);
 
-        Alert info = new Alert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts! 🎉", ButtonType.OK);
+        Alert info = new Alert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts!", ButtonType.OK);
         info.setHeaderText("Workout Saved!");
         info.showAndWait();
 

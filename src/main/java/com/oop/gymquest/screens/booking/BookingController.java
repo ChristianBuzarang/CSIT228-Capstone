@@ -134,6 +134,7 @@ public class BookingController implements Initializable {
         VBox info = new VBox(2);
         Label lblName = new Label(name);
         lblName.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 16;");
+
         Label lblSpec = new Label(specialization);
         lblSpec.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13;");
         info.getChildren().addAll(lblName, lblSpec);
@@ -168,7 +169,7 @@ public class BookingController implements Initializable {
                 int memberId = MainApp.instance.currentUser.getUserId();
                 if (DatabaseHandler.saveBooking(memberId, slotId)) {
                     showTrainers(); // Refresh Member UI
-                    System.out.println("✅ Session with " + coach + " confirmed.");
+                    System.out.println("Session with " + coach + " confirmed.");
                 }
             }
         });
@@ -195,6 +196,17 @@ public class BookingController implements Initializable {
         trainerPanel.getChildren().add(ph);
     }
 
-    @FXML private void onPrevMonth() { currentYM = currentYM.minusMonths(1); selectedDate = null; refreshCalendar(); showPlaceholder(); }
-    @FXML private void onNextMonth() { currentYM = currentYM.plusMonths(1); selectedDate = null; refreshCalendar(); showPlaceholder(); }
+    @FXML
+    private void onPrevMonth() {
+        currentYM = currentYM.minusMonths(1);
+        selectedDate = null; refreshCalendar();
+        showPlaceholder();
+    }
+
+    @FXML
+    private void onNextMonth() {
+        currentYM = currentYM.plusMonths(1);
+        selectedDate = null; refreshCalendar();
+        showPlaceholder();
+    }
 }

@@ -23,7 +23,6 @@
                 <VBox fx:id="emptyPlaceholder" alignment="CENTER" spacing="20" visible="false">
                     <ImageView fitHeight="100" preserveRatio="true"><Image url="@../images/calendar.png"/></ImageView>
                     <Label text="No schedules created yet" styleClass="subtitle-gray"/>
-                    <Button text="Create Your First Schedule" onAction="#handleAddSchedule" styleClass="btn-primary" />
                 </VBox>
                 <VBox fx:id="scheduleList" spacing="12" />
             </StackPane>

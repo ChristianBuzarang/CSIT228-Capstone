@@ -21,6 +21,7 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class CommunityController {
     @FXML private VBox postContainer;
@@ -34,16 +35,24 @@ public class CommunityController {
 
         int currentUserId = MainApp.instance.currentUser.getUserId();
         ResultSet rs = DatabaseHandler.fetchPosts(currentUserId);
+
         try {
             while (rs != null && rs.next()) {
                 boolean isLiked = rs.getInt("is_liked") > 0;
+
+                // 1. Get the raw timestamp from the database
+                Timestamp createdAt = rs.getTimestamp("created_at");
+
+                // 2. Convert it to a real-time "Time Ago" string
+                String timeAgoString = calculateTimeAgo(createdAt);
+
                 Post p = new Post(
                         rs.getInt("postid"),
                         rs.getString("firstname") + " " + rs.getString("lastname"),
                         rs.getString("content"),
                         rs.getString("milestone_text"),
                         Post.PostType.GOAL,
-                        "Just now",
+                        timeAgoString,
                         rs.getInt("reactions"),
                         isLiked
                 );
@@ -59,7 +68,7 @@ public class CommunityController {
             String fxmlPath = "/com/oop/gymquest/fxml/post.fxml";
             var resource = getClass().getResource(fxmlPath);
             if (resource == null) {
-                System.err.println("❌ Error: Could not find FXML file at " + fxmlPath);
+                System.err.println("Error: Could not find FXML file at " + fxmlPath);
                 return;
             }
             FXMLLoader loader = new FXMLLoader(resource);
@@ -73,7 +82,7 @@ public class CommunityController {
             modalStage.showAndWait();
             refreshFeed();
         } catch (IOException e) {
-            System.err.println("❌ Failed to load the share modal.");
+            System.err.println("Failed to load the share modal.");
             e.printStackTrace();
         }
     }
@@ -170,5 +179,23 @@ public class CommunityController {
         if (milestone != null) card.getChildren().add(milestone);
         card.getChildren().add(likeBtn);
         return card;
+    }
+
+    private String calculateTimeAgo(Timestamp timestamp) {
+        if (timestamp == null) return "Just now";
+
+        long diff = System.currentTimeMillis() - timestamp.getTime();
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+
+        if (seconds < 60) return "Just now";
+        if (minutes < 60) return minutes + "m ago";
+        if (hours < 24) return hours + "h ago";
+        if (days < 7) return days + "d ago";
+
+        // Default to a simple date if older than a week
+        return new java.text.SimpleDateFormat("MMM dd").format(timestamp);
     }
 }

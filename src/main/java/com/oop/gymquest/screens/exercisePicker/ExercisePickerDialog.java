@@ -102,7 +102,7 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
             String cssUrl = getClass().getResource("/com/oop/gymquest/styles.css").toExternalForm();
             getDialogPane().getStylesheets().add(cssUrl);
         } catch (NullPointerException e) {
-            System.err.println("❌ Could not load styles.css for the Exercise dialog. Please check the path.");
+            System.err.println("Could not load styles.css for the Exercise dialog. Please check the path.");
         }
     }
 

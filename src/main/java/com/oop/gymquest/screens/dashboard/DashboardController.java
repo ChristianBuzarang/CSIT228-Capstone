@@ -67,10 +67,12 @@ public class DashboardController {
         try {
             String path = "/com/oop/gymquest/fxml/" + fxml;
             FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+
             if (loader.getLocation() == null) {
-                System.err.println("❌ FXML not found at: " + path);
+                System.err.println("FXML not found at: " + path);
                 return;
             }
+
             Node view = loader.load();
             contentArea.getChildren().setAll(view);
         } catch (IOException e) {
@@ -97,9 +99,11 @@ public class DashboardController {
             try {
                 String path = "/com/oop/gymquest/images/" + user.getAvatar();
                 Image img = new Image(getClass().getResourceAsStream(path));
+
                 headerAvatarView.setFitHeight(32);
                 headerAvatarView.setFitWidth(32);
                 headerAvatarView.setImage(img);
+
                 Circle clip = new Circle(16, 16, 16);
                 headerAvatarView.setClip(clip);
             } catch (Exception e) {
@@ -208,7 +212,7 @@ public class DashboardController {
                 Parent root = loader.load();
                 notificationPopup.getContent().add(root);
             } catch (IOException e) {
-                System.err.println("❌ Could not load notification.fxml");
+                System.err.println("Could not load notification.fxml");
                 e.printStackTrace();
             }
         }

@@ -182,7 +182,7 @@ public class AddScheduleDialog extends Stage {
             String cssUrl = getClass().getResource("/com/oop/gymquest/styles.css").toExternalForm();
             scene.getStylesheets().add(cssUrl);
         } catch (NullPointerException e) {
-            System.err.println("❌ Could not load styles.css for the dialog. Please check the path.");
+            System.err.println("Could not load styles.css for the dialog. Please check the path.");
         }
     }
 }
