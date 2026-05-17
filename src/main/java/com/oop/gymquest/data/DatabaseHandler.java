@@ -686,4 +686,54 @@ public class DatabaseHandler {
             return null;
         }
     }
+
+    public static int getSessionsDoneCount(int userId, String role) {
+        String column = role.equalsIgnoreCase("trainer") ? "trainer_id" : "member_id";
+        String sql = "SELECT COUNT(*) FROM trainer_slots WHERE " + column + " = ? AND status = 'Booked' " +
+                "AND (slot_date < CURDATE() OR (slot_date = CURDATE() AND ADDTIME(slot_time, '01:00:00') < CURTIME()))";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public static int getCurrentStreak(int userId, String role) {
+        String column = role.equalsIgnoreCase("trainer") ? "trainer_id" : "member_id";
+        String sql = "SELECT DISTINCT slot_date FROM trainer_slots WHERE " + column + " = ? AND status = 'Booked' " +
+                "AND (slot_date < CURDATE() OR (slot_date = CURDATE() AND ADDTIME(slot_time, '01:00:00') < CURTIME())) " +
+                "ORDER BY slot_date DESC";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDate expectedDate = today;
+            int streak = 0;
+            boolean first = true;
+
+            while (rs.next()) {
+                java.time.LocalDate dbDate = rs.getDate(1).toLocalDate();
+                if (first) {
+                    if (dbDate.equals(today) || dbDate.equals(today.minusDays(1))) {
+                        streak = 1;
+                        expectedDate = dbDate.minusDays(1);
+                        first = false;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (dbDate.equals(expectedDate)) {
+                        streak++;
+                        expectedDate = expectedDate.minusDays(1);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return streak;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
 }

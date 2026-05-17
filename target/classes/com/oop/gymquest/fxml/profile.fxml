@@ -33,17 +33,17 @@
     <HBox fx:id="statsRow" spacing="20">
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #3b82f6; -fx-border-width: 0 0 0 4;">
             <Label text="Current Streak" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label text="12 Days" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label fx:id="streakLabel" text="0 Days" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
 
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #f59e0b; -fx-border-width: 0 0 0 4;">
             <Label fx:id="workoutsDoneLabel" text="Workouts Done" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label text="47" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label fx:id="sessionsDoneValueLabel" text="0" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
 
         <VBox HBox.hgrow="ALWAYS" alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 4); -fx-border-color: #10b981; -fx-border-width: 0 0 0 4;">
             <Label text="Badges Earned" style="-fx-text-fill: #64748b; -fx-font-size: 13;"/>
-            <Label text="5 / 9" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+            <Label fx:id="badgesEarnedLabel" text="0 / 6" style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
         </VBox>
     </HBox>
 

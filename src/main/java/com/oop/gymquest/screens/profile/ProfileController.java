@@ -16,7 +16,6 @@ import javafx.geometry.Pos;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 import java.io.IOException;
 
 public class ProfileController {
@@ -27,6 +26,7 @@ public class ProfileController {
     @FXML private FlowPane badgeContainer;
     @FXML private StackPane avatarContainer;
     @FXML private ImageView profileImageView;
+    @FXML private Label streakLabel, sessionsDoneValueLabel, badgesEarnedLabel;
 
     public static ProfileController instance;
 
@@ -35,7 +35,9 @@ public class ProfileController {
         instance = this;
         User user = MainApp.instance.currentUser;
         if (user == null) return;
+
         nameLabel.setText(user.getFullName());
+
         if (user.getAvatar() != null && !user.getAvatar().equals("user.png")) {
             try {
                 Image img = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/" + user.getAvatar()));
@@ -45,7 +47,9 @@ public class ProfileController {
                 System.err.println("Could not load user avatar, defaulting to icon.");
             }
         }
+
         String role = user.getType().toLowerCase();
+
         if (role.equals("admin")) {
             statsRow.setVisible(false);
             statsRow.setManaged(false);
@@ -53,16 +57,56 @@ public class ProfileController {
             achievementsSection.setManaged(false);
             avatarEmoji.setText("👨‍💼");
             roleSubLabel.setText("System Administrator • Full Access");
-        } else if (role.equals("trainer")) {
-            workoutsDoneLabel.setText("Sessions Done");
-            avatarEmoji.setText("🏋️");
-            roleSubLabel.setText("Professional Trainer • Member since Jan 2026");
-            loadBadges();
         } else {
-            avatarEmoji.setText("🎯");
-            roleSubLabel.setText("Fitness Enthusiast • Member since Jan 2026");
-            loadBadges();
+            if (role.equals("trainer")) {
+                workoutsDoneLabel.setText("Sessions Done");
+                avatarEmoji.setText("🏋️");
+                roleSubLabel.setText("Professional Trainer • Active Account");
+            } else {
+                workoutsDoneLabel.setText("Sessions Done");
+                avatarEmoji.setText("🎯");
+                roleSubLabel.setText("Fitness Enthusiast • Active Account");
+            }
+
+            int sessionsDone = DatabaseHandler.getSessionsDoneCount(user.getUserId(), role);
+            int streak = DatabaseHandler.getCurrentStreak(user.getUserId(), role);
+
+            streakLabel.setText(streak + (streak == 1 ? " Day" : " Days"));
+            sessionsDoneValueLabel.setText(String.valueOf(sessionsDone));
+            loadDynamicBadges(sessionsDone, streak);
         }
+    }
+
+    private void loadDynamicBadges(int sessionsDone, int streak) {
+        badgeContainer.getChildren().clear();
+        int unlockedCount = 0;
+
+        Object[][] badgeRules = {
+                {"👟", "First Steps", "sessions", 1},
+                {"🔥", "Consistent", "sessions", 5},
+                {"🌅", "Week Warrior", "sessions", 10},
+                {"💯", "Century Club", "sessions", 100},
+                {"⚡", "Fire Starter", "streak", 3},
+                {"💪", "Iron Will", "streak", 7}
+        };
+
+        for (Object[] rule : badgeRules) {
+            String emoji = (String) rule[0];
+            String title = (String) rule[1];
+            String type = (String) rule[2];
+            int required = (int) rule[3];
+
+            boolean isUnlocked = false;
+            if (type.equals("sessions") && sessionsDone >= required) isUnlocked = true;
+            if (type.equals("streak") && streak >= required) isUnlocked = true;
+
+            if (isUnlocked) unlockedCount++;
+
+            String statusText = isUnlocked ? "Unlocked" : "Locked";
+            badgeContainer.getChildren().add(createBadgeCard(emoji, title, statusText));
+        }
+
+        badgesEarnedLabel.setText(unlockedCount + " / " + badgeRules.length);
     }
 
     @FXML private void handleEditProfile() {
@@ -93,24 +137,21 @@ public class ProfileController {
             if (DashboardController.instance != null) {
                 DashboardController.instance.refreshHeader();
             }
-            System.out.println("✅ Avatar saved to database: " + imageName);
-        } else {
-            System.err.println("❌ Failed to save avatar to database.");
         }
     }
 
     @FXML private void handleChangeName() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/oop/gymquest/fxml/change_name.fxml"));
-            javafx.scene.Parent root = loader.load();
+            Parent root = loader.load();
             Stage modal = new Stage();
-            modal.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            modal.initStyle(javafx.stage.StageStyle.TRANSPARENT);
-            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            modal.initModality(Modality.APPLICATION_MODAL);
+            modal.initStyle(StageStyle.TRANSPARENT);
+            Scene scene = new Scene(root);
             scene.setFill(null);
             modal.setScene(scene);
             modal.show();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -119,34 +160,25 @@ public class ProfileController {
         nameLabel.setText(MainApp.instance.currentUser.getFullName());
     }
 
-    private void loadBadges() {
-        Object[][] badges = {
-                {"👟", "First Steps", "Unlocked"},
-                {"🔥", "Week Warrior", "Unlocked"},
-                {"🌅", "Early Bird", "Unlocked"},
-                {"💪", "Iron Will", "Locked"},
-                {"💯", "Century Club", "Locked"}
-        };
-        for (Object[] b : badges) {
-            badgeContainer.getChildren().add(createBadgeCard((String)b[0], (String)b[1], (String)b[2]));
-        }
-    }
-
     private VBox createBadgeCard(String emoji, String title, String status) {
         VBox card = new VBox(8);
         card.setAlignment(Pos.CENTER);
         card.setPrefSize(140, 140);
+
         boolean isLocked = status.equals("Locked");
         String style = "-fx-background-color: " + (isLocked ? "#f8fafc" : "#fef3c7") + ";" +
                 "-fx-background-radius: 15;" +
                 "-fx-border-color: " + (isLocked ? "#e2e8f0" : "#f59e0b") + ";" +
                 "-fx-border-width: 2; -fx-border-radius: 15;";
+
         card.setStyle(style);
         if (isLocked) card.setOpacity(0.6);
+
         Label icon = new Label(emoji); icon.setStyle("-fx-font-size: 35;");
         Label lblTitle = new Label(title); lblTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
         Label lblStatus = new Label(status); lblStatus.setStyle("-fx-font-size: 11; -fx-text-fill: #64748b;");
         card.getChildren().addAll(icon, lblTitle, lblStatus);
+
         return card;
     }
 }
