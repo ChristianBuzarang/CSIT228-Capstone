@@ -2,6 +2,7 @@ package com.oop.gymquest.screens.manageSchedule;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.screens.utils.Refreshable;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -10,14 +11,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import java.sql.ResultSet;
 
-public class ManageScheduleController {
+public class ManageScheduleController implements Refreshable {
     @FXML private Label countLabel;
     @FXML private VBox emptyPlaceholder;
     @FXML private VBox scheduleList;
 
-    @FXML public void initialize() { refreshView(); }
+    @FXML public void initialize() { refreshData(); }
 
-    public void refreshView() {
+    public void refreshData() {
         scheduleList.getChildren().clear();
         int tid = MainApp.instance.currentUser.getUserId();
         int count = 0;
@@ -108,7 +109,7 @@ public class ManageScheduleController {
         delBtn.setOnMouseEntered(e -> delBtn.setStyle(delHover));
         delBtn.setOnMouseExited(e -> delBtn.setStyle(delNormal));
         delBtn.setOnAction(e -> {
-            if (DatabaseHandler.deleteSlot(id)) refreshView();
+            if (DatabaseHandler.deleteSlot(id)) refreshData();
         });
 
         HBox actionBox = new HBox(10, editBtn, delBtn);

@@ -2,6 +2,7 @@ package com.oop.gymquest.screens.dashboard.userdashboards;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.exceptions.MemberNotFoundException;
 import com.oop.gymquest.screens.dashboard.DashboardController;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -29,26 +30,28 @@ public class TrainerClientsListController {
         clientListContainer.getChildren().clear();
         int trainerId = MainApp.instance.currentUser.getUserId();
 
-        // Query: Get unique members who have booked this trainer
         String sql = "SELECT DISTINCT u.userid, u.firstname, u.lastname, u.email, u.avatar " +
                 "FROM users u " +
                 "JOIN trainer_slots s ON u.userid = s.member_id " +
                 "WHERE s.trainer_id = ? AND (u.firstname LIKE ? OR u.lastname LIKE ?)";
 
-        try (Connection conn = DatabaseHandler.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (java.sql.Connection conn = DatabaseHandler.getConnection(); java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, trainerId);
             ps.setString(2, "%" + filter + "%");
             ps.setString(3, "%" + filter + "%");
-
             ResultSet rs = ps.executeQuery();
+            boolean foundAny = false;
             while (rs.next()) {
+                foundAny = true;
                 clientListContainer.getChildren().add(buildClientRow(rs));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            if (!foundAny && !filter.isEmpty()) throw new MemberNotFoundException(filter);
+        } catch (com.oop.gymquest.exceptions.MemberNotFoundException ex) {
+            System.err.println(ex.getMessage());
+            Label notFoundLabel = new Label("No clients found matching: '" + filter + "'");
+            notFoundLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-padding: 20;");
+            clientListContainer.getChildren().add(notFoundLabel);
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private HBox buildClientRow(ResultSet rs) throws Exception {

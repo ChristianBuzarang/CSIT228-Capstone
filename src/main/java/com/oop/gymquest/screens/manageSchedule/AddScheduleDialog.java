@@ -2,6 +2,7 @@ package com.oop.gymquest.screens.manageSchedule;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.exceptions.BookingConflictException;
 import com.oop.gymquest.screens.utils.CustomDialog;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -186,18 +187,20 @@ public class AddScheduleDialog extends Stage {
         String dur = durationBox.getValue();
 
         boolean success;
-        if (editSlotId == -1) {
-            int tid = MainApp.instance.currentUser.getUserId();
-            success = DatabaseHandler.addTrainerSlot(tid, type, dbDate, dbTime, dur);
-        } else {
-            success = DatabaseHandler.updateTrainerSlot(editSlotId, type, dbDate, dbTime, dur);
-        }
-
-        if (success) {
-            if (parent != null) parent.refreshView();
-            close();
-        } else {
-            showError("Database Error", "Failed to save the schedule. Please try again.");
+        try {
+            if (editSlotId == -1) {
+                int tid = MainApp.instance.currentUser.getUserId();
+                String trainerName = MainApp.instance.currentUser.getFullName();
+                success = DatabaseHandler.addTrainerSlot(tid, type, dbDate, dbTime, dur, trainerName);
+            }
+            else success = DatabaseHandler.updateTrainerSlot(editSlotId, type, dbDate, dbTime, dur);
+            if (success) {
+                if (parent != null) parent.refreshData();
+                close();
+            }
+            else showError("Database Error", "Failed to save the schedule. Please try again.");
+        } catch (BookingConflictException ex) {
+            showError("Schedule Conflict", ex.getMessage());
         }
     }
 

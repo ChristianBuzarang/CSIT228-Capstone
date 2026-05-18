@@ -1,6 +1,8 @@
 package com.oop.gymquest.data;
 
 import com.oop.gymquest.data.userdata.*;
+import com.oop.gymquest.exceptions.BookingConflictException;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -518,11 +520,23 @@ public class DatabaseHandler {
         return 0;
     }
 
-    public static boolean addTrainerSlot(int tid, String type, String date, String time, String dur) {
-        String sql = "INSERT INTO trainer_slots (trainer_id, activity, slot_date, slot_time, duration, status) " +
-                "VALUES (?, ?, ?, ?, ?, 'Available')";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public static boolean addTrainerSlot(int tid, String type, String date, String time, String dur, String trainerName) throws BookingConflictException {
+        String checkSql = "SELECT COUNT(*) FROM trainer_slots WHERE trainer_id = ? AND slot_date = ? AND slot_time = ?";
+        try (Connection conn = getConnection(); PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+            psCheck.setInt(1, tid);
+            psCheck.setString(2, date);
+            psCheck.setString(3, time);
+            ResultSet rs = psCheck.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                throw new BookingConflictException(trainerName, time + " on " + date);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        String sql = "INSERT INTO trainer_slots (trainer_id, activity, slot_date, slot_time, duration, status) VALUES (?, ?, ?, ?, ?, 'Available')";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, tid);
             ps.setString(2, type);
             ps.setString(3, date);

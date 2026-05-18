@@ -1,0 +1,11 @@
+=========================================
+       GYMQUEST GROUP SUMMARY EXPORT     
+=========================================
+Date: Mon May 18 10:14:12 PST 2026
+Total Users Exported: 5
+-----------------------------------------
+ID: 3    | ROLE: MEMBER   | NAME: Chan Member          | EMAIL: chan_member
+ID: 63   | ROLE: MEMBER   | NAME: Ericka Member        | EMAIL: ericka
+ID: 4    | ROLE: TRAINER  | NAME: Chan Trainer         | EMAIL: chan_trainer
+ID: 44   | ROLE: TRAINER  | NAME: Jan Trainer          | EMAIL: jan_trainer
+ID: 1    | ROLE: ADMIN    | NAME: System Admin         | EMAIL: admin
