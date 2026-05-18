@@ -52,11 +52,28 @@ public class MemberDashboardController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
+    private LocalTime parseDatabaseTime(String timeStr) {
+        try {
+            return LocalTime.parse(timeStr);
+        } catch (Exception e) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
+                return LocalTime.parse(timeStr, formatter);
+            } catch (Exception ex) {
+                System.err.println("Warning: Completely unknown time format '" + timeStr + "'. Defaulting to 12:00 AM.");
+                return LocalTime.MIDNIGHT;
+            }
+        }
+    }
+
     private VBox buildSessionCard(ResultSet rs, boolean checkStatus) throws Exception {
         String activity = rs.getString("activity");
         String trainer = rs.getString("firstname") + " " + rs.getString("lastname");
-        String date = rs.getString("slot_date");
-        String time = rs.getString("slot_time");
+        String dateStr = rs.getString("slot_date");
+        String timeStr = rs.getString("slot_time");
+
+        LocalTime parsedTime = parseDatabaseTime(timeStr);
+        String formattedTime = parsedTime.format(DateTimeFormatter.ofPattern("h:mm a"));
 
         VBox card = new VBox(5);
         card.setStyle("-fx-background-color: white; " +
@@ -83,7 +100,7 @@ public class MemberDashboardController {
         Label title = new Label(activity + " with " + trainer);
         title.setStyle("-fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-font-size: 14;");
 
-        Label meta = new Label(date + " • " + time);
+        Label meta = new Label(dateStr + " • " + formattedTime);
         meta.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13;");
         info.getChildren().addAll(title, meta);
 
@@ -94,7 +111,7 @@ public class MemberDashboardController {
         row.getChildren().add(spacer);
 
         if (checkStatus) {
-            Label badge = calculateStatus(date, time);
+            Label badge = calculateStatus(dateStr, parsedTime);
             row.getChildren().add(badge);
         }
 
@@ -102,10 +119,8 @@ public class MemberDashboardController {
         return card;
     }
 
-    private Label calculateStatus(String dateStr, String timeStr) {
+    private Label calculateStatus(String dateStr, LocalTime time) {
         LocalDate date = LocalDate.parse(dateStr);
-        DateTimeFormatter parser = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
-        LocalTime time = LocalTime.parse(timeStr, parser);
 
         Label badge = new Label();
         badge.setPadding(new Insets(4, 12, 4, 12));
@@ -134,7 +149,7 @@ public class MemberDashboardController {
             ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/calendar.png")));
             iv.setFitHeight(60); iv.setFitWidth(60);
             ph.getChildren().add(iv);
-        } catch (Exception e) { /* fallback if image missing */ }
+        } catch (Exception e) { }
 
         Label t = new Label(title);
         t.setStyle("-fx-font-weight: bold; -fx-font-size: 18; -fx-text-fill: #1e293b;");

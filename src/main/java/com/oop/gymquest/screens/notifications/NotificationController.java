@@ -11,11 +11,28 @@ import javafx.scene.Node;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class NotificationController {
     @FXML private VBox notificationList;
 
     @FXML public void initialize() { loadNotifications(); }
+
+    private LocalTime parseDatabaseTime(String timeStr) {
+        if (timeStr == null) return LocalTime.MIDNIGHT;
+        try {
+            return LocalTime.parse(timeStr);
+        } catch (Exception e) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH);
+                return LocalTime.parse(timeStr.toUpperCase(), formatter);
+            } catch (Exception ex) {
+                return LocalTime.MIDNIGHT;
+            }
+        }
+    }
 
     private void loadNotifications() {
         notificationList.getChildren().clear();
@@ -28,27 +45,19 @@ public class NotificationController {
                 found = true;
                 String coach = rs.getString("firstname") + " " + rs.getString("lastname");
                 String activity = rs.getString("activity");
+                String date = rs.getString("slot_date");
+
+                // Safely read the time and format it in Java instead of SQL
+                String rawTime = rs.getString("safe_time");
+                LocalTime parsedTime = parseDatabaseTime(rawTime);
+                String time = parsedTime.format(DateTimeFormatter.ofPattern("h:mm a"));
+
                 String message = "Confirmed: " + activity + " with " + coach;
-//                String date = rs.getString("slot_date");
-//
-//                String time = rs.getString("formatted_time") != null
-//                        ? rs.getString("formatted_time")
-//                        : rs.getString("slot_time");
-
-//                String timestamp = date + " at " + time;
-                java.sql.Date sqlDate = rs.getDate("slot_date");
-                java.sql.Time sqlTime = rs.getTime("slot_time");
-                String timestamp = "Scheduled"; // Default fallback
-
-                if (sqlDate != null && sqlTime != null) {
-                    long sessionMillis = sqlDate.getTime() + sqlTime.getTime();
-                    timestamp = calculateTimeAgo(sessionMillis);
-                }
-
+                String timestamp = date + " at " + time;
                 addNotificationItem("📅", message, timestamp);
             }
             if (!found) {
-                addNotificationItem("👋", "Welcome!", calculateTimeAgo(System.currentTimeMillis()));
+                addNotificationItem("👋", "Welcome to GymQuest! Start your journey by booking a session.", "Just now");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -57,9 +66,7 @@ public class NotificationController {
 
     @FXML private void handleMarkAllAsRead() {
         notificationList.getChildren().clear();
-
-        addNotificationItem("✅", "You're all caught up! No new notifications.", calculateTimeAgo(System.currentTimeMillis()));
-
+        addNotificationItem("✅", "You're all caught up! No new notifications.", "Just now");
         if (DashboardController.instance != null) DashboardController.instance.resetNotificationBell();
     }
 
@@ -74,19 +81,4 @@ public class NotificationController {
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
-
-    private String calculateTimeAgo(long millis) {
-        long diff = System.currentTimeMillis() - millis;
-
-        if (diff < 60000) return "Just now";
-
-        long minutes = diff / 60000;
-        if (minutes < 60) return minutes + "m ago";
-
-        long hours = minutes / 60;
-        if (hours < 24) return hours + "h ago";
-
-        return new java.text.SimpleDateFormat("MMM dd").format(new java.util.Date(millis));
-    }
-
 }

@@ -487,8 +487,8 @@ public class DatabaseHandler {
     }
 
     public static ResultSet getMemberSessionsToday(int memberId) {
-        String sql = "SELECT s.*, u.firstname, u.lastname, " +
-                "TIME_FORMAT(s.slot_time, '%h:%i %p') as formatted_time " +
+        String sql = "SELECT s.slot_id, s.activity, s.slot_date, CAST(s.slot_time AS CHAR) as safe_time, " +
+                "u.firstname, u.lastname " +
                 "FROM trainer_slots s " +
                 "JOIN users u ON s.trainer_id = u.userid " +
                 "WHERE s.member_id = ? AND s.slot_date = CURDATE() " +
