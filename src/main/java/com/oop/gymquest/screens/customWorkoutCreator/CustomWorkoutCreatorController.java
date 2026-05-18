@@ -8,6 +8,7 @@ import com.oop.gymquest.data.workoutdata.Workout;
 import com.oop.gymquest.data.workoutdata.WorkoutCategory;
 import com.oop.gymquest.screens.dashboard.DashboardController;
 import com.oop.gymquest.screens.exercisePicker.ExercisePickerDialog;
+import com.oop.gymquest.screens.utils.CustomDialog;
 import com.oop.gymquest.screens.workouts.WorkoutsViewController;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -57,7 +58,7 @@ public class CustomWorkoutCreatorController {
     @FXML private void handleSave() {
         String title = nameField.getText().trim();
         if (title.isEmpty() || selectedExercises.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Please enter a name and at least one exercise.");
+            CustomDialog.showError("Missing Information", "Please enter a workout name and add at least one exercise.");
             return;
         }
         int currentUserId = MainApp.instance.currentUser.getUserId();
@@ -69,16 +70,16 @@ public class CustomWorkoutCreatorController {
                     "Custom routine: " + title + ".", null
             );
             WorkoutDAO.createCustomWorkout(newWorkout, currentUserId);
-            showAlert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts! 🎉");
+            CustomDialog.showInfo("Success", "\"" + title + "\" has been added to your workouts! 🎉");
         } else {
             Workout updatedWorkout = new Workout(
                     workoutToEdit.getId(), title, workoutToEdit.getDifficulty(), estimateDuration(selectedExercises),
                     false, new ArrayList<>(selectedExercises), WorkoutCategory.STRENGTH, workoutToEdit.getDescription(), null
             );
+            updatedWorkout.setCustom(true);
+            updatedWorkout.setCreatedBy(currentUserId);
             WorkoutDAO.updateCustomWorkout(updatedWorkout);
-            WorkoutDAO.removeWorkout(workoutToEdit.getId());
-            WorkoutDAO.getAllWorkouts(currentUserId).add(updatedWorkout);
-            showAlert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been updated! 🎉");
+            CustomDialog.showInfo("Success", "\"" + title + "\" has been updated! 🎉");
         }
         workoutToEdit = null;
         handleBack();
@@ -138,11 +139,5 @@ public class CustomWorkoutCreatorController {
 
     private static List<Exercise> buildFallbackLibrary() {
         return List.of(new Exercise(1, "Push-ups", 3, "10", "💪", "strength"));
-    }
-
-    private void showAlert(Alert.AlertType type, String message) {
-        Alert alert = new Alert(type, message, ButtonType.OK);
-        alert.setHeaderText(null);
-        alert.showAndWait();
     }
 }

@@ -134,7 +134,11 @@ public class WorkoutsViewController {
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             Button editBtn = new Button("Edit");
-            editBtn.setStyle("-fx-background-color: #e0f2fe; -fx-text-fill: #0284c7; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 8;");
+            String wEditNormal = "-fx-background-color: #e0f2fe; -fx-text-fill: #0284c7; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            String wEditHover = "-fx-background-color: #bae6fd; -fx-text-fill: #0369a1; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            editBtn.setStyle(wEditNormal);
+            editBtn.setOnMouseEntered(e -> editBtn.setStyle(wEditHover));
+            editBtn.setOnMouseExited(e -> editBtn.setStyle(wEditNormal));
             editBtn.setOnAction(e -> {
                 e.consume();
                 com.oop.gymquest.screens.customWorkoutCreator.CustomWorkoutCreatorController.workoutToEdit = workout;
@@ -142,11 +146,12 @@ public class WorkoutsViewController {
             });
 
             Button deleteBtn = new Button("Delete");
-            deleteBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 8;");
-            deleteBtn.setOnAction(e -> {
-                e.consume();
-                confirmAndDelete(workout);
-            });
+            String wDelNormal = "-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            String wDelHover = "-fx-background-color: #fecaca; -fx-text-fill: #dc2626; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            deleteBtn.setStyle(wDelNormal);
+            deleteBtn.setOnMouseEntered(e -> deleteBtn.setStyle(wDelHover));
+            deleteBtn.setOnMouseExited(e -> deleteBtn.setStyle(wDelNormal));
+            deleteBtn.setOnAction(e -> { e.consume(); confirmAndDelete(workout); });
 
             topRow.getChildren().addAll(spacer, new HBox(6, editBtn, deleteBtn));
         }
@@ -177,8 +182,16 @@ public class WorkoutsViewController {
     }
 
     private void confirmAndDelete(Workout workout) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete \"" + workout.getTitle() + "\"? This cannot be undone.");
-        confirm.showAndWait().ifPresent(r -> { if (r == ButtonType.OK) { WorkoutDAO.removeWorkout(workout.getId()); applyFilter(); }});
+        boolean confirmed = com.oop.gymquest.screens.utils.CustomDialog.showConfirmation(
+                "Delete Workout",
+                "Delete \"" + workout.getTitle() + "\"? This cannot be undone.",
+                "Delete",
+                true
+        );
+        if (confirmed) {
+            WorkoutDAO.removeWorkout(workout.getId());
+            applyFilter();
+        }
     }
 
     private void showWorkoutDetail(Workout workout) {

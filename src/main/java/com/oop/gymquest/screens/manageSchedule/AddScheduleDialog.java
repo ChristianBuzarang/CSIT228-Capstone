@@ -2,6 +2,7 @@ package com.oop.gymquest.screens.manageSchedule;
 
 import com.oop.gymquest.app.MainApp;
 import com.oop.gymquest.data.DatabaseHandler;
+import com.oop.gymquest.screens.utils.CustomDialog;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -201,11 +202,7 @@ public class AddScheduleDialog extends Stage {
     }
 
     private void showError(String title, String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
+        CustomDialog.showError(title, msg);
     }
 
     private void applyHighFidelityCSS(Scene scene) {

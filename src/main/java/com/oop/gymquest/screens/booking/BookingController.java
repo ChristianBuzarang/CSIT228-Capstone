@@ -159,20 +159,20 @@ public class BookingController implements Initializable {
     }
 
     private void handleBookingConfirmation(int slotId, String coach, String time) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirm Booking");
-        confirm.setHeaderText("Book Session with " + coach);
-        confirm.setContentText("Date: " + selectedDate + "\nTime: " + time + "\n\nDo you want to proceed?");
+        boolean confirmed = com.oop.gymquest.screens.utils.CustomDialog.showConfirmation(
+                "Confirm Booking",
+                "Book Session with " + coach + "\nDate: " + selectedDate + "\nTime: " + time + "\n\nDo you want to proceed?",
+                "Confirm",
+                false
+        );
 
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                int memberId = MainApp.instance.currentUser.getUserId();
-                if (DatabaseHandler.saveBooking(memberId, slotId)) {
-                    showTrainers(); // Refresh Member UI
-                    System.out.println("Session with " + coach + " confirmed.");
-                }
+        if (confirmed) {
+            int memberId = MainApp.instance.currentUser.getUserId();
+            if (DatabaseHandler.saveBooking(memberId, slotId)) {
+                showTrainers();
+                com.oop.gymquest.screens.utils.CustomDialog.showInfo("Success", "✅ Session with " + coach + " confirmed.");
             }
-        });
+        }
     }
 
     private void showPlaceholder() {

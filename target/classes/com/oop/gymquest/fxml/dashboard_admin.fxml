@@ -31,13 +31,12 @@
             <Region HBox.hgrow="ALWAYS" />
             <HBox spacing="10">
                 <Button text="+ Create Admin" onAction="#handleCreateAdmin" styleClass="btn-primary" focusTraversable="false"/>
-                <Button text="Export Summary" onAction="#handleExportSummary" style="-fx-background-color: #f0fdf4;
-                    -fx-text-fill: #16a34a; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;" />
+                <Button text="Export Summary" onAction="#handleExportSummary" styleClass="btn-export-summary"/>
             </HBox>
         </HBox>
 
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <HBox spacing="0" styleClass="toggle-nav-container">
+            <HBox styleClass="toggle-nav-container">
                 <Button fx:id="btnToggleMembers" text="Members" onAction="#showMembers" styleClass="toggle-nav-btn" focusTraversable="false"/>
                 <Button fx:id="btnToggleTrainers" text="Trainers" onAction="#showTrainers" styleClass="toggle-nav-btn" focusTraversable="false"/>
                 <Button fx:id="btnToggleAdmins" text="Admins" onAction="#showAdmins" styleClass="toggle-nav-btn" focusTraversable="false"/>

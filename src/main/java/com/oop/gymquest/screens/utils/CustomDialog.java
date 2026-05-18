@@ -118,4 +118,48 @@ public class CustomDialog {
         stage.centerOnScreen();
         stage.showAndWait();
     }
+
+    public static void showInfo(String title, String message) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.TRANSPARENT);
+
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25));
+        root.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #3b82f6; -fx-border-width: 1;");
+
+        DropShadow shadow = new DropShadow();
+        shadow.setRadius(15); shadow.setOffsetY(5); shadow.setColor(Color.rgb(0, 0, 0, 0.1));
+        root.setEffect(shadow);
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #3b82f6;"); // Blue title
+
+        Label messageLabel = new Label(message);
+        messageLabel.setWrapText(true);
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #475569; -fx-line-spacing: 4;");
+        messageLabel.setPrefWidth(300);
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Button okBtn = new Button("OK");
+        String okStyle = "-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 8 25; -fx-background-radius: 8;";
+        String okHover = "-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 8 25; -fx-background-radius: 8;";
+
+        okBtn.setStyle(okStyle);
+        okBtn.setOnMouseEntered(e -> okBtn.setStyle(okHover));
+        okBtn.setOnMouseExited(e -> okBtn.setStyle(okStyle));
+        okBtn.setOnAction(e -> stage.close());
+
+        buttonBox.getChildren().add(okBtn);
+        root.getChildren().addAll(titleLabel, messageLabel, buttonBox);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        stage.setScene(scene);
+        stage.centerOnScreen();
+        stage.showAndWait();
+    }
 }

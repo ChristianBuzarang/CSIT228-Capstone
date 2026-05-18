@@ -235,6 +235,8 @@ public class WorkoutDAO {
                     delPs.executeUpdate();
                 }
                 saveWorkoutExercises(c, workout.getId(), workout.getExercises());
+                runtimeCache.removeIf(w -> w.getId() == workout.getId());
+                runtimeCache.add(workout);
             }
         } catch (Exception e) {
             System.err.println("Failed to update workout: " + e.getMessage());

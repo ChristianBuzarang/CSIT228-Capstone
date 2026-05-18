@@ -94,21 +94,19 @@ public class ManageScheduleController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button editBtn = new Button("Edit");
-        editBtn.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #3b82f6; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 5 10;");
-        editBtn.setOnAction(e -> {
-            new AddScheduleDialog(this, id, act, date, time, dur).show();
-        });
+        String editNormal = "-fx-background-color: #f1f5f9; -fx-text-fill: #3b82f6; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 6 14;";
+        String editHover = "-fx-background-color: #dbeafe; -fx-text-fill: #2563eb; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 6 14;";
+        editBtn.setStyle(editNormal);
+        editBtn.setOnMouseEntered(e -> editBtn.setStyle(editHover));
+        editBtn.setOnMouseExited(e -> editBtn.setStyle(editNormal));
+        editBtn.setOnAction(e -> new AddScheduleDialog(this, id, act, date, time, dur).show());
 
-        Button delBtn = new Button();
-        try {
-            ImageView trash = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/check.png")));
-            trash.setFitHeight(18);
-            trash.setFitWidth(18);
-            delBtn.setGraphic(trash);
-        } catch (Exception e) {
-            delBtn.setText("❌");
-        }
-        delBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+        Button delBtn = new Button("Delete");
+        String delNormal = "-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 6 14;";
+        String delHover = "-fx-background-color: #fecaca; -fx-text-fill: #dc2626; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 6 14;";
+        delBtn.setStyle(delNormal);
+        delBtn.setOnMouseEntered(e -> delBtn.setStyle(delHover));
+        delBtn.setOnMouseExited(e -> delBtn.setStyle(delNormal));
         delBtn.setOnAction(e -> {
             if (DatabaseHandler.deleteSlot(id)) refreshView();
         });

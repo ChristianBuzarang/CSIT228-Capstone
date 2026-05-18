@@ -55,9 +55,7 @@ public class AdminDashboardController {
                     {
                         container.setAlignment(Pos.CENTER);
                         editBtn.getStyleClass().add("action-btn-update");
-
-                        exportBtn.setStyle("-fx-background-color: #f0fdf4; -fx-text-fill: #16a34a; -fx-font-weight: bold; " +
-                                "-fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 5 10;");
+                        exportBtn.getStyleClass().add("action-btn-export");
 
                         actionBtn.setFocusTraversable(false);
                         editBtn.setFocusTraversable(false);
