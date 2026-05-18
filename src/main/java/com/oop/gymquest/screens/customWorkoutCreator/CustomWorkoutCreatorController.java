@@ -124,11 +124,38 @@ public class CustomWorkoutCreatorController {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
-            Button removeBtn = new Button("🗑");
-            removeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;");
-            removeBtn.setOnAction(e -> { selectedExercises.remove(idx); updateExerciseList(); });
+//            Button editBtn = new Button("Edit");
+//            editBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14px;");
+//            editBtn.setOnAction(e -> handleEditExercise(idx, ex));
 
-            row.getChildren().addAll(numCircle, exIcon, info, spacer, removeBtn);
+            Button editBtn = new Button("Edit");
+            String wEditNormal = "-fx-background-color: #e0f2fe; -fx-text-fill: #0284c7; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            String wEditHover = "-fx-background-color: #bae6fd; -fx-text-fill: #0369a1; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            editBtn.setStyle(wEditNormal);
+            editBtn.setOnMouseEntered(e -> editBtn.setStyle(wEditHover));
+            editBtn.setOnMouseExited(e -> editBtn.setStyle(wEditNormal));
+            editBtn.setOnAction(e -> {
+                e.consume();
+                handleEditExercise(idx, ex);
+            });
+
+//            Button removeBtn = new Button("Delete");
+//            removeBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;");
+//            removeBtn.setOnAction(e -> { selectedExercises.remove(idx); updateExerciseList(); });
+
+            Button removeBtn = new Button("Delete");
+            String wDelNormal = "-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            String wDelHover = "-fx-background-color: #fecaca; -fx-text-fill: #dc2626; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 10; -fx-font-weight: bold;";
+            removeBtn.setStyle(wDelNormal);
+            removeBtn.setOnMouseEntered(e -> removeBtn.setStyle(wDelHover));
+            removeBtn.setOnMouseExited(e -> removeBtn.setStyle(wDelNormal));
+            removeBtn.setOnAction(e -> {
+                e.consume();
+                selectedExercises.remove(idx);
+                updateExerciseList();
+            });
+
+            row.getChildren().addAll(numCircle, exIcon, info, spacer, editBtn, removeBtn);
             exerciseListBox.getChildren().add(row);
         }
     }
@@ -139,5 +166,18 @@ public class CustomWorkoutCreatorController {
 
     private static List<Exercise> buildFallbackLibrary() {
         return List.of(new Exercise(1, "Push-ups", 3, "10", "💪", "strength"));
+    }
+
+    private void handleEditExercise(int index, Exercise currentExercise) {
+        List<Exercise> library = ExerciseDAO.getAll();
+        if (library.isEmpty()) {
+            library = buildFallbackLibrary();
+        }
+
+        ExercisePickerDialog picker = new ExercisePickerDialog(library, currentExercise);
+        picker.showAndWait().ifPresent(updatedEx -> {
+            selectedExercises.set(index, updatedEx);
+            updateExerciseList();
+        });
     }
 }

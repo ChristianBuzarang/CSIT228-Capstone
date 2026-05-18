@@ -17,8 +17,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProfileController {
     @FXML private Label nameLabel, roleSubLabel, avatarEmoji, workoutsDoneLabel, streakLabel, sessionsDoneValueLabel, badgesEarnedLabel;
@@ -34,13 +32,14 @@ public class ProfileController {
         instance = this;
         User user = MainApp.instance.currentUser;
         if (user == null) return;
-
         nameLabel.setText(user.getFullName());
-
-        if (user.getAvatar() != null && !user.getAvatar().equals("user.png")) {
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
             try {
                 Image img = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/" + user.getAvatar()));
                 profileImageView.setImage(img);
+                javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(40, 40, 40);
+                profileImageView.setClip(clip);
+
                 avatarEmoji.setVisible(false);
             } catch (Exception e) {
                 System.err.println("Could not load user avatar, defaulting to icon.");
@@ -79,7 +78,6 @@ public class ProfileController {
     private void loadDynamicBadges(int sessionsDone, int streak) {
         badgeContainer.getChildren().clear();
         int unlockedCount = 0;
-
         Object[][] badgeRules = {
                 {"👟", "First Steps", "sessions", 1},
                 {"🔥", "Consistent", "sessions", 5},
@@ -88,23 +86,18 @@ public class ProfileController {
                 {"⚡", "Fire Starter", "streak", 3},
                 {"💪", "Iron Will", "streak", 7}
         };
-
         for (Object[] rule : badgeRules) {
             String emoji = (String) rule[0];
             String title = (String) rule[1];
             String type = (String) rule[2];
             int required = (int) rule[3];
-
             boolean isUnlocked = false;
             if (type.equals("sessions") && sessionsDone >= required) isUnlocked = true;
             if (type.equals("streak") && streak >= required) isUnlocked = true;
-
             if (isUnlocked) unlockedCount++;
-
             String statusText = isUnlocked ? "Unlocked" : "Locked";
             badgeContainer.getChildren().add(createBadgeCard(emoji, title, statusText));
         }
-
         badgesEarnedLabel.setText(unlockedCount + " / " + badgeRules.length);
     }
 
@@ -130,6 +123,10 @@ public class ProfileController {
             currentUser.setAvatar(imageName);
             Image img = new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/" + imageName));
             profileImageView.setImage(img);
+
+            javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(40, 40, 40);
+            profileImageView.setClip(clip);
+
             avatarEmoji.setVisible(false);
             if (DashboardController.instance != null) {
                 DashboardController.instance.refreshHeader();

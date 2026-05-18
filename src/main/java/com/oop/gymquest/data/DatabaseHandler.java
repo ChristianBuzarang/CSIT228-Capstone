@@ -176,7 +176,7 @@ public class DatabaseHandler {
     }
 
     public static boolean registerUser(String email, String password, String fname, String lname, String type) {
-        String iu = "INSERT IGNORE INTO users (email, password, firstname, lastname, type) VALUES (?,?,?,?,?)";
+        String iu = "INSERT IGNORE INTO users (email, password, firstname, lastname, type, avatar) VALUES (?,?,?,?,?, 'user.png')";
         String ir = switch (type.toLowerCase()) {
             case "admin" -> "INSERT INTO admins (userid) VALUES (?)";
             case "trainer" -> "INSERT INTO trainers (userid) VALUES (?)";

@@ -2,6 +2,7 @@ package com.oop.gymquest.screens.exercisePicker;
 
 import com.oop.gymquest.data.workoutdata.Exercise;
 import com.oop.gymquest.screens.workouts.WorkoutsViewController;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -95,6 +96,13 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
         buildContent();
         buildButtons();
         setupResultConverter();
+    }
+
+    public ExercisePickerDialog(List<Exercise> library, Exercise exerciseToEdit) {
+        this(library);
+        Button okNode = (Button) getDialogPane().lookupButton(ButtonType.OK);
+        okNode.setText("Update Exercise");
+        Platform.runLater(() -> preSelectExercise(exerciseToEdit));
     }
 
     private void applyHighFidelityCSS() {
@@ -350,5 +358,26 @@ public class ExercisePickerDialog extends Dialog<Exercise> {
     private static String capitalize(String s) {
         if (s == null || s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1).toLowerCase();
+    }
+
+    private void preSelectExercise(Exercise exerciseToEdit) {
+        for (javafx.scene.Node node : grid.getChildren()) {
+            if (node instanceof VBox card && card.getUserData() instanceof Exercise ex) {
+                if (ex.getName().equals(exerciseToEdit.getName())) {
+                    selectedExercise = ex;
+                    String catColor = getCategoryColor(ex.getCategory());
+                    String selectedStyle = "-fx-background-color: " + catColor + "10; -fx-background-radius: 14; -fx-border-color: " + catColor + "; -fx-border-width: 2.5; -fx-border-radius: 14; -fx-cursor: hand;";
+                    card.setStyle(selectedStyle);
+                    selectedNameLbl.setText(ex.getName());
+                    setsSpinner.setDisable(false);
+                    setsSpinner.getValueFactory().setValue(exerciseToEdit.getSets());
+                    repsField.setDisable(false);
+                    repsField.setText(exerciseToEdit.getReps());
+                    addBtnRef.setDisable(false);
+                    addBtnRef.setStyle("-fx-background-color: " + catColor + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 24; -fx-cursor: hand;");
+                    break;
+                }
+            }
+        }
     }
 }
