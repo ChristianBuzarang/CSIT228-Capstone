@@ -93,6 +93,12 @@ public class ManageScheduleController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        Button editBtn = new Button("Edit");
+        editBtn.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #3b82f6; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 5 10;");
+        editBtn.setOnAction(e -> {
+            new AddScheduleDialog(this, id, act, date, time, dur).show();
+        });
+
         Button delBtn = new Button();
         try {
             ImageView trash = new ImageView(new Image(getClass().getResourceAsStream("/com/oop/gymquest/images/check.png")));
@@ -102,13 +108,15 @@ public class ManageScheduleController {
         } catch (Exception e) {
             delBtn.setText("❌");
         }
-
         delBtn.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
         delBtn.setOnAction(e -> {
             if (DatabaseHandler.deleteSlot(id)) refreshView();
         });
 
-        row.getChildren().addAll(iconBox, content, spacer, delBtn);
+        HBox actionBox = new HBox(10, editBtn, delBtn);
+        actionBox.setAlignment(Pos.CENTER_RIGHT);
+
+        row.getChildren().addAll(iconBox, content, spacer, actionBox);
         scheduleList.getChildren().add(row);
     }
 

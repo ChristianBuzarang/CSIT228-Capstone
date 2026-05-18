@@ -12,8 +12,27 @@ public class DatabaseHandler {
     private static final String USER     = "root";
     private static final String PASS     = "";
 
-    public static Connection getConnection() throws SQLException {
+    private static DatabaseHandler instance;
+
+    private DatabaseHandler() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) { e.printStackTrace(); }
+    }
+
+    public static synchronized DatabaseHandler getInstance() {
+        if (instance == null) {
+            instance = new DatabaseHandler();
+        }
+        return instance;
+    }
+
+    public Connection getDbConnection() throws SQLException {
         return DriverManager.getConnection(FULL_URL, USER, PASS);
+    }
+
+    public static Connection getConnection() throws SQLException {
+        return getInstance().getDbConnection();
     }
 
     public static void init() {
@@ -683,5 +702,21 @@ public class DatabaseHandler {
             return streak;
         } catch (SQLException e) { e.printStackTrace(); }
         return 0;
+    }
+
+    public static boolean updateTrainerSlot(int slotId, String type, String date, String time, String dur) {
+        String sql = "UPDATE trainer_slots SET activity = ?, slot_date = ?, slot_time = ?, duration = ? WHERE slot_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, type);
+            ps.setString(2, date);
+            ps.setString(3, time);
+            ps.setString(4, dur);
+            ps.setInt(5, slotId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -133,14 +133,22 @@ public class WorkoutsViewController {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
-            Label customTag = new Label("Custom");
-            customTag.setStyle("-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 3 8; -fx-background-radius: 10;");
+            Button editBtn = new Button("Edit");
+            editBtn.setStyle("-fx-background-color: #e0f2fe; -fx-text-fill: #0284c7; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 8;");
+            editBtn.setOnAction(e -> {
+                e.consume();
+                com.oop.gymquest.screens.customWorkoutCreator.CustomWorkoutCreatorController.workoutToEdit = workout;
+                MainApp.instance.changeScene("create_custom_workout.fxml", "GymQuest - Edit Custom Workout");
+            });
 
-            Button deleteBtn = new Button("🗑");
+            Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: #fee2e2; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 4 8;");
-            deleteBtn.setOnAction(e -> { e.consume(); confirmAndDelete(workout); });
+            deleteBtn.setOnAction(e -> {
+                e.consume();
+                confirmAndDelete(workout);
+            });
 
-            topRow.getChildren().addAll(spacer, new HBox(6, customTag, deleteBtn));
+            topRow.getChildren().addAll(spacer, new HBox(6, editBtn, deleteBtn));
         }
 
         Label title = new Label(workout.getTitle());

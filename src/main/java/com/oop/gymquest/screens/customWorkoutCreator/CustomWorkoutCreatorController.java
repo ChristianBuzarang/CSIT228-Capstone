@@ -24,10 +24,18 @@ public class CustomWorkoutCreatorController {
     @FXML private VBox exerciseListBox;
 
     private final List<Exercise> selectedExercises = new ArrayList<>();
+    public static Workout workoutToEdit = null;
 
-    @FXML public void initialize() { updateExerciseList(); }
+    @FXML public void initialize() {
+        if (workoutToEdit != null) {
+            nameField.setText(workoutToEdit.getTitle());
+            selectedExercises.addAll(workoutToEdit.getExercises());
+        }
+        updateExerciseList();
+    }
 
     @FXML private void handleBack() {
+        workoutToEdit = null;
         MainApp.instance.changeScene("dashboard_shell.fxml", "GymQuest - Dashboard");
         if (DashboardController.instance != null) {
             DashboardController.instance.handleNavWorkouts();
@@ -39,7 +47,6 @@ public class CustomWorkoutCreatorController {
         if (library.isEmpty()) {
             library = buildFallbackLibrary();
         }
-
         ExercisePickerDialog picker = new ExercisePickerDialog(library);
         picker.showAndWait().ifPresent(ex -> {
             selectedExercises.add(ex);
@@ -49,37 +56,36 @@ public class CustomWorkoutCreatorController {
 
     @FXML private void handleSave() {
         String title = nameField.getText().trim();
-
-        if (title.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Please enter a workout name.");
+        if (title.isEmpty() || selectedExercises.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Please enter a name and at least one exercise.");
             return;
         }
-        if (selectedExercises.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Please add at least one exercise.");
-            return;
-        }
-
         int currentUserId = MainApp.instance.currentUser.getUserId();
-        int newId = WorkoutDAO.getAllWorkouts(currentUserId).size() + 100;
-
-        Workout newWorkout = new Workout(
-                newId, title, Workout.Difficulty.BEGINNER, estimateDuration(selectedExercises),
-                false, new ArrayList<>(selectedExercises), WorkoutCategory.STRENGTH,
-                "Custom routine: " + title + ".", null
-        );
-
-        WorkoutDAO.createCustomWorkout(newWorkout, currentUserId);
-
-        Alert info = new Alert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts!", ButtonType.OK);
-        info.setHeaderText("Workout Saved!");
-        info.showAndWait();
-
+        if(workoutToEdit == null){
+            int newId = WorkoutDAO.getAllWorkouts(currentUserId).size() + 100;
+            Workout newWorkout = new Workout(
+                    newId, title, Workout.Difficulty.BEGINNER, estimateDuration(selectedExercises),
+                    false, new ArrayList<>(selectedExercises), WorkoutCategory.STRENGTH,
+                    "Custom routine: " + title + ".", null
+            );
+            WorkoutDAO.createCustomWorkout(newWorkout, currentUserId);
+            showAlert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been added to your workouts! 🎉");
+        } else {
+            Workout updatedWorkout = new Workout(
+                    workoutToEdit.getId(), title, workoutToEdit.getDifficulty(), estimateDuration(selectedExercises),
+                    false, new ArrayList<>(selectedExercises), WorkoutCategory.STRENGTH, workoutToEdit.getDescription(), null
+            );
+            WorkoutDAO.updateCustomWorkout(updatedWorkout);
+            WorkoutDAO.removeWorkout(workoutToEdit.getId());
+            WorkoutDAO.getAllWorkouts(currentUserId).add(updatedWorkout);
+            showAlert(Alert.AlertType.INFORMATION, "\"" + title + "\" has been updated! 🎉");
+        }
+        workoutToEdit = null;
         handleBack();
     }
 
     private void updateExerciseList() {
         exerciseListBox.getChildren().clear();
-
         if (selectedExercises.isEmpty()) {
             VBox placeholder = new VBox();
             placeholder.setAlignment(Pos.CENTER);
@@ -93,7 +99,6 @@ public class CustomWorkoutCreatorController {
             exerciseListBox.getChildren().add(placeholder);
             return;
         }
-
         for (int i = 0; i < selectedExercises.size(); i++) {
             final int idx = i;
             Exercise ex = selectedExercises.get(i);

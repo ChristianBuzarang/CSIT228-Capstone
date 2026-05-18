@@ -214,4 +214,31 @@ public class WorkoutDAO {
         }
         return filteredList;
     }
+
+    public static boolean updateCustomWorkout(Workout workout) {
+        if (!cacheInitialized) initializeCache();
+        boolean dbSuccess = false;
+
+        String updateSql = "UPDATE workouts SET title = ?, duration = ?, description = ? WHERE id = ?";
+        try (Connection c = MySQLConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(updateSql)) {
+
+            ps.setString(1, workout.getTitle());
+            ps.setString(2, workout.getDuration());
+            ps.setString(3, workout.getDescription());
+            ps.setInt(4, workout.getId());
+            dbSuccess = ps.executeUpdate() > 0;
+
+            if (dbSuccess) {
+                try (PreparedStatement delPs = c.prepareStatement("DELETE FROM workout_exercises WHERE workout_id = ?")) {
+                    delPs.setInt(1, workout.getId());
+                    delPs.executeUpdate();
+                }
+                saveWorkoutExercises(c, workout.getId(), workout.getExercises());
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to update workout: " + e.getMessage());
+        }
+        return dbSuccess;
+    }
 }

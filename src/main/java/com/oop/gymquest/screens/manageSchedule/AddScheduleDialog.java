@@ -23,15 +23,40 @@ public class AddScheduleDialog extends Stage {
     private final ComboBox<String> durationBox = new ComboBox<>();
     private final ManageScheduleController parent;
 
+    private int editSlotId = -1;
+
     public AddScheduleDialog(ManageScheduleController parent) {
         this.parent = parent;
         initStyle(StageStyle.TRANSPARENT);
         initModality(Modality.APPLICATION_MODAL);
-        setTitle("Add Schedule");
-        buildUI();
+        buildUI("Add Schedule", "Add Schedule");
     }
 
-    private void buildUI() {
+    public AddScheduleDialog(ManageScheduleController parent, int id, String type, String date, String time, String dur) {
+        this.parent = parent;
+        this.editSlotId = id;
+        initStyle(StageStyle.TRANSPARENT);
+        initModality(Modality.APPLICATION_MODAL);
+        buildUI("Edit Schedule", "Update Schedule");
+
+        typeField.setText(type);
+        datePicker.setValue(LocalDate.parse(date));
+        durationBox.setValue(dur);
+
+        try {
+            String[] parts = time.split(":");
+            int h = Integer.parseInt(parts[0]);
+            int m = Integer.parseInt(parts[1]);
+            String amPm = (h >= 12) ? "PM" : "AM";
+            if (h > 12) h -= 12;
+            if (h == 0) h = 12;
+            hourBox.setValue(String.format("%02d", h));
+            minuteBox.setValue(String.format("%02d", m));
+            amPmBox.setValue(amPm);
+        } catch (Exception ignored) {}
+    }
+
+    private void buildUI(String titleText, String buttonText) {
         VBox card = new VBox(20);
         card.setPadding(new Insets(30));
         card.setPrefWidth(480);
@@ -39,7 +64,7 @@ public class AddScheduleDialog extends Stage {
 
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
-        Label titleLbl = new Label("Add Schedule");
+        Label titleLbl = new Label(titleText);
         titleLbl.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;");
 
         Region headerSpacer = new Region();
@@ -59,7 +84,6 @@ public class AddScheduleDialog extends Stage {
         datePicker.setMaxWidth(Double.MAX_VALUE);
         datePicker.setPromptText("Select a date");
         datePicker.setDayCellFactory(picker -> new DateCell() {
-
             @Override
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
@@ -77,9 +101,11 @@ public class AddScheduleDialog extends Stage {
         minuteBox.getItems().addAll("00", "15", "30", "45");
         amPmBox.getItems().addAll("AM", "PM");
 
-        hourBox.setValue("08");
-        minuteBox.setValue("00");
-        amPmBox.setValue("AM");
+        if (editSlotId == -1) {
+            hourBox.setValue("08");
+            minuteBox.setValue("00");
+            amPmBox.setValue("AM");
+        }
 
         hourBox.setPrefWidth(90);
         minuteBox.setPrefWidth(90);
@@ -93,7 +119,7 @@ public class AddScheduleDialog extends Stage {
 
         durationBox.setMaxWidth(Double.MAX_VALUE);
         durationBox.getItems().addAll("30 minutes", "45 minutes", "60 minutes", "90 minutes", "120 minutes");
-        durationBox.setValue("60 minutes");
+        if (editSlotId == -1) durationBox.setValue("60 minutes");
         VBox durBox = createLabeledField("Duration", durationBox);
 
         HBox buttonBox = new HBox(12);
@@ -104,7 +130,7 @@ public class AddScheduleDialog extends Stage {
         cancelActionBtn.setStyle("-fx-background-color: white; -fx-text-fill: #64748b; -fx-border-color: #cbd5e1; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-padding: 10 24; -fx-cursor: hand;");
         cancelActionBtn.setOnAction(e -> close());
 
-        Button saveBtn = new Button("Add Schedule");
+        Button saveBtn = new Button(buttonText);
         saveBtn.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 24; -fx-background-radius: 8; -fx-cursor: hand;");
         saveBtn.setOnAction(e -> handleSave());
 
@@ -158,8 +184,13 @@ public class AddScheduleDialog extends Stage {
         String dbDate = date.toString();
         String dur = durationBox.getValue();
 
-        int tid = MainApp.instance.currentUser.getUserId();
-        boolean success = DatabaseHandler.addTrainerSlot(tid, type, dbDate, dbTime, dur);
+        boolean success;
+        if (editSlotId == -1) {
+            int tid = MainApp.instance.currentUser.getUserId();
+            success = DatabaseHandler.addTrainerSlot(tid, type, dbDate, dbTime, dur);
+        } else {
+            success = DatabaseHandler.updateTrainerSlot(editSlotId, type, dbDate, dbTime, dur);
+        }
 
         if (success) {
             if (parent != null) parent.refreshView();
