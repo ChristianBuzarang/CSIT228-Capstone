@@ -51,6 +51,21 @@ public class DatabaseHandler {
 
                 stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
 
+
+//                System.out.println("Dropping old tables for a fresh start...");
+//                stmt.execute("DROP TABLE IF EXISTS slot_workouts");
+//                stmt.execute("DROP TABLE IF EXISTS workout_exercises");
+//                stmt.execute("DROP TABLE IF EXISTS workouts");
+//                stmt.execute("DROP TABLE IF EXISTS exercises");
+//                stmt.execute("DROP TABLE IF EXISTS post_likes");
+//                stmt.execute("DROP TABLE IF EXISTS posts");
+//                stmt.execute("DROP TABLE IF EXISTS trainer_slots");
+//                stmt.execute("DROP TABLE IF EXISTS admins");
+//                stmt.execute("DROP TABLE IF EXISTS members");
+//                stmt.execute("DROP TABLE IF EXISTS trainers");
+//                stmt.execute("DROP TABLE IF EXISTS users_archive");
+//                stmt.execute("DROP TABLE IF EXISTS users");
+
                 // ── Users & Roles ──
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "userid INT PRIMARY KEY AUTO_INCREMENT, " +

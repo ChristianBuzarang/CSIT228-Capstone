@@ -47,7 +47,7 @@ public class MemberDashboardController {
                 count++;
             }
             if (count == 0) {
-                showEmptyPlaceholder(historySessionsContainer, "No Recent Activity", "Your completed sessions will appear here.");
+                showEmptyPlaceholder(historySessionsContainer, "No Completed Activity", "Your completed sessions will appear here.");
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

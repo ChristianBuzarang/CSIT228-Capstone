@@ -34,6 +34,10 @@ public class NotificationController {
         }
     }
 
+    private String getRealTimeNow() {
+        return "Today at " + LocalTime.now().format(DateTimeFormatter.ofPattern("h:mm a"));
+    }
+
     private void loadNotifications() {
         notificationList.getChildren().clear();
         User currentUser = MainApp.instance.currentUser;
@@ -47,7 +51,6 @@ public class NotificationController {
                 String activity = rs.getString("activity");
                 String date = rs.getString("slot_date");
 
-                // Safely read the time and format it in Java instead of SQL
                 String rawTime = rs.getString("safe_time");
                 LocalTime parsedTime = parseDatabaseTime(rawTime);
                 String time = parsedTime.format(DateTimeFormatter.ofPattern("h:mm a"));
@@ -57,7 +60,7 @@ public class NotificationController {
                 addNotificationItem("📅", message, timestamp);
             }
             if (!found) {
-                addNotificationItem("👋", "Welcome to GymQuest! Start your journey by booking a session.", "Just now");
+                addNotificationItem("👋", "Welcome to GymQuest! Start your journey by booking a session.", getRealTimeNow());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -66,7 +69,7 @@ public class NotificationController {
 
     @FXML private void handleMarkAllAsRead() {
         notificationList.getChildren().clear();
-        addNotificationItem("✅", "You're all caught up! No new notifications.", "Just now");
+        addNotificationItem("✅", "You're all caught up! No new notifications.", getRealTimeNow());
         if (DashboardController.instance != null) DashboardController.instance.resetNotificationBell();
     }
 
